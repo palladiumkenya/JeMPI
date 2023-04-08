@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.AsyncSourceRecord;
 import org.jembi.jempi.shared.models.BatchMetaData;
 import org.jembi.jempi.shared.models.CustomSourceRecord;
 import org.jembi.jempi.shared.models.GlobalConstants;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -24,8 +26,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public final class CustomMain {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMain.class.getName());
-   private MyKafkaProducer<String, CustomSourceRecord> sourceRecordProducer;
-   private MyKafkaProducer<String, BatchMetaData> metaDataProducer;
+   private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
 
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
@@ -38,42 +39,38 @@ public final class CustomMain {
    }
 
    private void sendToKafka(
-         final CustomSourceRecord.RecordType recordType,
-         final String fileName) throws InterruptedException,
-                                 ExecutionException {
+         final String key,
+         final AsyncSourceRecord.RecordType recordType,
+         final BatchMetaData batchMetaData)
+         throws InterruptedException, ExecutionException {
       try {
-         final String userName = System.getProperty("user.name");
-         final Boolean delayLinker = false;
-         final String tag = recordType == CustomSourceRecord.RecordType.BATCH_START
-               ? "START"
-               : "END";
-         final BatchMetaData metaData = new BatchMetaData(BatchMetaData.FileType.CSV,
-                                                          LocalDateTime.now().toString(),
-                                                          fileName,
-                                                          userName,
-                                                          delayLinker,
-                                                          tag);
-         LOGGER.debug("{}", metaData);
-         metaDataProducer.produceSync(tag, metaData);
+
+         final AsyncSourceRecord asyncSourceRecord = new AsyncSourceRecord(recordType, batchMetaData, null);
+         LOGGER.debug("{}", asyncSourceRecord);
+         sourceRecordProducer.produceSync(key, asyncSourceRecord);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
 
-
    private void sendToKafka(
+         final String key,
          final String stan,
-         final String[] fields) throws InterruptedException, ExecutionException {
+         final BatchMetaData batchMetaData,
+         final String[] fields)
+         throws InterruptedException, ExecutionException {
       try {
-         final CustomSourceRecord sourceRecord =
-               new CustomSourceRecord(CustomSourceRecord.RecordType.BATCH_RECORD,
-                                      stan,
-                                      fields[0], fields[1], fields[2], fields[3],
-                                      fields[4], fields[5], fields[6], fields[7],
-                                      fields[8], fields[9], fields[10]);
+         final AsyncSourceRecord asyncSourceRecord =
+               new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
+                                     batchMetaData,
+                                     new CustomSourceRecord(
+                                           stan,
+                                           fields[0], fields[1], fields[2], fields[3],
+                                           fields[4], fields[5], fields[6], fields[7],
+                                           fields[8], fields[9], fields[10]));
 
-         LOGGER.debug("{}", sourceRecord);
-         sourceRecordProducer.produceSync(sourceRecord.auxId().substring(0, 13), sourceRecord);
+         LOGGER.debug("{}", asyncSourceRecord);
+         sourceRecordProducer.produceSync(key, asyncSourceRecord);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -87,6 +84,14 @@ public final class CustomMain {
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
 
+         final var uuid = UUID.randomUUID().toString();
+         final BatchMetaData batchMetaData = new BatchMetaData(BatchMetaData.FileType.CSV,
+                                                               LocalDateTime.now().toString(),
+                                                               fileName,
+                                                               null,
+                                                               null,
+                                                               null);
+
          final var csvParser = CSVFormat
                .DEFAULT
                .builder()
@@ -98,13 +103,11 @@ public final class CustomMain {
                .parse(reader);
 
          int index = 0;
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_START, fileName);
+         sendToKafka(uuid, AsyncSourceRecord.RecordType.BATCH_START, batchMetaData);
          for (CSVRecord csvRecord : csvParser) {
-            index += 1;
-            final var stan = String.format("%s:%07d", stanDate, index);
-            sendToKafka(stan, csvRecord.toList().toArray(new String[0]));
+            sendToKafka(uuid, String.format("%s:%07d", stanDate, ++index), batchMetaData, csvRecord.toList().toArray(new String[0]));
          }
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_END, fileName);
+         sendToKafka(uuid, AsyncSourceRecord.RecordType.BATCH_END, batchMetaData);
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -134,7 +137,7 @@ public final class CustomMain {
       return new StringSerializer();
    }
 
-   private Serializer<CustomSourceRecord> valueSerializer() {
+   private Serializer<AsyncSourceRecord> valueSerializer() {
       return new JsonPojoSerializer<>();
    }
 
