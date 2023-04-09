@@ -9,8 +9,6 @@ public record CustomDemographicData(
       String familyName,
       String gender,
       String dob,
-      String city,
-      String phoneNumber,
       String nationalId) {
 
 }

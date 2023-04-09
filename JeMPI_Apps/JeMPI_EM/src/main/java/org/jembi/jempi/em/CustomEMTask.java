@@ -140,15 +140,11 @@ class CustomEMTask {
                      k += (patient.col2Phonetic() == null || !patient.col2Phonetic().equals(p.col2Phonetic()))
                            ? 0
                            : 1;
-                     k += (patient.cityPhonetic() == null || !patient.cityPhonetic().equals(p.cityPhonetic()))
-                           ? 0
-                           : 1;
                      if (k >= 1) {
                         final String[] left = {patient.col1(), patient.col2(),
-                                               patient.genderAtBirth(), patient.dateOfBirth(), patient.city(),
-                                               patient.phoneNumber(), patient.nationalID()};
-                        final String[] right = {p.col1(), p.col2(), p.genderAtBirth(),
-                                                p.dateOfBirth(), p.city(), p.phoneNumber(), p.nationalID()};
+                                               patient.genderAtBirth(), patient.dateOfBirth(), patient.nationalID()};
+                        final String[] right = {p.col1(), p.col2(),
+                                                p.genderAtBirth(), p.dateOfBirth(), p.nationalID()};
                         gamma.add(setRowLevels(rowNumber[0]++, jaroWinklerSimilarity, left, right));
                      }
                   });

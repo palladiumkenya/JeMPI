@@ -15,8 +15,6 @@ record CustomDgraphPatientRecord(
       @JsonProperty("PatientRecord.family_name") String familyName,
       @JsonProperty("PatientRecord.gender") String gender,
       @JsonProperty("PatientRecord.dob") String dob,
-      @JsonProperty("PatientRecord.city") String city,
-      @JsonProperty("PatientRecord.phone_number") String phoneNumber,
       @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
    CustomDgraphPatientRecord(
@@ -29,8 +27,6 @@ record CustomDgraphPatientRecord(
            patientRecord.demographicData().familyName(),
            patientRecord.demographicData().gender(),
            patientRecord.demographicData().dob(),
-           patientRecord.demographicData().city(),
-           patientRecord.demographicData().phoneNumber(),
            patientRecord.demographicData().nationalId(),
            score);
    }
@@ -45,8 +41,6 @@ record CustomDgraphPatientRecord(
                                                          this.familyName(),
                                                          this.gender(),
                                                          this.dob(),
-                                                         this.city(),
-                                                         this.phoneNumber(),
                                                          this.nationalId()));
    }
 

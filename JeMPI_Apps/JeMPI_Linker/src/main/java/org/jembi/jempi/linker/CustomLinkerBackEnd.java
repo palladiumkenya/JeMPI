@@ -35,14 +35,6 @@ public final class CustomLinkerBackEnd {
             ? 1
             : 0;
       k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "city", demographicData.city(), CustomDemographicData::city)
-            ? 1
-            : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "phoneNumber", demographicData.phoneNumber(), CustomDemographicData::phoneNumber)
-            ? 1
-            : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "nationalId", demographicData.nationalId(), CustomDemographicData::nationalId)
             ? 1
             : 0;

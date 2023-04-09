@@ -11,11 +11,6 @@ public record CustomSourceRecord(
       String familyName,
       String gender,
       String dob,
-      String city,
-      String phoneNumber,
-      String nationalID,
-      String dummy1,
-      String dummy2,
-      String dummy3) {
+      String nationalID) {
 }
 

@@ -9,9 +9,6 @@ record CustomEMPatient(
       String col2Phonetic,
       String genderAtBirth,
       String dateOfBirth,
-      String city,
-      String cityPhonetic,
-      String phoneNumber,
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
@@ -19,8 +16,6 @@ record CustomEMPatient(
            patient.familyName(), CustomEMTask.getPhonetic(patient.familyName()),
            patient.gender(),
            patient.dob(),
-           patient.city(), CustomEMTask.getPhonetic(patient.city()),
-           patient.phoneNumber(),
            patient.nationalId());
    }
 }

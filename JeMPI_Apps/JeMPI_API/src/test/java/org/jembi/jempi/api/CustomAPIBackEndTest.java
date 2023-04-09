@@ -50,8 +50,6 @@ class CustomAPIBackEndTest {
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "New York",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -71,8 +69,6 @@ class CustomAPIBackEndTest {
                         "Smith",
                         "Female",
                         "1985-05-10",
-                        "Los Angeles",
-                        "555-5678",
                         "987-65-4321")
             ));
 
@@ -92,8 +88,6 @@ class CustomAPIBackEndTest {
                         "Johnson",
                         "Male",
                         "1975-12-18",
-                        "Chicago",
-                        "555-9012",
                         "456-78-9012")
             ));
 
@@ -149,8 +143,6 @@ class CustomAPIBackEndTest {
                   "Doe", // familyName
                   "Male", // gender
                   "1990-01-01", // dob
-                  "New York", // city
-                  "555-1234", // phoneNumber
                   "123-45-6789")); // nationalId
 
       when(libMPI.findPatientRecord("1234")).thenReturn(patientRecord);
@@ -216,8 +208,6 @@ class CustomAPIBackEndTest {
                   "Johnson",
                   "Male",
                   "1975-12-18",
-                  "Chicago",
-                  "555-9012",
                   "456-78-9012")
       );
 
@@ -278,8 +268,6 @@ class CustomAPIBackEndTest {
                         "Johnson",
                         "Male",
                         "1975-12-18",
-                        "Chicago",
-                        "555-9012",
                         "456-78-9012")
             ));
       List<PatientRecordWithScore> patientRecordWithScoreList = List.of(
@@ -314,8 +302,6 @@ class CustomAPIBackEndTest {
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -329,8 +315,6 @@ class CustomAPIBackEndTest {
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "Cape Town",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -375,8 +359,6 @@ class CustomAPIBackEndTest {
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "Cape Town",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -416,8 +398,6 @@ class CustomAPIBackEndTest {
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -454,8 +434,6 @@ class CustomAPIBackEndTest {
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -487,8 +465,6 @@ class CustomAPIBackEndTest {
                   "Johnson",
                   "Male",
                   "1975-12-18",
-                  "Chicago",
-                  "555-9012",
                   "456-78-9012")
       );
       ExpandedPatientRecord expandedPatientRecord = new ExpandedPatientRecord(patientRecord, null);

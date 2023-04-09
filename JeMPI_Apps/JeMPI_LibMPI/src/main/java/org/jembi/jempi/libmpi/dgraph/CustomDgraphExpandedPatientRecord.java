@@ -17,8 +17,6 @@ record CustomDgraphExpandedPatientRecord(
       @JsonProperty("PatientRecord.family_name") String familyName,
       @JsonProperty("PatientRecord.gender") String gender,
       @JsonProperty("PatientRecord.dob") String dob,
-      @JsonProperty("PatientRecord.city") String city,
-      @JsonProperty("PatientRecord.phone_number") String phoneNumber,
       @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
@@ -31,8 +29,6 @@ record CustomDgraphExpandedPatientRecord(
                                      this.familyName(),
                                      this.gender(),
                                      this.dob(),
-                                     this.city(),
-                                     this.phoneNumber(),
                                      this.nationalId()));
    }
 

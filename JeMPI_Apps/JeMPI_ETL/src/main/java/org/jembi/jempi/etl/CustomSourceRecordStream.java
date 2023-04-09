@@ -79,8 +79,6 @@ public final class CustomSourceRecordStream {
                                                                     rec.customSourceRecord().familyName(),
                                                                     rec.customSourceRecord().gender(),
                                                                     rec.customSourceRecord().dob(),
-                                                                    rec.customSourceRecord().city(),
-                                                                    rec.customSourceRecord().phoneNumber(),
                                                                     rec.customSourceRecord().nationalID())));
                   LOGGER.info("{} : {}", k, batchPatient);
                   return KeyValue.pair(k, batchPatient);

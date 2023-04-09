@@ -13,20 +13,23 @@ final class CustomDgraphQueries {
 
    static final String QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES =
          """
-         query query_deterministic_golden_record_candidates($given_name: string, $family_name: string, $phone_number: string, $national_id: string) {
+         query query_deterministic_golden_record_candidates($given_name: string, $family_name: string, $gender: string, $dob: string, $national_id: string) {
             var(func: eq(GoldenRecord.given_name, $given_name)) {
                A as uid
             }
             var(func: eq(GoldenRecord.family_name, $family_name)) {
                B as uid
             }
-            var(func: eq(GoldenRecord.phone_number, $phone_number)) {
+            var(func: eq(GoldenRecord.gender, $gender)) {
                C as uid
             }
-            var(func: eq(GoldenRecord.national_id, $national_id)) {
+            var(func: eq(GoldenRecord.dob, $dob)) {
                D as uid
             }
-            all(func: uid(A,B,C,D)) @filter (uid(D) OR (uid(A) AND uid(B) AND uid(C))) {
+            var(func: eq(GoldenRecord.national_id, $national_id)) {
+               E as uid
+            }
+            all(func: uid(D,B,E,A,C)) @filter (uid(E) OR (uid(A) AND uid(B) AND uid(C) AND uid(D))) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -36,8 +39,6 @@ final class CustomDgraphQueries {
                GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
                GoldenRecord.national_id
             }
          }
@@ -45,14 +46,14 @@ final class CustomDgraphQueries {
 
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE =
          """
-         query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $city: string) {
+         query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $dob: string) {
             var(func: match(GoldenRecord.given_name, $given_name, 3)) {
                A as uid
             }
             var(func: match(GoldenRecord.family_name, $family_name, 3)) {
                B as uid
             }
-            var(func: match(GoldenRecord.city, $city, 3)) {
+            var(func: match(GoldenRecord.dob, $dob, 3)) {
                C as uid
             }
             all(func: uid(A,B,C)) @filter ((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) {
@@ -65,28 +66,6 @@ final class CustomDgraphQueries {
                GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
-            }
-         }
-         """;
-
-   static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER =
-         """
-         query query_match_golden_record_candidates_by_phone_number($phone_number: string) {
-            all(func: match(GoldenRecord.phone_number, $phone_number, 3)) {
-               uid
-               GoldenRecord.source_id {
-                  uid
-               }
-               GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
                GoldenRecord.national_id
             }
          }
@@ -105,8 +84,6 @@ final class CustomDgraphQueries {
                GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
                GoldenRecord.national_id
             }
          }
@@ -116,13 +93,15 @@ final class CustomDgraphQueries {
    static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
-      final var phoneNumber = demographicData.phoneNumber();
+      final var gender = demographicData.gender();
+      final var dob = demographicData.dob();
       final var nationalId = demographicData.nationalId();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
-      final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
+      final var genderIsBlank = StringUtils.isBlank(gender);
+      final var dobIsBlank = StringUtils.isBlank(dob);
       final var nationalIdIsBlank = StringUtils.isBlank(nationalId);
-      if ((nationalIdIsBlank && (givenNameIsBlank || familyNameIsBlank || phoneNumberIsBlank))) {
+      if ((nationalIdIsBlank && (givenNameIsBlank || familyNameIsBlank || genderIsBlank || dobIsBlank))) {
          return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
@@ -133,9 +112,13 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(familyName)
                                    ? familyName
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$phone_number",
-                             StringUtils.isNotBlank(phoneNumber)
-                                   ? phoneNumber
+                             "$gender",
+                             StringUtils.isNotBlank(gender)
+                                   ? gender
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
+                             "$dob",
+                             StringUtils.isNotBlank(dob)
+                                   ? dob
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$national_id",
                              StringUtils.isNotBlank(nationalId)
@@ -147,11 +130,11 @@ final class CustomDgraphQueries {
    static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
-      final var city = demographicData.city();
+      final var dob = demographicData.dob();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
-      final var cityIsBlank = StringUtils.isBlank(city);
-      if (((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || cityIsBlank) && (familyNameIsBlank || cityIsBlank))) {
+      final var dobIsBlank = StringUtils.isBlank(dob);
+      if (((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || dobIsBlank) && (familyNameIsBlank || dobIsBlank))) {
          return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
@@ -162,19 +145,11 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(familyName)
                                    ? familyName
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$city",
-                             StringUtils.isNotBlank(city)
-                                   ? city
+                             "$dob",
+                             StringUtils.isNotBlank(dob)
+                                   ? dob
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
-   }
-
-   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
-      if (StringUtils.isBlank(demographicData.phoneNumber())) {
-         return new DgraphGoldenRecords(List.of());
-      }
-      final Map<String, String> map = Map.of("$phone_number", demographicData.phoneNumber());
-      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
    static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
@@ -217,7 +192,6 @@ final class CustomDgraphQueries {
       }
       var result = new LinkedList<CustomDgraphGoldenRecord>();
       updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(patient));
       updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
       return result;
    }

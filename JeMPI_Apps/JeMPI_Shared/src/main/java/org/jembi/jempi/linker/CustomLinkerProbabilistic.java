@@ -92,8 +92,6 @@ public final class CustomLinkerProbabilistic {
          getProbability(currentFields.familyName),
          getProbability(currentFields.gender),
          getProbability(currentFields.dob),
-         getProbability(currentFields.city),
-         getProbability(currentFields.phoneNumber),
          getProbability(currentFields.nationalId));
    }
 
@@ -102,8 +100,6 @@ public final class CustomLinkerProbabilistic {
          Field familyName,
          Field gender,
          Field dob,
-         Field city,
-         Field phoneNumber,
          Field nationalId) {
    }
 
@@ -112,8 +108,6 @@ public final class CustomLinkerProbabilistic {
                  new Field(0.850909F, 0.02975F),
                  new Field(0.786614F, 0.443018F),
                  new Field(0.894637F, 0.012448F),
-                 new Field(0.872691F, 0.132717F),
-                 new Field(0.920281F, 0.322629F),
                  new Field(0.832336F, 1.33E-4F));
 
    public static float probabilisticScore(
@@ -130,10 +124,6 @@ public final class CustomLinkerProbabilistic {
       updateMetricsForStringField(metrics,
                                   goldenRecord.dob(), patient.dob(), currentFields.dob);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.city(), patient.city(), currentFields.city);
-      updateMetricsForStringField(metrics,
-                                  goldenRecord.phoneNumber(), patient.phoneNumber(), currentFields.phoneNumber);
-      updateMetricsForStringField(metrics,
                                   goldenRecord.nationalId(), patient.nationalId(), currentFields.nationalId);
       return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
    }
@@ -143,16 +133,12 @@ public final class CustomLinkerProbabilistic {
           && mu.familyName().m() > mu.familyName().u()
           && mu.gender().m() > mu.gender().u()
           && mu.dob().m() > mu.dob().u()
-          && mu.city().m() > mu.city().u()
-          && mu.phoneNumber().m() > mu.phoneNumber().u()
           && mu.nationalId().m() > mu.nationalId().u()) {
          updatedFields = new Fields(
             new Field(mu.givenName().m(), mu.givenName().u()),
             new Field(mu.familyName().m(), mu.familyName().u()),
             new Field(mu.gender().m(), mu.gender().u()),
             new Field(mu.dob().m(), mu.dob().u()),
-            new Field(mu.city().m(), mu.city().u()),
-            new Field(mu.phoneNumber().m(), mu.phoneNumber().u()),
             new Field(mu.nationalId().m(), mu.nationalId().u()));
       }
    }

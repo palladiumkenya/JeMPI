@@ -31,7 +31,7 @@ public final class CustomMainStats {
    // rec-00000998-aaa-0
    // 01234567890123456
    // rec-0000000001-00
-   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 12;
+   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
 
    private final OkHttpClient client = new OkHttpClient();
    private final Map<String, List<GoldenRecordMembers>> dataSet = new HashMap<>();

@@ -17,8 +17,6 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty("GoldenRecord.family_name") String familyName,
       @JsonProperty("GoldenRecord.gender") String gender,
       @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.city") String city,
-      @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId,
       @JsonProperty("~GoldenRecord.patients|score") Float score) {
 
@@ -32,8 +30,6 @@ record CustomDgraphReverseGoldenRecord(
                                                         this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
-                                                        this.city(),
-                                                        this.phoneNumber(),
                                                         this.nationalId()));
    }
 
