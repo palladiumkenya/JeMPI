@@ -52,7 +52,6 @@ public final class CustomMainStats {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         LOGGER.debug("{}", json);
          return OBJECT_MAPPER.readValue(json, Count.class).count;
       }
    }

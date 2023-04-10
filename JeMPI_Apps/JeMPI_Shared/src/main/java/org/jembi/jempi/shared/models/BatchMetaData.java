@@ -9,10 +9,12 @@ public record BatchMetaData(
       String fileName,
       String userName,
       Boolean delayLinker,
-      String tag) {
+      String tag,
+      Float threshold) {
 
    public BatchMetaData(final FileType type) {
       this(type,
+           null,
            null,
            null,
            null,

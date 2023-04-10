@@ -306,6 +306,7 @@ services:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
+    - backend-postgresql
     volumes:
     - type: bind
       source: $DATA_DIR_ASYNC_RECEIVER/logs

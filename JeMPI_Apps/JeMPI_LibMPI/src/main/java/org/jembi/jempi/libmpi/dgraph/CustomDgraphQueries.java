@@ -35,6 +35,7 @@ final class CustomDgraphQueries {
                   uid
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -62,6 +63,7 @@ final class CustomDgraphQueries {
                   uid
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -80,6 +82,7 @@ final class CustomDgraphQueries {
                   uid
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender

@@ -11,6 +11,7 @@ public final class CustomLinkerBackEnd {
    }
 
    static void updateGoldenRecordFields(
+         final BackEnd backEnd,
          final LibMPI libMPI,
          final String goldenId) {
       final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
@@ -18,29 +19,29 @@ public final class CustomLinkerBackEnd {
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "givenName", demographicData.givenName(), CustomDemographicData::givenName)
             ? 1
             : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "familyName", demographicData.familyName(), CustomDemographicData::familyName)
             ? 1
             : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "gender", demographicData.gender(), CustomDemographicData::gender)
             ? 1
             : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "dob", demographicData.dob(), CustomDemographicData::dob)
             ? 1
             : 0;
-      k += BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
                                            "nationalId", demographicData.nationalId(), CustomDemographicData::nationalId)
             ? 1
             : 0;
 
       if (k > 0) {
-        BackEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
+        backEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
       }
 
    }

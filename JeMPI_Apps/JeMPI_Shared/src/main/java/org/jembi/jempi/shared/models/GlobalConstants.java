@@ -8,6 +8,7 @@ public final class GlobalConstants {
    public static final String TOPIC_PATIENT_LINKER = "JeMPI-patient-linker";
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
+   public static final String TOPIC_BACK_PATCH_DWH = "JeMPI-back-patch-dwh";
 
    public static final String SEGMENT_GET_FIELDS_CONFIG = "config";
    public static final String SEGMENT_GET_LINKED_RECORDS = "LinkedRecords";

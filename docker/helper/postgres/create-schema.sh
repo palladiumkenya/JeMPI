@@ -10,6 +10,5 @@ pushd .
   source ./0-conf.env
 
   docker exec $(docker ps -q -f name=${STACK_NAME}_postgres) \
-  psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} \
-   -a -f /conf/config.sql
+  psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -a -f /conf/config.sql
 popd

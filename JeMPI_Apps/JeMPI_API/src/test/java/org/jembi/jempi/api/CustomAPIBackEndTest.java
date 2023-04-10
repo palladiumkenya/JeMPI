@@ -46,6 +46,7 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "John",
                         "Doe",
                         "Male",
@@ -65,6 +66,7 @@ class CustomAPIBackEndTest {
                   new SourceId("d0d38f0e", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId2",
+                        "auxDwlId",
                         "Jane",
                         "Smith",
                         "Female",
@@ -84,6 +86,7 @@ class CustomAPIBackEndTest {
                   new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId3",
+                        "auxDwhId",
                         "Robert",
                         "Johnson",
                         "Male",
@@ -139,6 +142,7 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"), // sourceId
             new CustomDemographicData(
                   "auxId", // auxId
+                  "auxDwhId",
                   "John", // givenName
                   "Doe", // familyName
                   "Male", // gender
@@ -204,6 +208,7 @@ class CustomAPIBackEndTest {
             new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId3",
+                  "auxDwhId",
                   "Robert",
                   "Johnson",
                   "Male",
@@ -264,6 +269,7 @@ class CustomAPIBackEndTest {
                   new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId3",
+                        "auxDwhId",
                         "Robert",
                         "Johnson",
                         "Male",
@@ -298,6 +304,7 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
@@ -311,6 +318,7 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "Jonathan",
                         "Doe",
                         "Male",
@@ -355,6 +363,7 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "Jonathan",
                         "Doe",
                         "Male",
@@ -394,6 +403,7 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
@@ -430,6 +440,7 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
@@ -461,6 +472,7 @@ class CustomAPIBackEndTest {
             new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId3",
+                  "auxDwhId",
                   "Robert",
                   "Johnson",
                   "Male",

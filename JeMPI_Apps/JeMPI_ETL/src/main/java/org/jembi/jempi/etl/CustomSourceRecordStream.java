@@ -23,18 +23,13 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
-   private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
-   private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
    private KafkaStreams patientKafkaStreams = null;
 
@@ -49,45 +44,42 @@ public final class CustomSourceRecordStream {
       final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
       final Serde<BatchPatientRecord> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
-      patientKStream
-            .map((key, rec) -> {
-               LOGGER.debug("{} {}", key, rec);
-               var batchType = switch (rec.recordType().type) {
-                  case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
-                  case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
-                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
-               };
-               if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
-                  var k = rec.customSourceRecord().familyName();
-                  if (StringUtils.isBlank(k)) {
-                     k = "anon";
-                  }
-                  k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
-                  var batchPatient = new BatchPatientRecord(
-                        batchType,
-                        rec.customSourceRecord().stan(),
-                        new PatientRecord(null,
-                                          new SourceId(null,
-                                                       FACILITY.get(random.nextInt(FACILITY.size())),
-                                                       StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
-                                                             ? rec.customSourceRecord().nationalID()
-                                                             : "ANON"),
-                                          new CustomDemographicData(rec.customSourceRecord().auxId(),
-                                                                    rec.customSourceRecord().givenName(),
-                                                                    rec.customSourceRecord().familyName(),
-                                                                    rec.customSourceRecord().gender(),
-                                                                    rec.customSourceRecord().dob(),
-                                                                    rec.customSourceRecord().nationalID())));
-                  LOGGER.info("{} : {}", k, batchPatient);
-                  return KeyValue.pair(k, batchPatient);
-               } else {
-                  return KeyValue.pair("SENTINAL", new BatchPatientRecord(batchType, null, null));
-               }
-            })
-            .filter((key, value) -> (value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT))
-            .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
+      final KStream<String, AsyncSourceRecord> patientKStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
+      patientKStream.map((key, rec) -> {
+                       LOGGER.debug("{} {}", key, rec);
+                       var batchType = switch (rec.recordType().type) {
+                          case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
+                          case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
+                          default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
+                       };
+                       if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
+                          var k = rec.customSourceRecord().familyName();
+                          if (StringUtils.isBlank(k)) {
+                             k = "anon";
+                          }
+                          k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
+                          var batchPatient = new BatchPatientRecord(batchType,
+                                                                    rec.batchMetaData(),
+                                                                    rec.customSourceRecord().stan(),
+                                                                    new PatientRecord(null,
+                                                                                      rec.customSourceRecord().sourceId(),
+                                                                                      new CustomDemographicData(
+                                                                                            rec.customSourceRecord().auxId(),
+                                                                                            rec.customSourceRecord().auxDwhId(),
+                                                                                            rec.customSourceRecord().givenName(),
+                                                                                            rec.customSourceRecord().familyName(),
+                                                                                            rec.customSourceRecord().gender(),
+                                                                                            rec.customSourceRecord().dob(),
+                                                                                            rec.customSourceRecord().nationalID())));
+                          LOGGER.info("{} : {}", k, batchPatient);
+                          return KeyValue.pair(k, batchPatient);
+                       } else {
+                          return KeyValue.pair("SENTINEL", new BatchPatientRecord(batchType, rec.batchMetaData(), null, null));
+                       }
+                    })
+                    .filter((key, value) -> (value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT))
+                    .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
       patientKafkaStreams.start();
@@ -118,10 +110,7 @@ public final class CustomSourceRecordStream {
    }
 
    public enum OperationType {
-      OPERATION_TYPE_METAPHONE,
-      OPERATION_TYPE_DOUBLE_METAPHONE,
-      OPERATION_TYPE_SOUNDEX,
-      OPERATION_TYPE_REFINED_SOUNDEX
+      OPERATION_TYPE_METAPHONE, OPERATION_TYPE_DOUBLE_METAPHONE, OPERATION_TYPE_SOUNDEX, OPERATION_TYPE_REFINED_SOUNDEX
    }
 
 }

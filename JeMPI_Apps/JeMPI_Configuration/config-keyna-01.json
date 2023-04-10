@@ -14,6 +14,20 @@
       "accessLevel": []
     },
     {
+      "fieldName": "aux_dwh_id",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "fieldLabel": "AUX DWH ID",
+      "groups": ["identifiers"],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/search/custom"
+      ],
+      "accessLevel": []
+    },
+
+    {
       "fieldName": "given_name",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",

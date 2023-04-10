@@ -17,6 +17,7 @@ final class CustomDgraphMutations {
       return String.format("""
                            _:%s  <PatientRecord.source_id>                <%s>        .
                            _:%s  <PatientRecord.aux_id>                   %s          .
+                           _:%s  <PatientRecord.aux_dwh_id>               %s          .
                            _:%s  <PatientRecord.given_name>               %s          .
                            _:%s  <PatientRecord.family_name>              %s          .
                            _:%s  <PatientRecord.gender>                   %s          .
@@ -26,6 +27,7 @@ final class CustomDgraphMutations {
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(demographicData.auxId()),
+                           uuid, AppUtils.quotedValue(demographicData.auxDwhId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName()),
                            uuid, AppUtils.quotedValue(demographicData.familyName()),
                            uuid, AppUtils.quotedValue(demographicData.gender()),
@@ -43,6 +45,7 @@ final class CustomDgraphMutations {
       return String.format("""
                            _:%s  <GoldenRecord.source_id>                     <%s>             .
                            _:%s  <GoldenRecord.aux_id>                        %s               .
+                           _:%s  <GoldenRecord.aux_dwh_id>                    %s               .
                            _:%s  <GoldenRecord.given_name>                    %s               .
                            _:%s  <GoldenRecord.family_name>                   %s               .
                            _:%s  <GoldenRecord.gender>                        %s               .
@@ -53,6 +56,7 @@ final class CustomDgraphMutations {
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(demographicData.auxId()),
+                           uuid, AppUtils.quotedValue(demographicData.auxDwhId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName()),
                            uuid, AppUtils.quotedValue(demographicData.familyName()),
                            uuid, AppUtils.quotedValue(demographicData.gender()),

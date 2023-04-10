@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record CustomSourceRecord(
       // System Trace Audit Number
       String stan,
+      SourceId sourceId,
       String auxId,
+      String auxDwhId,
       String givenName,
       String familyName,
       String gender,

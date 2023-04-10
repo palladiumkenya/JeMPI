@@ -30,8 +30,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
-   private static LibMPI libMPI = null;
-   private static MyKafkaProducer<String, Notification> topicNotifications;
+   private LibMPI libMPI = null;
+   private MyKafkaProducer<String, Notification> topicNotifications;
+   private MyKafkaProducer<String, BackPatchDWH> topicBackPatchDWH;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -42,6 +43,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,
                                                  new StringSerializer(), new JsonPojoSerializer<>(),
                                                  AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+      topicBackPatchDWH = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                GlobalConstants.TOPIC_BACK_PATCH_DWH,
+                                                new StringSerializer(), new JsonPojoSerializer<>(),
+                                                AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -49,19 +54,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final LibMPI lib) {
       super(context);
       libMPI = lib;
-   }
-
-   private static void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
-      libMPI = new LibMPI(host, port);
-      libMPI.startTransaction();
-      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-         LOGGER.error("Create Schema Error");
-      }
-      libMPI.closeTransaction();
    }
 
    public static Behavior<Event> create() {
@@ -93,7 +85,52 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
              || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
-   static boolean updateGoldenRecordField(
+   private static boolean isWithinThreshold(final float score) {
+      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      return score >= minThreshold && score <= maxThreshold;
+   }
+
+   public ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
+
+      try {
+         List<GoldenRecord> candidateGoldenRecords =
+               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+         candidateGoldenRecords.parallelStream()
+                               .unordered()
+                               .map(candidate -> new WorkCandidate(candidate,
+                                                                   calcNormalizedScore(candidate.demographicData(),
+                                                                                       patientRecord.demographicData())))
+                               .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                               .filter(candidate ->
+                                             isWithinThreshold(candidate.score)
+                                             && notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord()
+                                                                                                               .goldenId(),
+                                                                                                      candidate.score())))
+                               .collect(Collectors.toList());
+
+         return notificationCandidates;
+      } catch (Exception e) {
+         LOGGER.error(e.getMessage());
+         return new ArrayList<>();
+      }
+   }
+
+   private void openMPI() {
+      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
+                                    AppConfig.DGRAPH_ALPHA3_HOST};
+      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
+                                 AppConfig.DGRAPH_ALPHA3_PORT};
+      libMPI = new LibMPI(host, port);
+      libMPI.startTransaction();
+      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
+         LOGGER.error("Create Schema Error");
+      }
+      libMPI.closeTransaction();
+   }
+
+   boolean updateGoldenRecordField(
          final ExpandedGoldenRecord expandedGoldenRecord,
          final String fieldName,
          final String goldenRecordFieldValue,
@@ -127,7 +164,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return changed;
    }
 
-   static void updateMatchingPatientRecordScoreForGoldenRecord(
+   void updateMatchingPatientRecordScoreForGoldenRecord(
          final ExpandedGoldenRecord expandedGoldenRecord) {
 
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
@@ -159,7 +196,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       });
    }
 
-   private static void sendNotification(
+   private void sendNotification(
          final Notification.NotificationType type,
          final String dID,
          final String names,
@@ -172,38 +209,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
 
-   }
-
-   public static ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
-
-      try {
-         List<GoldenRecord> candidateGoldenRecords =
-               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
-         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
-         candidateGoldenRecords.parallelStream()
-                               .unordered()
-                               .map(candidate -> new WorkCandidate(candidate,
-                                                                   calcNormalizedScore(candidate.demographicData(),
-                                                                                       patientRecord.demographicData())))
-                               .sorted(Comparator.comparing(WorkCandidate::score).reversed())
-                               .filter(candidate ->
-                                             isWithinThreshold(candidate.score)
-                                             && notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord()
-                                                                                                               .goldenId(),
-                                                                                                      candidate.score())))
-                               .collect(Collectors.toList());
-
-         return notificationCandidates;
-      } catch (Exception e) {
-         LOGGER.error(e.getMessage());
-         return new ArrayList<>();
-      }
-   }
-
-   private static boolean isWithinThreshold(final float score) {
-      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
-      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
-      return score >= minThreshold && score <= maxThreshold;
    }
 
    @Override
@@ -260,7 +265,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(
                   patientRecord,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
-            CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, gid);
+            CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
          }
       } finally {
          libMPI.closeTransaction();
@@ -335,7 +340,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
                linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(patientRecord, linkToGoldenId);
-               CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenId());
+               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
@@ -406,8 +411,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             req.batchPatientRecord.stan(),
             req.batchPatientRecord.patientRecord(),
             null,
-            AppConfig.BACK_END_MATCH_THRESHOLD);
-      // TODO send link info to kafka notification topic
+            ((req.batchPatientRecord.batchMetaData().threshold() == null)
+                   ? AppConfig.BACK_END_MATCH_THRESHOLD
+                   : req.batchPatientRecord.batchMetaData().threshold()));
+
+      final var backPatchDWL = new BackPatchDWH(req.batchPatientRecord.patientRecord().demographicData().auxDwhId(),
+                                                listLinkInfo.getLeft().goldenUID(),
+                                                listLinkInfo.getLeft().patientUID());
+      try {
+         topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);
+      } catch (ExecutionException | InterruptedException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+
       req.replyTo.tell(new EventLinkPatientAsyncRsp(listLinkInfo.getLeft()));
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(30));

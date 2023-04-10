@@ -13,6 +13,7 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty("GoldenRecord.aux_id") String auxId,
+      @JsonProperty("GoldenRecord.aux_dwh_id") String auxDwhId,
       @JsonProperty("GoldenRecord.given_name") String givenName,
       @JsonProperty("GoldenRecord.family_name") String familyName,
       @JsonProperty("GoldenRecord.gender") String gender,
@@ -27,6 +28,7 @@ record CustomDgraphExpandedGoldenRecord(
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
                               new CustomDemographicData(this.auxId(),
+                                                        this.auxDwhId(),
                                                         this.givenName(),
                                                         this.familyName(),
                                                         this.gender(),

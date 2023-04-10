@@ -3,6 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 public final class CustomDgraphConstants {
 
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_DWH_ID = "GoldenRecord.aux_dwh_id";
    public static final String PREDICATE_GOLDEN_RECORD_GIVEN_NAME = "GoldenRecord.given_name";
    public static final String PREDICATE_GOLDEN_RECORD_FAMILY_NAME = "GoldenRecord.family_name";
    public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
@@ -10,6 +11,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
    public static final String PREDICATE_PATIENT_RECORDAUX_ID = "PatientRecord.aux_id";
+   public static final String PREDICATE_PATIENT_RECORDAUX_DWH_ID = "PatientRecord.aux_dwh_id";
    public static final String PREDICATE_PATIENT_RECORDGIVEN_NAME = "PatientRecord.given_name";
    public static final String PREDICATE_PATIENT_RECORDFAMILY_NAME = "PatientRecord.family_name";
    public static final String PREDICATE_PATIENT_RECORDGENDER = "PatientRecord.gender";
@@ -25,6 +27,7 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          GoldenRecord.aux_id
+         GoldenRecord.aux_dwh_id
          GoldenRecord.given_name
          GoldenRecord.family_name
          GoldenRecord.gender
@@ -41,6 +44,7 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          GoldenRecord.aux_id
+         GoldenRecord.aux_dwh_id
          GoldenRecord.given_name
          GoldenRecord.family_name
          GoldenRecord.gender
@@ -54,6 +58,7 @@ public final class CustomDgraphConstants {
                SourceId.patient
             }
             PatientRecord.aux_id
+            PatientRecord.aux_dwh_id
             PatientRecord.given_name
             PatientRecord.family_name
             PatientRecord.gender
@@ -70,6 +75,7 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          PatientRecord.aux_id
+         PatientRecord.aux_dwh_id
          PatientRecord.given_name
          PatientRecord.family_name
          PatientRecord.gender
@@ -85,6 +91,7 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          PatientRecord.aux_id
+         PatientRecord.aux_dwh_id
          PatientRecord.given_name
          PatientRecord.family_name
          PatientRecord.gender
@@ -98,6 +105,7 @@ public final class CustomDgraphConstants {
               SourceId.patient
             }
             GoldenRecord.aux_id
+            GoldenRecord.aux_dwh_id
             GoldenRecord.given_name
             GoldenRecord.family_name
             GoldenRecord.gender
@@ -117,6 +125,7 @@ public final class CustomDgraphConstants {
                  SourceId.patient
                }
                PatientRecord.aux_id
+               PatientRecord.aux_dwh_id
                PatientRecord.given_name
                PatientRecord.family_name
                PatientRecord.gender
@@ -137,6 +146,7 @@ public final class CustomDgraphConstants {
                   SourceId.patient
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -157,6 +167,7 @@ public final class CustomDgraphConstants {
                   SourceId.patient
                }
                PatientRecord.aux_id
+               PatientRecord.aux_dwh_id
                PatientRecord.given_name
                PatientRecord.family_name
                PatientRecord.gender
@@ -170,6 +181,7 @@ public final class CustomDgraphConstants {
                     SourceId.patient
                   }
                   GoldenRecord.aux_id
+                  GoldenRecord.aux_dwh_id
                   GoldenRecord.given_name
                   GoldenRecord.family_name
                   GoldenRecord.gender
@@ -191,6 +203,7 @@ public final class CustomDgraphConstants {
                   SourceId.patient
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -211,6 +224,7 @@ public final class CustomDgraphConstants {
                   SourceId.patient
                }
                GoldenRecord.aux_id
+               GoldenRecord.aux_dwh_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -224,6 +238,7 @@ public final class CustomDgraphConstants {
                     SourceId.patient
                   }
                   PatientRecord.aux_id
+                  PatientRecord.aux_dwh_id
                   PatientRecord.given_name
                   PatientRecord.family_name
                   PatientRecord.gender
@@ -254,6 +269,7 @@ public final class CustomDgraphConstants {
          type GoldenRecord {
             GoldenRecord.source_id:                 [SourceId]
             GoldenRecord.aux_id
+            GoldenRecord.aux_dwh_id
             GoldenRecord.given_name
             GoldenRecord.family_name
             GoldenRecord.gender
@@ -267,6 +283,7 @@ public final class CustomDgraphConstants {
          """
          GoldenRecord.source_id:                [uid]                                        .
          GoldenRecord.aux_id:                   string    @index(exact,trigram)              .
+         GoldenRecord.aux_dwh_id:               string    @index(exact,trigram)              .
          GoldenRecord.given_name:               string    @index(exact,trigram)              .
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .
@@ -281,6 +298,7 @@ public final class CustomDgraphConstants {
          type PatientRecord {
             PatientRecord.source_id:                     SourceId
             PatientRecord.aux_id
+            PatientRecord.aux_dwh_id
             PatientRecord.given_name
             PatientRecord.family_name
             PatientRecord.gender
@@ -293,6 +311,7 @@ public final class CustomDgraphConstants {
          """
          PatientRecord.source_id:                    uid                                          .
          PatientRecord.aux_id:                       string                                       .
+         PatientRecord.aux_dwh_id:                   string                                       .
          PatientRecord.given_name:                   string    @index(exact,trigram)              .
          PatientRecord.family_name:                  string    @index(exact,trigram)              .
          PatientRecord.gender:                       string                                       .

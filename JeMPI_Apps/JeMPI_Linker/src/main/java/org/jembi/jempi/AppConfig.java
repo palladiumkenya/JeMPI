@@ -28,6 +28,7 @@ public final class AppConfig {
    public static final String KAFKA_CLIENT_ID_ENTITIES = CONFIG.getString("kafka.client-id-entities");
    public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("kafka.client-id-mu");
    public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("kafka.client-id-notifications");
+   public static final String KAFKA_CLIENT_ID_BACK_PATCH_DWH = CONFIG.getString("kafka.client-id-back-patch-dwh");
    public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
 

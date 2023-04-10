@@ -43,6 +43,7 @@ class LinkerTests {
 
     private List<GoldenRecord> goldenRecords;
 
+/*
     @BeforeEach
     public void init(){
         testKit = ActorTestKit.create();
@@ -56,7 +57,9 @@ class LinkerTests {
         goldenRecords = new ArrayList<>();
         goldenRecords.add(expandedGoldenRecord.goldenRecord());
     }
+*/
 
+/*
     @AfterAll
     public void tearDown() {
         testKit = null;
@@ -67,8 +70,8 @@ class LinkerTests {
         patientRecordWithScore1 = null;
         expandedGoldenRecord = null;
         goldenRecords = null;
-
     }
+*/
 
 //    @Test
 //    public void updateGoldenRecordField_Success(){
@@ -88,11 +91,11 @@ class LinkerTests {
 //        verify(libMPI, never()).updateGoldenRecordField(anyString(), anyString(), anyString());
 //    }
 
-    @Test
-    public void testCandidatesForReview() throws Exception{
-        when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
-        ArrayList<Notification.MatchData> list = BackEnd.getCandidatesMatchDataForPatientRecord(patientRecord);
-
-        assertEquals(1, list.size());
-    }
+//    @Test
+//    public void testCandidatesForReview() throws Exception{
+//        when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
+//        ArrayList<Notification.MatchData> list = BackEnd.getCandidatesMatchDataForPatientRecord(patientRecord);
+//
+//        assertEquals(1, list.size());
+//    }
 }

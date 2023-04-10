@@ -11,6 +11,7 @@ record CustomDgraphPatientRecord(
       @JsonProperty("uid") String patientId,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
+      @JsonProperty("PatientRecord.aux_dwh_id") String auxDwhId,
       @JsonProperty("PatientRecord.given_name") String givenName,
       @JsonProperty("PatientRecord.family_name") String familyName,
       @JsonProperty("PatientRecord.gender") String gender,
@@ -23,6 +24,7 @@ record CustomDgraphPatientRecord(
       this(patientRecord.patientId(),
            new DgraphSourceId(patientRecord.sourceId()),
            patientRecord.demographicData().auxId(),
+           patientRecord.demographicData().auxDwhId(),
            patientRecord.demographicData().givenName(),
            patientRecord.demographicData().familyName(),
            patientRecord.demographicData().gender(),
@@ -37,6 +39,7 @@ record CustomDgraphPatientRecord(
                                      ? this.sourceId().toSourceId()
                                      : null,
                                new CustomDemographicData(this.auxId(),
+                                                         this.auxDwhId(),
                                                          this.givenName(),
                                                          this.familyName(),
                                                          this.gender(),

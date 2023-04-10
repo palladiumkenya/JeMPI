@@ -77,4 +77,16 @@ VALUES ('New'), ('Seen'), ('Actioned'), ('Accepted'), ('Pending');
 INSERT INTO Notification_Type(Type)
 VALUES ('THRESHOLD'), ('MARGIN'), ('UPDATE');
 
+
+CREATE TABLE IF NOT EXISTS dwh
+(
+     dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+     golden_id     VARCHAR(32),
+     encounter_id  VARCHAR(32),
+     clinical_data VARCHAR(256)
+);
+
+CREATE INDEX IF NOT EXISTS idx_dwh_gid ON dwh(golden_id);
+CREATE INDEX IF NOT EXISTS idx_dwh_eid ON dwh(encounter_id);
+
 \dt;
