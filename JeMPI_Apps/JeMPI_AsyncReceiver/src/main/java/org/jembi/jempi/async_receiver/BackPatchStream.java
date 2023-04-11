@@ -36,7 +36,7 @@ class BackPatchStream {
          final String key,
          final BackPatchDWH rec) {
       LOGGER.debug("{} - {}", key, rec);
-      dwh.backpatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
+      dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
    }
 
    void open() {

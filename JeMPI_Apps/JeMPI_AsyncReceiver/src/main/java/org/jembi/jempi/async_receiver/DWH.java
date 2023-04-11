@@ -42,7 +42,7 @@ final class DWH {
       return false;
    }
 
-   void backpatchKeys(
+   void backPatchKeys(
          final String dwlId,
          final String goldenId,
          final String encounterId) {
