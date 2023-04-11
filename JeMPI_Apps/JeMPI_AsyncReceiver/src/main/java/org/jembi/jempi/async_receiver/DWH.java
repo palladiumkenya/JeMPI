@@ -23,48 +23,71 @@ final class DWH {
    private Connection conn;
 
    DWH() {
+   }
+
+   private boolean open() {
       try {
-         conn = DriverManager.getConnection(URL, USER, null);
-         conn.setAutoCommit(true);
+         if (conn == null || !conn.isValid(0)) {
+            if (conn != null) {
+               conn.close();
+            }
+            conn = DriverManager.getConnection(URL, USER, null);
+            conn.setAutoCommit(true);
+            return conn.isValid(0);
+         }
+         return true;
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
+      return false;
    }
 
-   void updateKeys(
+   void backpatchKeys(
          final String dwlId,
          final String goldenId,
          final String encounterId) {
-      try {
-         try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
-            final PGobject uuid = new PGobject();
-            uuid.setType("uuid");
-            uuid.setValue(dwlId);
-            pStmt.setString(1, goldenId);
-            pStmt.setString(2, encounterId);
-            pStmt.setObject(3, uuid);
-            pStmt.executeUpdate();
+      if (open()) {
+         try {
+            try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
+               final PGobject uuid = new PGobject();
+               uuid.setType("uuid");
+               uuid.setValue(dwlId);
+               pStmt.setString(1, goldenId);
+               pStmt.setString(2, encounterId);
+               pStmt.setObject(3, uuid);
+               pStmt.executeUpdate();
+            }
+         } catch (SQLException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
          }
-      } catch (SQLException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
+      } else {
+         LOGGER.error("NO SQL SERVER");
       }
    }
 
    String insertClinicalData(final String clinicalData) {
       String dwhId = null;
-      try {
-         try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            pStmt.setString(1, clinicalData);
-            int affectedRows = pStmt.executeUpdate();
-            if (affectedRows > 0) {
-               final var rs = pStmt.getGeneratedKeys();
-               if (rs.next()) {
-                  dwhId = rs.getString(1);
+      if (open()) {
+         try {
+            if (conn == null || !conn.isValid(0)) {
+               if (conn != null) {
+                  conn.close();
+               }
+               open();
+            }
+            try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+               pStmt.setString(1, clinicalData);
+               int affectedRows = pStmt.executeUpdate();
+               if (affectedRows > 0) {
+                  final var rs = pStmt.getGeneratedKeys();
+                  if (rs.next()) {
+                     dwhId = rs.getString(1);
+                  }
                }
             }
+         } catch (SQLException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
          }
-      } catch (SQLException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
       }
       return dwhId;
    }

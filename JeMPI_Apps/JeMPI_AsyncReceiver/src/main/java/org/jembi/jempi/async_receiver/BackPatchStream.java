@@ -19,14 +19,15 @@ import java.util.Properties;
 
 class BackPatchStream {
    private static final Logger LOGGER = LogManager.getLogger(BackPatchStream.class);
-   private KafkaStreams backPatchStreams;
    private final DWH dwh;
+   private KafkaStreams backPatchStreams;
 
 
    BackPatchStream() {
       LOGGER.info("BackPatchStream constructor");
       dwh = new DWH();
    }
+
    static BackPatchStream create() {
       return new BackPatchStream();
    }
@@ -35,7 +36,7 @@ class BackPatchStream {
          final String key,
          final BackPatchDWH rec) {
       LOGGER.debug("{} - {}", key, rec);
-      dwh.updateKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
+      dwh.backpatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
    }
 
    void open() {
