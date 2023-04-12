@@ -468,7 +468,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: ${SCALE_LINKER}
       update_config:
         parallelism: 1
         delay: 10s
@@ -476,9 +476,6 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_LINKER}
 
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
