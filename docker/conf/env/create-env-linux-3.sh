@@ -41,4 +41,4 @@ else
     export IMAGE_REGISTRY=""
 fi
 
-envsubst < conf-env-1-pc.template > conf.env
+envsubst < conf-env-3-pc.template > conf.env
