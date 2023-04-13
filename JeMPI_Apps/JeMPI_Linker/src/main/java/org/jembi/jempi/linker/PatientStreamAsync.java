@@ -44,10 +44,11 @@ public final class PatientStreamAsync {
       if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return;
       }
-      LOGGER.debug("{} -- {} - {}",
+      LOGGER.debug("{} - {} -- {} : {}",
                    batchPatientRecord.batchMetaData().threshold(),
                    batchPatientRecord.stan(),
-                   batchPatientRecord.patientRecord());
+                   key,
+                   batchPatientRecord.patientRecord().demographicData());
       final CompletionStage<BackEnd.EventLinkPatientAsyncRsp> result =
             AskPattern.ask(
                   backEnd,
