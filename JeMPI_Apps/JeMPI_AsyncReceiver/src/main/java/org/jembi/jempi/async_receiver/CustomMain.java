@@ -132,7 +132,11 @@ public final class CustomMain {
          for (CSVRecord csvRecord : csvParser) {
             final var clinicalData = csvRecord.get(6);
             final var dwhId = dwh.insertClinicalData(String.format("%s - %s", csvRecord.get(0), clinicalData));
-            sendToKafka(uuid,
+            sendToKafka(csvRecord.get(2) == null
+                              ? uuid
+                              : (tuple3 == null
+                                       ? csvRecord.get(2)
+                                       : getEncodedMF(csvRecord.get(2), tuple3._2())),
                         new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                               batchMetaData,
                                               new CustomSourceRecord(
