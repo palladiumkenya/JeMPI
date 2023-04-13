@@ -58,7 +58,11 @@ public final class CustomSourceRecordStream {
                           if (StringUtils.isBlank(k)) {
                              k = "anon";
                           }
-                          k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
+                          k = switch (AppConfig.KAFKA_KEY_ENCODER) {
+                             case "None" -> key;
+                             case "SoundEx" -> getEncodedMF(k, OperationType.OPERATION_TYPE_SOUNDEX);
+                             default -> getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
+                          };
                           var batchPatient = new BatchPatientRecord(batchType,
                                                                     rec.batchMetaData(),
                                                                     rec.customSourceRecord().stan(),
@@ -89,6 +93,7 @@ public final class CustomSourceRecordStream {
          final String value,
          final OperationType algorithmType) {
       return switch (algorithmType) {
+         case OPERATION_TYPE_NONE -> value;
          case OPERATION_TYPE_METAPHONE -> (new Metaphone()).metaphone(value);
          case OPERATION_TYPE_DOUBLE_METAPHONE -> (new DoubleMetaphone()).doubleMetaphone(value);
          case OPERATION_TYPE_SOUNDEX -> (new Soundex()).encode(value);
@@ -110,7 +115,8 @@ public final class CustomSourceRecordStream {
    }
 
    public enum OperationType {
-      OPERATION_TYPE_METAPHONE, OPERATION_TYPE_DOUBLE_METAPHONE, OPERATION_TYPE_SOUNDEX, OPERATION_TYPE_REFINED_SOUNDEX
+      OPERATION_TYPE_NONE, OPERATION_TYPE_METAPHONE, OPERATION_TYPE_DOUBLE_METAPHONE, OPERATION_TYPE_SOUNDEX,
+      OPERATION_TYPE_REFINED_SOUNDEX
    }
 
 }
