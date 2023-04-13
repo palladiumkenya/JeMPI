@@ -12,7 +12,7 @@
     <artifactId>JeMPI_Stats</artifactId>
 
     <properties>
-        <start-class>${project.groupId}.stats.CustomMain</start-class>
+        <start-class>${project.groupId}.stats.CustomMainStats</start-class>
     </properties>
 
     <dependencies>
