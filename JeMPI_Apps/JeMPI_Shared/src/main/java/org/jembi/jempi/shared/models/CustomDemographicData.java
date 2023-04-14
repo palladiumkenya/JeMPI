@@ -6,11 +6,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record CustomDemographicData(
       String auxId,
       String auxDwhId,
-      String givenName,
-      String familyName,
+      String phoneticGivenName,
+      String phoneticFamilyName,
       String gender,
       String dob,
-      String nationalId) {
+      String nupi) {
 
 }
 

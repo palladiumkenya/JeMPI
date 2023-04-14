@@ -54,7 +54,7 @@ public final class CustomSourceRecordStream {
                           default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
                        };
                        if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
-                          var k = rec.customSourceRecord().familyName();
+                          var k = rec.customSourceRecord().phoneticFamilyName();
                           if (StringUtils.isBlank(k)) {
                              k = "anon";
                           }
@@ -71,11 +71,11 @@ public final class CustomSourceRecordStream {
                                                                                       new CustomDemographicData(
                                                                                             rec.customSourceRecord().auxId(),
                                                                                             rec.customSourceRecord().auxDwhId(),
-                                                                                            rec.customSourceRecord().givenName(),
-                                                                                            rec.customSourceRecord().familyName(),
+                                                                                            rec.customSourceRecord().phoneticGivenName(),
+                                                                                            rec.customSourceRecord().phoneticFamilyName(),
                                                                                             rec.customSourceRecord().gender(),
                                                                                             rec.customSourceRecord().dob(),
-                                                                                            rec.customSourceRecord().nationalID())));
+                                                                                            rec.customSourceRecord().nuip())));
                           LOGGER.info("{} : {}", k, batchPatient);
                           return KeyValue.pair(k, batchPatient);
                        } else {

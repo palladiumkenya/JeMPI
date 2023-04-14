@@ -9,10 +9,10 @@ public record CustomSourceRecord(
       SourceId sourceId,
       String auxId,
       String auxDwhId,
-      String givenName,
-      String familyName,
+      String phoneticGivenName,
+      String phoneticFamilyName,
       String gender,
       String dob,
-      String nationalID) {
+      String nuip) {
 }
 

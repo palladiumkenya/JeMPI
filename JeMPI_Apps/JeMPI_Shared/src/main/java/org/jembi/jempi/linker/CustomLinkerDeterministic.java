@@ -18,17 +18,9 @@ final class CustomLinkerDeterministic {
    static boolean deterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData patient) {
-      final var givenNameL = goldenRecord.givenName();
-      final var givenNameR = patient.givenName();
-      final var familyNameL = goldenRecord.familyName();
-      final var familyNameR = patient.familyName();
-      final var genderL = goldenRecord.gender();
-      final var genderR = patient.gender();
-      final var dobL = goldenRecord.dob();
-      final var dobR = patient.dob();
-      final var nationalIdL = goldenRecord.nationalId();
-      final var nationalIdR = patient.nationalId();
-      return (isMatch(nationalIdL, nationalIdR) || (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(genderL, genderR) && isMatch(dobL, dobR)));
+      final var nupiL = goldenRecord.nupi();
+      final var nupiR = patient.nupi();
+      return isMatch(nupiL, nupiR);
    }
 
 }

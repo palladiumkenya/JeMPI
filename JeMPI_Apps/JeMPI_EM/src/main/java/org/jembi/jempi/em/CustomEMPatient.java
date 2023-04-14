@@ -12,11 +12,11 @@ record CustomEMPatient(
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
-      this(patient.givenName(), CustomEMTask.getPhonetic(patient.givenName()),
-           patient.familyName(), CustomEMTask.getPhonetic(patient.familyName()),
+      this(patient.phoneticGivenName(), CustomEMTask.getPhonetic(patient.phoneticGivenName()),
+           patient.phoneticFamilyName(), CustomEMTask.getPhonetic(patient.phoneticFamilyName()),
            patient.gender(),
            patient.dob(),
-           patient.nationalId());
+           patient.nupi());
    }
 }
 

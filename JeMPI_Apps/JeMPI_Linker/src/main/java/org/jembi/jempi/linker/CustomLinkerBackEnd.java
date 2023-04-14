@@ -19,26 +19,6 @@ public final class CustomLinkerBackEnd {
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "givenName", demographicData.givenName(), CustomDemographicData::givenName)
-            ? 1
-            : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "familyName", demographicData.familyName(), CustomDemographicData::familyName)
-            ? 1
-            : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "gender", demographicData.gender(), CustomDemographicData::gender)
-            ? 1
-            : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "dob", demographicData.dob(), CustomDemographicData::dob)
-            ? 1
-            : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-                                           "nationalId", demographicData.nationalId(), CustomDemographicData::nationalId)
-            ? 1
-            : 0;
 
       if (k > 0) {
         backEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
