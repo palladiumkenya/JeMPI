@@ -119,7 +119,7 @@ public final class CustomMain {
                .DEFAULT
                .builder()
                .setHeader()
-               .setSkipHeaderRecord(true)
+               .setSkipHeaderRecord(false)
                .setIgnoreEmptyLines(true)
                .setNullString(null)
                .build()
@@ -130,29 +130,22 @@ public final class CustomMain {
                                            batchMetaData,
                                            null));
          for (CSVRecord csvRecord : csvParser) {
-            final var clinicalData = csvRecord.get(6);
-            final var dwhId = dwh.insertClinicalData(String.format("%s - %s", csvRecord.get(0), clinicalData));
-            sendToKafka(csvRecord.get(2) == null
-                              ? uuid
-                              : (tuple3 == null
-                                       ? csvRecord.get(2)
-                                       : getEncodedMF(csvRecord.get(2), tuple3._2())),
+            // final var clinicalData = csvRecord.get(6);
+            final var dwhId = dwh.insertClinicalData(csvRecord.get(0),csvRecord.get(1),csvRecord.get(2),csvRecord.get(3));
+            // TODO Use patientpk,sitecode combination
+            sendToKafka(uuid,
                         new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                               batchMetaData,
                                               new CustomSourceRecord(
                                                     String.format("%s:%07d", stanDate, ++index),
-                                                    parseSourceId(csvRecord.get(6)),
-                                                    csvRecord.get(0),
+                                                    SourceId(null, csvRecord.get(1),csvRecord.get(0))
+                                                    null,
                                                     dwhId,
-                                                    tuple3 == null
-                                                          ? csvRecord.get(1)
-                                                          : getEncodedMF(csvRecord.get(1), tuple3._1()),
-                                                    tuple3 == null
-                                                          ? csvRecord.get(2)
-                                                          : getEncodedMF(csvRecord.get(2), tuple3._2()),
-                                                    csvRecord.get(3),
-                                                    csvRecord.get(4),
-                                                    csvRecord.get(5))));
+                                                    csvRecord.get(0),
+                                                    csvRecord.get(1),
+                                                    csvRecord.get(2),
+                                                    csvRecord.get(3)
+                                                    )));
          }
          sendToKafka(uuid,
                      new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_END,
