@@ -119,7 +119,7 @@ public final class CustomMain {
                .DEFAULT
                .builder()
                .setHeader()
-               .setSkipHeaderRecord(false)
+               .setSkipHeaderRecord(true)
                .setIgnoreEmptyLines(true)
                .setNullString(null)
                .build()
