@@ -83,7 +83,10 @@ CREATE TABLE IF NOT EXISTS dwh
      dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
      golden_id     VARCHAR(32),
      encounter_id  VARCHAR(32),
-     clinical_data VARCHAR(256)
+     pkv           VARCHAR(150),
+     site_code     VARCHAR(32),
+     patient_pk    VARCHAR(32),
+     nupi          VARCHAR(32)
 );
 
 CREATE INDEX IF NOT EXISTS idx_dwh_gid ON dwh(golden_id);
