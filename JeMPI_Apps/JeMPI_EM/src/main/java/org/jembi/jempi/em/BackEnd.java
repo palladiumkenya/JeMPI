@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.BatchPatientRecord;
 
-import java.util.concurrent.CompletableFuture;
+// import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -52,24 +52,24 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LOGGER.debug("receivedCount({}), startOffset({}), count({})", receivedCount, startOffset, count);
 
          taskBusy = true;
-         var cf = CompletableFuture.supplyAsync(
-               () -> {
-                  LOGGER.info("START EM");
-                  final var emTask = new CustomEMTask();
-                  var rc = emTask.doIt(startOffset, count);
-                  LOGGER.info("END EM {}", rc);
-                  return rc;
-               },
-               ec);
+         // var cf = CompletableFuture.supplyAsync(
+         //       () -> {
+         //          LOGGER.info("START EM");
+         //          final var emTask = new CustomEMTask();
+         //          var rc = emTask.doIt(startOffset, count);
+         //          LOGGER.info("END EM {}", rc);
+         //          return rc;
+         //       },
+         //       ec);
 
-         cf.whenComplete((event, exception) -> {
-            LOGGER.debug("Done: {}", event);
-            taskBusy = false;
-            processedCount += AppConfig.BACKEND_N_NEW_VALUES;
-            if (receivedCount - processedCount >= AppConfig.BACKEND_N_NEW_VALUES) {
-               getContext().getSelf().tell(EventWorkTimeReq.INSTANCE);
-            }
-         });
+         // cf.whenComplete((event, exception) -> {
+         //    LOGGER.debug("Done: {}", event);
+         //    taskBusy = false;
+         //    processedCount += AppConfig.BACKEND_N_NEW_VALUES;
+         //    if (receivedCount - processedCount >= AppConfig.BACKEND_N_NEW_VALUES) {
+         //       getContext().getSelf().tell(EventWorkTimeReq.INSTANCE);
+         //    }
+         // });
 
       }
    }

@@ -120,13 +120,13 @@ public final class CustomMainStats {
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s%n",
                        rot.uid(), rot.demographicData.auxId(),
-                       rot.demographicData.gender(), rot.demographicData.dob());
+                       rot.demographicData.patientPk(), rot.demographicData.siteCode());
          mpiGoldenRecord.mpiPatientRecords.forEach(mpiEntity -> {
             final var entity = mpiEntity.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%f%n",
                           entity.uid(), entity.demographicData.auxId(),
-                          entity.demographicData.gender(), entity.demographicData.dob(),
+                          entity.demographicData.patientPk(), entity.demographicData.siteCode(),
                           mpiEntity.score());
          });
       }

@@ -4,7 +4,7 @@ import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
-import org.apache.commons.lang3.StringUtils;
+// import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -54,15 +54,15 @@ public final class CustomSourceRecordStream {
                           default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
                        };
                        if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
-                          var k = rec.customSourceRecord().phoneticFamilyName();
-                          if (StringUtils.isBlank(k)) {
-                             k = "anon";
-                          }
-                          k = switch (AppConfig.KAFKA_KEY_ENCODER) {
-                             case "None" -> key;
-                             case "SoundEx" -> getEncodedMF(k, OperationType.OPERATION_TYPE_SOUNDEX);
-                             default -> getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
-                          };
+                        //   var k = rec.customSourceRecord().phoneticFamilyName();
+                        //   if (StringUtils.isBlank(k)) {
+                        //      k = "anon";
+                        //   }
+                        //   k = switch (AppConfig.KAFKA_KEY_ENCODER) {
+                        //      case "None" -> key;
+                        //      case "SoundEx" -> getEncodedMF(k, OperationType.OPERATION_TYPE_SOUNDEX);
+                        //      default -> getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
+                        //   };
                           var batchPatient = new BatchPatientRecord(batchType,
                                                                     rec.batchMetaData(),
                                                                     rec.customSourceRecord().stan(),
@@ -71,13 +71,13 @@ public final class CustomSourceRecordStream {
                                                                                       new CustomDemographicData(
                                                                                             rec.customSourceRecord().auxId(),
                                                                                             rec.customSourceRecord().auxDwhId(),
-                                                                                            rec.customSourceRecord().phoneticGivenName(),
-                                                                                            rec.customSourceRecord().phoneticFamilyName(),
-                                                                                            rec.customSourceRecord().gender(),
-                                                                                            rec.customSourceRecord().dob(),
-                                                                                            rec.customSourceRecord().nuip())));
-                          LOGGER.info("{} : {}", k, batchPatient);
-                          return KeyValue.pair(k, batchPatient);
+                                                                                            rec.customSourceRecord().pkv(),
+                                                                                            rec.customSourceRecord().siteCode(),
+                                                                                            rec.customSourceRecord().patientPk(),
+                                                                                            null,
+                                                                                            rec.customSourceRecord().nupi())));
+                          LOGGER.info("{} : {}", key, batchPatient);
+                          return KeyValue.pair(key, batchPatient);
                        } else {
                           return KeyValue.pair("SENTINEL", new BatchPatientRecord(batchType, rec.batchMetaData(), null, null));
                        }

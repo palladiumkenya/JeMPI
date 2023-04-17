@@ -131,14 +131,14 @@ public final class CustomMain {
                                            null));
          for (CSVRecord csvRecord : csvParser) {
             // final var clinicalData = csvRecord.get(6);
-            final var dwhId = dwh.insertClinicalData(csvRecord.get(0),csvRecord.get(1),csvRecord.get(2),csvRecord.get(3));
+            final var dwhId = dwh.insertClinicalData(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), csvRecord.get(3));
             // TODO Use patientpk,sitecode combination
             sendToKafka(uuid,
                         new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                               batchMetaData,
                                               new CustomSourceRecord(
                                                     String.format("%s:%07d", stanDate, ++index),
-                                                    SourceId(null, csvRecord.get(1),csvRecord.get(0))
+                                                    new SourceId(null, csvRecord.get(1), csvRecord.get(0)),
                                                     null,
                                                     dwhId,
                                                     csvRecord.get(0),

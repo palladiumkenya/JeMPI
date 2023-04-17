@@ -65,14 +65,9 @@ final class DWH {
       }
    }
 
-   // String insertPatientDemographics(final String pkv, final String siteCode,
-   //  final String patientPk, final String nupi ){
-   //    String dwhId = null;
-   // }
-    
-
    String insertClinicalData(final String pkv, final String siteCode,
    final String patientPk, final String nupi) {
+      String dwhId = null;
       if (open()) {
          try {
             if (conn == null || !conn.isValid(0)) {
