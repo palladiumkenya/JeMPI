@@ -8,8 +8,8 @@ import java.sql.*;
 
 final class DWH {
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(clinical_data)
-                                            VALUES (?)
+                                            INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
+                                            VALUES (?,?,?,?)
                                             """;
 
    private static final String SQL_UPDATE = """
@@ -65,8 +65,14 @@ final class DWH {
       }
    }
 
-   String insertClinicalData(final String clinicalData) {
-      String dwhId = null;
+   // String insertPatientDemographics(final String pkv, final String siteCode,
+   //  final String patientPk, final String nupi ){
+   //    String dwhId = null;
+   // }
+    
+
+   String insertClinicalData(final String pkv, final String siteCode,
+   final String patientPk, final String nupi) {
       if (open()) {
          try {
             if (conn == null || !conn.isValid(0)) {
@@ -76,7 +82,10 @@ final class DWH {
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               pStmt.setString(1, clinicalData);
+               pStmt.setString(1, pkv);
+               pStmt.setString(2, siteCode);
+               pStmt.setString(3, patientPk);
+               pStmt.setString(4, nupi);
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
