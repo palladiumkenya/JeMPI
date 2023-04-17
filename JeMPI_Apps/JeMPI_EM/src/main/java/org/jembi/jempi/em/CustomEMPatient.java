@@ -3,19 +3,19 @@ package org.jembi.jempi.em;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 record CustomEMPatient(
-      String col1,
-      String col1Phonetic,
-      String col2,
-      String col2Phonetic,
+      String patientPkv,
+      String patientPk,
+      String siteCode,
       String genderAtBirth,
       String dateOfBirth,
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
-      this(patient.phoneticGivenName(), CustomEMTask.getPhonetic(patient.phoneticGivenName()),
-           patient.phoneticFamilyName(), CustomEMTask.getPhonetic(patient.phoneticFamilyName()),
-           patient.gender(),
-           patient.dob(),
+      this(patient.patientPkv(),
+           patient.patientPk(),
+           patient.siteCode(),
+           null,
+           null,
            patient.nupi());
    }
 }
