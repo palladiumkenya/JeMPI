@@ -21,9 +21,9 @@ final class CustomDgraphQueries {
                }
                GoldenRecord.aux_id
                GoldenRecord.aux_dwh_id
-               GoldenRecord.phonetic_given_name
-               GoldenRecord.phonetic_family_name
-               GoldenRecord.gender
+               GoldenRecord.patient_pkv
+               GoldenRecord.site_code
+               GoldenRecord.patient_pk
                GoldenRecord.dob
                GoldenRecord.nupi
             }

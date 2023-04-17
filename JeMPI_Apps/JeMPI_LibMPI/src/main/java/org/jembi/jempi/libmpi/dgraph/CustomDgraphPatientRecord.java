@@ -12,9 +12,9 @@ record CustomDgraphPatientRecord(
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.aux_dwh_id") String auxDwhId,
-      @JsonProperty("PatientRecord.phonetic_given_name") String phoneticGivenName,
-      @JsonProperty("PatientRecord.phonetic_family_name") String phoneticFamilyName,
-      @JsonProperty("PatientRecord.gender") String gender,
+      @JsonProperty("PatientRecord.patient_pkv") String patientPkv,
+      @JsonProperty("PatientRecord.site_code") String siteCode,
+      @JsonProperty("PatientRecord.patient_pk") String patientPk,
       @JsonProperty("PatientRecord.dob") String dob,
       @JsonProperty("PatientRecord.nupi") String nupi,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
@@ -25,9 +25,9 @@ record CustomDgraphPatientRecord(
            new DgraphSourceId(patientRecord.sourceId()),
            patientRecord.demographicData().auxId(),
            patientRecord.demographicData().auxDwhId(),
-           patientRecord.demographicData().phoneticGivenName(),
-           patientRecord.demographicData().phoneticFamilyName(),
-           patientRecord.demographicData().gender(),
+           patientRecord.demographicData().patientPkv(),
+           patientRecord.demographicData().siteCode(),
+           patientRecord.demographicData().patientPk(),
            patientRecord.demographicData().dob(),
            patientRecord.demographicData().nupi(),
            score);
@@ -40,9 +40,9 @@ record CustomDgraphPatientRecord(
                                      : null,
                                new CustomDemographicData(this.auxId(),
                                                          this.auxDwhId(),
-                                                         this.phoneticGivenName(),
-                                                         this.phoneticFamilyName(),
-                                                         this.gender(),
+                                                         this.patientPkv(),
+                                                         this.siteCode(),
+                                                         this.patientPk(),
                                                          this.dob(),
                                                          this.nupi()));
    }
