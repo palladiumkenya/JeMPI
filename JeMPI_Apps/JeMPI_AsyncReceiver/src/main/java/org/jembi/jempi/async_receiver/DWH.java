@@ -77,22 +77,22 @@ final class DWH {
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               if (pkv != null) {
+               if (pkv != null && !pkv.equalsIgnoreCase("null")) {
                   pStmt.setString(1, pkv);
                } else {
                   pStmt.setNull(0, Types.NULL);
                }
-               if (siteCode != null) {
+               if (siteCode != null && !siteCode.equalsIgnoreCase("null")) {
                   pStmt.setString(2, siteCode);
                } else {
                   pStmt.setNull(2, Types.NULL);
                }
-               if (patientPk != null) {
+               if (patientPk != null && !patientPk.equalsIgnoreCase("null")) {
                   pStmt.setString(3, patientPk);
                } else {
                   pStmt.setNull(3, Types.NULL);
                }
-               if (nupi != null) {
+               if (nupi != null && !nupi.equalsIgnoreCase("null")) {
                   pStmt.setString(4, nupi);
                } else {
                   pStmt.setNull(4, Types.NULL);
