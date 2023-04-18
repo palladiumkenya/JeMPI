@@ -8,15 +8,15 @@ import java.sql.*;
 
 final class DWH {
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
-                                            VALUES (?,?,?,?)
-                                            """;
+         INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
+         VALUES (?,?,?,?)
+         """;
 
    private static final String SQL_UPDATE = """
-                                            UPDATE dwh
-                                            SET golden_id = ?, encounter_id = ?
-                                            WHERE dwh_id = ?
-                                            """;
+         UPDATE dwh
+         SET golden_id = ?, encounter_id = ?
+         WHERE dwh_id = ?
+         """;
    private static final Logger LOGGER = LogManager.getLogger(DWH.class);
    private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
    private static final String USER = "postgres";
@@ -66,7 +66,7 @@ final class DWH {
    }
 
    String insertClinicalData(final String pkv, final String siteCode,
-   final String patientPk, final String nupi) {
+         final String patientPk, final String nupi) {
       String dwhId = null;
       if (open()) {
          try {
@@ -77,10 +77,26 @@ final class DWH {
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               pStmt.setString(1, pkv);
-               pStmt.setString(2, siteCode);
-               pStmt.setString(3, patientPk);
-               pStmt.setString(4, nupi);
+               if (pkv != null) {
+                  pStmt.setString(1, pkv);
+               } else {
+                  pStmt.setNull(0, Types.NULL);
+               }
+               if (siteCode != null) {
+                  pStmt.setString(2, siteCode);
+               } else {
+                  pStmt.setNull(2, Types.NULL);
+               }
+               if (patientPk != null) {
+                  pStmt.setString(3, patientPk);
+               } else {
+                  pStmt.setNull(3, Types.NULL);
+               }
+               if (nupi != null) {
+                  pStmt.setString(4, nupi);
+               } else {
+                  pStmt.setNull(4, Types.NULL);
+               }
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
