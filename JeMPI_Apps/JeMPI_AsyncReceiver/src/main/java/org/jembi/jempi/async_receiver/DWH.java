@@ -80,7 +80,7 @@ final class DWH {
                if (pkv != null && !pkv.equalsIgnoreCase("null")) {
                   pStmt.setString(1, pkv);
                } else {
-                  pStmt.setNull(0, Types.NULL);
+                  pStmt.setNull(1, Types.NULL);
                }
                if (siteCode != null && !siteCode.equalsIgnoreCase("null")) {
                   pStmt.setString(2, siteCode);
