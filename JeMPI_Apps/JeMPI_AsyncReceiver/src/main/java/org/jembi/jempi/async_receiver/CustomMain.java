@@ -130,10 +130,10 @@ public final class CustomMain {
                                            batchMetaData,
                                            null));
          for (CSVRecord csvRecord : csvParser) {
-            final var patientPkv = (csvRecord.get(0) == "NULL") ? null : csvRecord.get(0);
-            final var siteCode = (csvRecord.get(1) == "NULL") ? null : csvRecord.get(1);
-            final var patientPk = (csvRecord.get(2) == "NULL") ? null : csvRecord.get(2);
-            final var nupi = (csvRecord.get(3) == "NULL") ? null : csvRecord.get(3);
+            final var patientPkv = csvRecord.get(0);
+            final var siteCode = csvRecord.get(1);
+            final var patientPk = csvRecord.get(2);
+            final var nupi = csvRecord.get(3);
             var recordKey = uuid;
             if (patientPk != null && siteCode != null) {
                recordKey = patientPk.concat(siteCode);
