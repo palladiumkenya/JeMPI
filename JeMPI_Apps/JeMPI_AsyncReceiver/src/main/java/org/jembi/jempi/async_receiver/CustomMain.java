@@ -130,10 +130,15 @@ public final class CustomMain {
                                            batchMetaData,
                                            null));
          for (CSVRecord csvRecord : csvParser) {
-            // final var clinicalData = csvRecord.get(6);
-            final var dwhId = dwh.insertClinicalData(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), csvRecord.get(3));
-            // TODO Use patientpk,sitecode combination
-            sendToKafka(uuid,
+            final var patientPk = csvRecord.get(0);
+            final var siteCode = csvRecord.get(1);
+
+            var recordKey = uuid;
+            if(patientPk != null && siteCode !=null){
+               recordKey = patientPk.concat(siteCode);
+            }
+            final var dwhId = dwh.insertClinicalData(patientPk,siteCode, csvRecord.get(2), csvRecord.get(3));
+            sendToKafka(recordKey,
                         new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                               batchMetaData,
                                               new CustomSourceRecord(
@@ -141,8 +146,8 @@ public final class CustomMain {
                                                     new SourceId(null, csvRecord.get(1), csvRecord.get(0)),
                                                     null,
                                                     dwhId,
-                                                    csvRecord.get(0),
-                                                    csvRecord.get(1),
+                                                    patientPk,
+                                                    siteCode,
                                                     csvRecord.get(2),
                                                     csvRecord.get(3)
                                                     )));
