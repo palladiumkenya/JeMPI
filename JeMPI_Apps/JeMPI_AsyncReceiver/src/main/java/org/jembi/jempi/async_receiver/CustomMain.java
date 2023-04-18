@@ -134,10 +134,10 @@ public final class CustomMain {
             final var siteCode = csvRecord.get(1);
 
             var recordKey = uuid;
-            if(patientPk != null && siteCode !=null){
+            if (patientPk != null && siteCode != null) {
                recordKey = patientPk.concat(siteCode);
             }
-            final var dwhId = dwh.insertClinicalData(patientPk,siteCode, csvRecord.get(2), csvRecord.get(3));
+            final var dwhId = dwh.insertClinicalData(patientPk, siteCode, csvRecord.get(2), csvRecord.get(3));
             sendToKafka(recordKey,
                         new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                               batchMetaData,
