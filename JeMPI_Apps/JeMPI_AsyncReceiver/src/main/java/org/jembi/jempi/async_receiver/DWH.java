@@ -7,16 +7,30 @@ import org.postgresql.util.PGobject;
 import java.sql.*;
 
 final class DWH {
+
+/*
+CREATE TABLE IF NOT EXISTS dwh (
+   dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+   golden_id     VARCHAR(32),
+   encounter_id  VARCHAR(32),
+   pkv           VARCHAR(150),
+   site_code     VARCHAR(32),
+   patient_pk    VARCHAR(32),
+   nupi          VARCHAR(32)
+);
+*/
+
    private static final String SQL_INSERT = """
-         INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
-         VALUES (?,?,?,?)
-         """;
+                                            INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
+                                            VALUES (?,?,?,?)
+                                            """;
+
 
    private static final String SQL_UPDATE = """
-         UPDATE dwh
-         SET golden_id = ?, encounter_id = ?
-         WHERE dwh_id = ?
-         """;
+                                            UPDATE dwh
+                                            SET golden_id = ?, encounter_id = ?
+                                            WHERE dwh_id = ?
+                                            """;
    private static final Logger LOGGER = LogManager.getLogger(DWH.class);
    private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
    private static final String USER = "postgres";
@@ -65,8 +79,12 @@ final class DWH {
       }
    }
 
-   String insertClinicalData(final String pkv, final String siteCode,
-         final String patientPk, final String nupi) {
+   String insertClinicalData(
+         final String pkv,
+         final String siteCode,
+         final String patientPk,
+         final String nupi) {
+      LOGGER.debug("{} {} {} {}", pkv, siteCode, patientPk, nupi);
       String dwhId = null;
       if (open()) {
          try {
