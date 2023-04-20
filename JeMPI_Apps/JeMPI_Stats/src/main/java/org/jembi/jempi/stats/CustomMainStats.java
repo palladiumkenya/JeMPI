@@ -31,6 +31,7 @@ public final class CustomMainStats {
    // rec-00000998-aaa-0
    // 01234567890123456
    // rec-0000000001-00
+   // rec-0000000002-01
    private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
 
    private final OkHttpClient client = new OkHttpClient();
@@ -117,10 +118,11 @@ public final class CustomMainStats {
          final PrintWriter writer,
          final ApiExpandedGoldenRecord mpiGoldenRecord) {
       final var rot = mpiGoldenRecord.goldenRecord();
+/*
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s%n",
                        rot.uid(), rot.demographicData.auxId(),
-                       rot.demographicData.patientPk(), rot.demographicData.siteCode());
+                       rot.demographicData.`.patientPk(), rot.demographicData.siteCode());
          mpiGoldenRecord.mpiPatientRecords.forEach(mpiEntity -> {
             final var entity = mpiEntity.patientRecord();
             writer.format(Locale.ENGLISH,
@@ -130,6 +132,7 @@ public final class CustomMainStats {
                           mpiEntity.score());
          });
       }
+*/
    }
 
    private void processSubList(

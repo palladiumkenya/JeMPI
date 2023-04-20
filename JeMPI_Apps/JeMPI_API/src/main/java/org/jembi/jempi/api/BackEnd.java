@@ -32,10 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -74,10 +71,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private static void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
+      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST};
+      // , AppConfig.DGRAPH_ALPHA2_HOST, AppConfig.DGRAPH_ALPHA3_HOST};
+      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT};
+      // , AppConfig.DGRAPH_ALPHA2_PORT, AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
    }
 
@@ -314,7 +311,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (goldenRecords == null) {
          request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
                "Golden Records do not exist",
-               Arrays.asList(request.goldenIds).toString()))));
+               Collections.singletonList(request.goldenIds).toString()))));
       } else {
          request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
@@ -339,7 +336,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (expandedPatientRecords == null) {
          request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                "Patient Records do not exist",
-               Arrays.asList(request.patientIds).toString()))));
+               Collections.singletonList(request.patientIds).toString()))));
       } else {
          request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedPatientRecords)));
       }

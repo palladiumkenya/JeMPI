@@ -14,9 +14,9 @@ record CustomDgraphExpandedPatientRecord(
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.aux_dwh_id") String auxDwhId,
-      @JsonProperty("PatientRecord.patient_pkv") String patientPkv,
-      @JsonProperty("PatientRecord.site_code") String siteCode,
-      @JsonProperty("PatientRecord.patient_pk") String patientPk,
+      @JsonProperty("PatientRecord.phonetic_given_name") String phoneticGivenName,
+      @JsonProperty("PatientRecord.phonetic_family_name") String phoneticFamilyName,
+      @JsonProperty("PatientRecord.gender") String gender,
       @JsonProperty("PatientRecord.dob") String dob,
       @JsonProperty("PatientRecord.nupi") String nupi,
       @JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
@@ -27,9 +27,9 @@ record CustomDgraphExpandedPatientRecord(
                                new CustomDemographicData(
                                      this.auxId(),
                                      this.auxDwhId(),
-                                     this.patientPkv(),
-                                     this.siteCode(),
-                                     this.patientPk(),
+                                     this.phoneticGivenName(),
+                                     this.phoneticFamilyName(),
+                                     this.gender(),
                                      this.dob(),
                                      this.nupi()));
    }

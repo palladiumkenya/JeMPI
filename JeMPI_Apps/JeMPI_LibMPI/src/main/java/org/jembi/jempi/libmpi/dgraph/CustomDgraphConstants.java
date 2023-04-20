@@ -4,17 +4,17 @@ public final class CustomDgraphConstants {
 
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
    public static final String PREDICATE_GOLDEN_RECORD_AUX_DWH_ID = "GoldenRecord.aux_dwh_id";
-   public static final String PREDICATE_GOLDEN_RECORD_PATIENT_PKV = "GoldenRecord.patient_pkv";
-   public static final String PREDICATE_GOLDEN_RECORD_SITE_CODE = "GoldenRecord.site_code";
-   public static final String PREDICATE_GOLDEN_RECORD_PATIENT_PK = "GoldenRecord.patient_pk";
+   public static final String PREDICATE_GOLDEN_RECORD_PHONETIC_GIVEN_NAME = "GoldenRecord.phonetic_given_name";
+   public static final String PREDICATE_GOLDEN_RECORD_PHONETIC_FAMILY_NAME = "GoldenRecord.phonetic_family_name";
+   public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
    public static final String PREDICATE_GOLDEN_RECORD_DOB = "GoldenRecord.dob";
    public static final String PREDICATE_GOLDEN_RECORD_NUPI = "GoldenRecord.nupi";
    public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
    public static final String PREDICATE_PATIENT_RECORDAUX_ID = "PatientRecord.aux_id";
    public static final String PREDICATE_PATIENT_RECORDAUX_DWH_ID = "PatientRecord.aux_dwh_id";
-   public static final String PREDICATE_PATIENT_RECORDPATIENT_PKV = "PatientRecord.patient_pkv";
-   public static final String PREDICATE_PATIENT_RECORDSITE_CODE = "PatientRecord.site_code";
-   public static final String PREDICATE_PATIENT_RECORDPATIENT_PK = "PatientRecord.patient_pk";
+   public static final String PREDICATE_PATIENT_RECORDPHONETIC_GIVEN_NAME = "PatientRecord.phonetic_given_name";
+   public static final String PREDICATE_PATIENT_RECORDPHONETIC_FAMILY_NAME = "PatientRecord.phonetic_family_name";
+   public static final String PREDICATE_PATIENT_RECORDGENDER = "PatientRecord.gender";
    public static final String PREDICATE_PATIENT_RECORDDOB = "PatientRecord.dob";
    public static final String PREDICATE_PATIENT_RECORDNUPI = "PatientRecord.nupi";
 
@@ -28,9 +28,9 @@ public final class CustomDgraphConstants {
          }
          GoldenRecord.aux_id
          GoldenRecord.aux_dwh_id
-         GoldenRecord.patient_pkv
-         GoldenRecord.site_code
-         GoldenRecord.patient_pk
+         GoldenRecord.phonetic_given_name
+         GoldenRecord.phonetic_family_name
+         GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
          """;
@@ -45,9 +45,9 @@ public final class CustomDgraphConstants {
          }
          GoldenRecord.aux_id
          GoldenRecord.aux_dwh_id
-         GoldenRecord.patient_pkv
-         GoldenRecord.site_code
-         GoldenRecord.patient_pk
+         GoldenRecord.phonetic_given_name
+         GoldenRecord.phonetic_family_name
+         GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
          GoldenRecord.patients @facets(score) {
@@ -59,9 +59,9 @@ public final class CustomDgraphConstants {
             }
             PatientRecord.aux_id
             PatientRecord.aux_dwh_id
-            PatientRecord.patient_pkv
-            PatientRecord.site_code
-            PatientRecord.patient_pk
+            PatientRecord.phonetic_given_name
+            PatientRecord.phonetic_family_name
+            PatientRecord.gender
             PatientRecord.dob
             PatientRecord.nupi
          }
@@ -76,9 +76,9 @@ public final class CustomDgraphConstants {
          }
          PatientRecord.aux_id
          PatientRecord.aux_dwh_id
-         PatientRecord.patient_pkv
-         PatientRecord.site_code
-         PatientRecord.patient_pk
+         PatientRecord.phonetic_given_name
+         PatientRecord.phonetic_family_name
+         PatientRecord.gender
          PatientRecord.dob
          PatientRecord.nupi
          """;
@@ -92,9 +92,9 @@ public final class CustomDgraphConstants {
          }
          PatientRecord.aux_id
          PatientRecord.aux_dwh_id
-         PatientRecord.patient_pkv
-         PatientRecord.site_code
-         PatientRecord.patient_pk
+         PatientRecord.phonetic_given_name
+         PatientRecord.phonetic_family_name
+         PatientRecord.gender
          PatientRecord.dob
          PatientRecord.nupi
          ~GoldenRecord.patients @facets(score) {
@@ -106,9 +106,9 @@ public final class CustomDgraphConstants {
             }
             GoldenRecord.aux_id
             GoldenRecord.aux_dwh_id
-            GoldenRecord.patient_pkv
-            GoldenRecord.site_code
-            GoldenRecord.patient_pk
+            GoldenRecord.phonetic_given_name
+            GoldenRecord.phonetic_family_name
+            GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
          }
@@ -126,9 +126,9 @@ public final class CustomDgraphConstants {
                }
                PatientRecord.aux_id
                PatientRecord.aux_dwh_id
-               PatientRecord.patient_pkv
-               PatientRecord.site_code
-               PatientRecord.patient_pk
+               PatientRecord.phonetic_given_name
+               PatientRecord.phonetic_family_name
+               PatientRecord.gender
                PatientRecord.dob
                PatientRecord.nupi
             }
@@ -147,9 +147,9 @@ public final class CustomDgraphConstants {
                }
                GoldenRecord.aux_id
                GoldenRecord.aux_dwh_id
-               GoldenRecord.patient_pkv
-               GoldenRecord.site_code
-               GoldenRecord.patient_pk
+               GoldenRecord.phonetic_given_name
+               GoldenRecord.phonetic_family_name
+               GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
             }
@@ -168,9 +168,9 @@ public final class CustomDgraphConstants {
                }
                PatientRecord.aux_id
                PatientRecord.aux_dwh_id
-               PatientRecord.patient_pkv
-               PatientRecord.site_code
-               PatientRecord.patient_pk
+               PatientRecord.phonetic_given_name
+               PatientRecord.phonetic_family_name
+               PatientRecord.gender
                PatientRecord.dob
                PatientRecord.nupi
                ~GoldenRecord.patients @facets(score) {
@@ -182,9 +182,9 @@ public final class CustomDgraphConstants {
                   }
                   GoldenRecord.aux_id
                   GoldenRecord.aux_dwh_id
-                  GoldenRecord.patient_pkv
-                  GoldenRecord.site_code
-                  GoldenRecord.patient_pk
+                  GoldenRecord.phonetic_given_name
+                  GoldenRecord.phonetic_family_name
+                  GoldenRecord.gender
                   GoldenRecord.dob
                   GoldenRecord.nupi
                }
@@ -204,9 +204,9 @@ public final class CustomDgraphConstants {
                }
                GoldenRecord.aux_id
                GoldenRecord.aux_dwh_id
-               GoldenRecord.patient_pkv
-               GoldenRecord.site_code
-               GoldenRecord.patient_pk
+               GoldenRecord.phonetic_given_name
+               GoldenRecord.phonetic_family_name
+               GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
             }
@@ -225,9 +225,9 @@ public final class CustomDgraphConstants {
                }
                GoldenRecord.aux_id
                GoldenRecord.aux_dwh_id
-               GoldenRecord.patient_pkv
-               GoldenRecord.site_code
-               GoldenRecord.patient_pk
+               GoldenRecord.phonetic_given_name
+               GoldenRecord.phonetic_family_name
+               GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
                GoldenRecord.patients @facets(score) {
@@ -239,9 +239,9 @@ public final class CustomDgraphConstants {
                   }
                   PatientRecord.aux_id
                   PatientRecord.aux_dwh_id
-                  PatientRecord.patient_pkv
-                  PatientRecord.site_code
-                  PatientRecord.patient_pk
+                  PatientRecord.phonetic_given_name
+                  PatientRecord.phonetic_family_name
+                  PatientRecord.gender
                   PatientRecord.dob
                   PatientRecord.nupi
                }
@@ -270,9 +270,9 @@ public final class CustomDgraphConstants {
             GoldenRecord.source_id:                 [SourceId]
             GoldenRecord.aux_id
             GoldenRecord.aux_dwh_id
-            GoldenRecord.patient_pkv
-            GoldenRecord.site_code
-            GoldenRecord.patient_pk
+            GoldenRecord.phonetic_given_name
+            GoldenRecord.phonetic_family_name
+            GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
             GoldenRecord.patients:                  [PatientRecord]
@@ -284,9 +284,9 @@ public final class CustomDgraphConstants {
          GoldenRecord.source_id:                [uid]                                        .
          GoldenRecord.aux_id:                   string    @index(exact,trigram)              .
          GoldenRecord.aux_dwh_id:               string    @index(exact,trigram)              .
-         GoldenRecord.patient_pkv:              string    @index(exact,trigram)              .
-         GoldenRecord.site_code:                string    @index(exact,trigram)              .
-         GoldenRecord.patient_pk:               string    @index(exact,trigram)              .
+         GoldenRecord.phonetic_given_name:      string    @index(exact,trigram)              .
+         GoldenRecord.phonetic_family_name:     string    @index(exact,trigram)              .
+         GoldenRecord.gender:                   string    @index(exact,trigram)              .
          GoldenRecord.dob:                      string    @index(exact,trigram)              .
          GoldenRecord.nupi:                     string    @index(exact,trigram)              .
          GoldenRecord.patients:                 [uid]     @reverse                           .
@@ -299,9 +299,9 @@ public final class CustomDgraphConstants {
             PatientRecord.source_id:                     SourceId
             PatientRecord.aux_id
             PatientRecord.aux_dwh_id
-            PatientRecord.patient_pkv
-            PatientRecord.site_code
-            PatientRecord.patient_pk
+            PatientRecord.phonetic_given_name
+            PatientRecord.phonetic_family_name
+            PatientRecord.gender
             PatientRecord.dob
             PatientRecord.nupi
          }
@@ -312,9 +312,9 @@ public final class CustomDgraphConstants {
          PatientRecord.source_id:                    uid                                          .
          PatientRecord.aux_id:                       string                                       .
          PatientRecord.aux_dwh_id:                   string                                       .
-         PatientRecord.patient_pkv:                  string    @index(exact,trigram)              .
-         PatientRecord.site_code:                    string    @index(exact,trigram)              .
-         PatientRecord.patient_pk:                   string                                       .
+         PatientRecord.phonetic_given_name:          string    @index(exact,trigram)              .
+         PatientRecord.phonetic_family_name:         string    @index(exact,trigram)              .
+         PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .
          PatientRecord.nupi:                         string    @index(exact,trigram)              .
          """;

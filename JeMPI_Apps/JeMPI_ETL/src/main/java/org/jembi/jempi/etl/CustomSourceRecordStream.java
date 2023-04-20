@@ -71,10 +71,10 @@ public final class CustomSourceRecordStream {
                                                                                       new CustomDemographicData(
                                                                                             rec.customSourceRecord().auxId(),
                                                                                             rec.customSourceRecord().auxDwhId(),
-                                                                                            rec.customSourceRecord().pkv(),
-                                                                                            rec.customSourceRecord().siteCode(),
-                                                                                            rec.customSourceRecord().patientPk(),
-                                                                                            null,
+                                                                                            rec.customSourceRecord().phoneticGivenName(),
+                                                                                            rec.customSourceRecord().phoneticFamilyName(),
+                                                                                            rec.customSourceRecord().gender(),
+                                                                                            rec.customSourceRecord().dob(),
                                                                                             rec.customSourceRecord().nupi())));
                           LOGGER.info("{} : {}", key, batchPatient);
                           return KeyValue.pair(key, batchPatient);

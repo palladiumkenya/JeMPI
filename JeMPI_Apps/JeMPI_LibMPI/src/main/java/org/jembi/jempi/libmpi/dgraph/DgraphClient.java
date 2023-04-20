@@ -30,10 +30,10 @@ final class DgraphClient {
    }
 
    void config(
-         final String[] host_,
-         final int[] port_) {
-      this.host = host_;
-      this.port = port_;
+         final String[] host,
+         final int[] port) {
+      this.host = host;
+      this.port = port;
    }
 
    /*
@@ -46,13 +46,15 @@ final class DgraphClient {
 
    void startTransaction() {
       if (dgraphClient == null) {
-         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]),
-                                                new DgraphClient.AlphaHost(host[1], port[1]),
-                                                new DgraphClient.AlphaHost(host[2], port[2])));
+         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]))); // ,
+//                                                new DgraphClient.AlphaHost(host[1], port[1]),
+//                                                new DgraphClient.AlphaHost(host[2], port[2])));
          var dgraphStubs = new DgraphGrpc.DgraphStub[hostList.size()];
-         for (int i = 0; i < 3; i++) {
+         LOGGER.info("Using {} node cluster: {}", hostList.size(), hostList);
+         for (int i = 0; i < hostList.size(); i++) {
             AlphaHost alphaHost = hostList.get(i);
             dgraphStubs[i] = DgraphGrpc.newStub(ManagedChannelBuilder.forAddress(alphaHost.host, alphaHost.port)
+                                                                     .maxInboundMessageSize(1024 * 1024 * 1204)
                                                                      .usePlaintext()
                                                                      .build());
          }
@@ -68,14 +70,12 @@ final class DgraphClient {
    }
 
 
-
    void zapTransaction() {
       if (dgraphClient != null) {
          dgraphClient.shutdown();
          dgraphClient = null;
       }
    }
-
 
 
    private void sleep() {
@@ -130,7 +130,7 @@ final class DgraphClient {
                startTransaction();
                return null;
             } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage());
+               LOGGER.warn("{}", ex.getLocalizedMessage(), ex);
                done = false;
                zapTransaction();
                sleep();

@@ -36,6 +36,14 @@ public final class CustomMain {
    private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
    private DWH dwh;
 
+   private static final int REC_NUM_IDX = 0;
+   private static final int GIVEN_NAME_IDX = 1;
+   private static final int FAMILY_NAME_IDX = 2;
+   private static final int GENDER_IDX = 3;
+   private static final int DOB_IDX = 4;
+   private static final int NATIONAL_ID_IDX = 5;
+   private static final int CLINICAL_DATA_IDX = 6;
+
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
       new CustomMain().run();
@@ -129,6 +137,7 @@ public final class CustomMain {
                      new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_START,
                                            batchMetaData,
                                            null));
+
          for (CSVRecord csvRecord : csvParser) {
             final var patientPkv = csvRecord.get(0);
             final var siteCode = csvRecord.get(1);
@@ -139,19 +148,27 @@ public final class CustomMain {
                recordKey = patientPk.concat(siteCode);
             }
             final var dwhId = dwh.insertClinicalData(patientPkv, siteCode, patientPk, nupi);
-            sendToKafka(recordKey,
-                        new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
-                                              batchMetaData,
-                                              new CustomSourceRecord(
-                                                    String.format("%s:%07d", stanDate, ++index),
-                                                    new SourceId(null, csvRecord.get(1), csvRecord.get(0)),
-                                                    null,
-                                                    dwhId,
-                                                    patientPkv,
-                                                    siteCode,
-                                                    patientPk,
-                                                    nupi
-                                                    )));
+            final var customSourceRecord = new CustomSourceRecord(
+                  String.format("%s:%07d", stanDate, ++index),
+                  parseSourceId(csvRecord.get(CLINICAL_DATA_IDX)),
+                  csvRecord.get(REC_NUM_IDX),
+                  dwhId,
+                  tuple3 == null
+                        ? csvRecord.get(GIVEN_NAME_IDX)
+                        : getEncodedMF(csvRecord.get(GIVEN_NAME_IDX), tuple3._1()),
+                  tuple3 == null
+                        ? csvRecord.get(FAMILY_NAME_IDX)
+                        : getEncodedMF(csvRecord.get(FAMILY_NAME_IDX), tuple3._2()), csvRecord.get(GENDER_IDX),
+                  csvRecord.get(DOB_IDX),
+                  csvRecord.get(NATIONAL_ID_IDX));
+
+            final var asyncSourceRecord = new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
+                                                                batchMetaData,
+                                                                customSourceRecord);
+            LOGGER.debug("{}", dwhId);
+            LOGGER.debug("{}", customSourceRecord);
+            LOGGER.debug("{}", asyncSourceRecord);
+            sendToKafka(recordKey, asyncSourceRecord);
          }
          sendToKafka(uuid,
                      new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_END,

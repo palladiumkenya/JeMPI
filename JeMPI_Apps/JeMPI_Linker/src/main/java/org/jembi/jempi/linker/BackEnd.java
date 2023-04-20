@@ -118,10 +118,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
+      final var host =
+            new String[]{AppConfig.DGRAPH_ALPHA1_HOST}; // , AppConfig.DGRAPH_ALPHA2_HOST, AppConfig.DGRAPH_ALPHA3_HOST};
+      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT}; //, AppConfig.DGRAPH_ALPHA2_PORT, AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
@@ -400,6 +399,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventLinkPatientAsyncHandler(final EventLinkPatientAsyncReq req) {
+      LOGGER.debug("{}", req);
       if (req.batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(5));
@@ -407,6 +407,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             return Behaviors.same();
          });
       }
+      LOGGER.debug("LINK PATIENT");
       final var listLinkInfo = linkPatient(
             req.batchPatientRecord.stan(),
             req.batchPatientRecord.patientRecord(),
@@ -414,10 +415,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             ((req.batchPatientRecord.batchMetaData().threshold() == null)
                    ? AppConfig.BACK_END_MATCH_THRESHOLD
                    : req.batchPatientRecord.batchMetaData().threshold()));
-
+      LOGGER.debug("{}", listLinkInfo);
       final var backPatchDWL = new BackPatchDWH(req.batchPatientRecord.patientRecord().demographicData().auxDwhId(),
                                                 listLinkInfo.getLeft().goldenUID(),
                                                 listLinkInfo.getLeft().patientUID());
+      LOGGER.debug("{}", backPatchDWL);
       try {
          topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);
       } catch (ExecutionException | InterruptedException e) {

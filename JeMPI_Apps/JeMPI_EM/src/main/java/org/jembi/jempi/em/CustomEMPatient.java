@@ -11,12 +11,12 @@ record CustomEMPatient(
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
-      this(patient.patientPkv(),
-           patient.patientPk(),
-           patient.siteCode(),
+      this(null,
            null,
            null,
-           patient.nupi());
+           null,
+           null,
+           null);
    }
 }
 
