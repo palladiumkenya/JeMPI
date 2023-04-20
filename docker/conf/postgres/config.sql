@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS dwh
      nupi          VARCHAR(32)
 );
 
+
 CREATE INDEX IF NOT EXISTS idx_dwh_gid ON dwh(golden_id);
 CREATE INDEX IF NOT EXISTS idx_dwh_eid ON dwh(encounter_id);
 
