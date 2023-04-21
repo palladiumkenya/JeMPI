@@ -14,6 +14,8 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+
+import scala.Tuple2;
 import scala.Tuple3;
 
 import java.io.IOException;
@@ -33,13 +35,16 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public final class CustomMain {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMain.class.getName());
-   private static final int REC_NUM_IDX = 0;
-   private static final int GIVEN_NAME_IDX = 1;
-   private static final int FAMILY_NAME_IDX = 2;
-   private static final int GENDER_IDX = 3;
-   private static final int DOB_IDX = 4;
-   private static final int NUPI_IDX = 5;
-   private static final int CLINICAL_DATA_IDX = 6;
+   // private static final int REC_NUM_IDX = 0;
+   private static final int PKV_IDX = 0;
+   // private static final int GIVEN_NAME_IDX = 1;
+   // private static final int FAMILY_NAME_IDX = 2;
+   private static final int GENDER_IDX = 1;
+   private static final int DOB_IDX = 2;
+   private static final int NUPI_IDX = 3;
+   private static final int SITE_CODE_IDX = 4;
+   private static final int PATIENT_PK_IDX = 5;
+   // private static final int CLINICAL_DATA_IDX = 6;
    private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
    private DWH dwh;
 
@@ -53,6 +58,17 @@ public final class CustomMain {
       return (WatchEvent<T>) event;
    }
 
+   private static Tuple2<String, String> parsePkv(final String pkv) {
+      final String regex = "^(?<gender>[M|F])(?<phonetic_given_name>[A-Z]\\d+)(?<phonetic_family_name>[A-Z]+)(?<dob>\\d\\d\\d\\d)$";
+      final Pattern pattern = Pattern.compile(regex);
+      final Matcher matcher = pattern.matcher(pkv);
+      if (matcher.find()) {
+         final var phoneticGivenName = matcher.group("phonetic_given_name");
+         final var phoneticFamilyName = matcher.group("phonetic_family_name");
+         return new Tuple2<>(phoneticGivenName, phoneticFamilyName);
+      }
+      return null;
+   }
    private static Tuple3<OperationType, OperationType, Float> parseFileName(final String fileName) {
       final String regex = "gn_(?<gn>\\w*)_fn_(?<fn>\\w*)_th_(?<th>\\d*[.]\\d+).csv$";
       final Pattern pattern = Pattern.compile(regex);
@@ -103,11 +119,10 @@ public final class CustomMain {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
-
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
-         final var tuple3 = parseFileName(fileName);
+         // final var tuple3 = parseFileName(fileName);
          final var reader = Files.newBufferedReader(Paths.get(fileName));
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
@@ -119,9 +134,7 @@ public final class CustomMain {
                                                      null,
                                                      null,
                                                      null,
-                                                     tuple3 != null
-                                                           ? tuple3._3()
-                                                           : null);
+                                                     0.65f);
          final var csvParser = CSVFormat
                .DEFAULT
                .builder()
@@ -138,41 +151,45 @@ public final class CustomMain {
                                            null));
 
          for (CSVRecord csvRecord : csvParser) {
-//            final var siteCode = null;
-//            final var patientPk = null;
-//            var recordKey = uuid;
-//            if (patientPk != null && siteCode != null) {
-//               recordKey = patientPk.concat(siteCode);
-//            }
-            final var pkv = String.format("(%s-%s)-(%s-%s)-%s-%s",
-                                          csvRecord.get(GIVEN_NAME_IDX),
-                                          tuple3 == null
-                                                ? csvRecord.get(GIVEN_NAME_IDX)
-                                                : getEncodedMF(csvRecord.get(GIVEN_NAME_IDX),
-                                                               tuple3._1()),
-                                          csvRecord.get(FAMILY_NAME_IDX),
-                                          tuple3 == null
-                                                ? csvRecord.get(FAMILY_NAME_IDX)
-                                                : getEncodedMF(csvRecord.get(FAMILY_NAME_IDX),
-                                                               tuple3._2()),
-                                          csvRecord.get(GENDER_IDX),
-                                          csvRecord.get(DOB_IDX));
-            LOGGER.debug("pkv: {}", pkv);
-            final var dwhId = dwh.insertClinicalData(pkv,
-                                                     null,
-                                                     null,
+            // final var pkv = String.format("(%s-%s)-(%s-%s)-%s-%s",
+            //                               csvRecord.get(GIVEN_NAME_IDX),
+            //                               tuple3 == null
+            //                                     ? csvRecord.get(GIVEN_NAME_IDX)
+            //                                     : getEncodedMF(csvRecord.get(GIVEN_NAME_IDX),
+            //                                                    tuple3._1()),
+            //                               csvRecord.get(FAMILY_NAME_IDX),
+            //                               tuple3 == null
+            //                                     ? csvRecord.get(FAMILY_NAME_IDX)
+            //                                     : getEncodedMF(csvRecord.get(FAMILY_NAME_IDX),
+            //                                                    tuple3._2()),
+            //                               csvRecord.get(GENDER_IDX),
+            //                               csvRecord.get(DOB_IDX));
+            // LOGGER.debug("pkv: {}", pkv);
+            final var dwhId = dwh.insertClinicalData(csvRecord.get(PKV_IDX),
+                                                     csvRecord.get(SITE_CODE_IDX),
+                                                     csvRecord.get(PATIENT_PK_IDX),
                                                      csvRecord.get(NUPI_IDX));
+                                                //      public record CustomSourceRecord(
+                                                //       // System Trace Audit Number
+                                                //       String stan,
+                                                //       SourceId sourceId,
+                                                //       String auxId,
+                                                //       String auxDwhId,
+                                                //       String phoneticGivenName,
+                                                //       String phoneticFamilyName,
+                                                //       String gender,
+                                                //       String dob,
+                                                //       String nupi) {
+                                                // }
+            final var phoneticTuple = parsePkv(csvRecord.get(PKV_IDX));
             final var customSourceRecord = new CustomSourceRecord(
                   String.format("%s:%07d", stanDate, ++index),
-                  parseSourceId(csvRecord.get(CLINICAL_DATA_IDX)),
-                  csvRecord.get(REC_NUM_IDX),
+                  new SourceId(null, csvRecord.get(SITE_CODE_IDX), csvRecord.get(PATIENT_PK_IDX)),
+                  null,
                   dwhId,
-                  tuple3 == null
-                        ? csvRecord.get(GIVEN_NAME_IDX)
-                        : getEncodedMF(csvRecord.get(GIVEN_NAME_IDX), tuple3._1()),
-                  tuple3 == null
-                        ? csvRecord.get(FAMILY_NAME_IDX)
-                        : getEncodedMF(csvRecord.get(FAMILY_NAME_IDX), tuple3._2()), csvRecord.get(GENDER_IDX),
+                  phoneticTuple != null ? phoneticTuple._1() : null,
+                  phoneticTuple != null ? phoneticTuple._2() : null,
+                  csvRecord.get(GENDER_IDX),
                   csvRecord.get(DOB_IDX),
                   csvRecord.get(NUPI_IDX));
 

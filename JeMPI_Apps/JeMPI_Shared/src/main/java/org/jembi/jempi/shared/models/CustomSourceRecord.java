@@ -13,9 +13,6 @@ public record CustomSourceRecord(
       String phoneticFamilyName,
       String gender,
       String dob,
-//      String pkv,
-//      String siteCode,
-//      String patientPk,
       String nupi) {
 }
 

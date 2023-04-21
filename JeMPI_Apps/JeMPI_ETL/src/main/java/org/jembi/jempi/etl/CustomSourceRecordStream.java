@@ -1,9 +1,9 @@
 package org.jembi.jempi.etl;
 
-import org.apache.commons.codec.language.DoubleMetaphone;
-import org.apache.commons.codec.language.Metaphone;
-import org.apache.commons.codec.language.RefinedSoundex;
-import org.apache.commons.codec.language.Soundex;
+// import org.apache.commons.codec.language.DoubleMetaphone;
+// import org.apache.commons.codec.language.Metaphone;
+// import org.apache.commons.codec.language.RefinedSoundex;
+// import org.apache.commons.codec.language.Soundex;
 // import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -54,15 +54,6 @@ public final class CustomSourceRecordStream {
                           default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
                        };
                        if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
-                        //   var k = rec.customSourceRecord().phoneticFamilyName();
-                        //   if (StringUtils.isBlank(k)) {
-                        //      k = "anon";
-                        //   }
-                        //   k = switch (AppConfig.KAFKA_KEY_ENCODER) {
-                        //      case "None" -> key;
-                        //      case "SoundEx" -> getEncodedMF(k, OperationType.OPERATION_TYPE_SOUNDEX);
-                        //      default -> getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
-                        //   };
                           var batchPatient = new BatchPatientRecord(batchType,
                                                                     rec.batchMetaData(),
                                                                     rec.customSourceRecord().stan(),
@@ -89,17 +80,6 @@ public final class CustomSourceRecordStream {
       patientKafkaStreams.start();
    }
 
-   private String getEncodedMF(
-         final String value,
-         final OperationType algorithmType) {
-      return switch (algorithmType) {
-         case OPERATION_TYPE_NONE -> value;
-         case OPERATION_TYPE_METAPHONE -> (new Metaphone()).metaphone(value);
-         case OPERATION_TYPE_DOUBLE_METAPHONE -> (new DoubleMetaphone()).doubleMetaphone(value);
-         case OPERATION_TYPE_SOUNDEX -> (new Soundex()).encode(value);
-         case OPERATION_TYPE_REFINED_SOUNDEX -> (new RefinedSoundex()).encode(value);
-      };
-   }
 
    public void close() {
       patientKafkaStreams.close();
