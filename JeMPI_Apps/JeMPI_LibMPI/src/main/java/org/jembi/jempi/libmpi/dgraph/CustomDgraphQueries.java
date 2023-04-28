@@ -73,9 +73,9 @@ final class CustomDgraphQueries {
          }
          """;
 
-   static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID =
+   static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI =
          """
-         query query_match_golden_record_candidates_by_national_id($nupi: string) {
+         query query_match_golden_record_candidates_by_nupi($nupi: string) {
             all(func: match(GoldenRecord.nupi, $nupi, 3)) {
                uid
                GoldenRecord.source_id {
@@ -104,6 +104,7 @@ final class CustomDgraphQueries {
       final var genderIsBlank = StringUtils.isBlank(gender);
       final var dobIsBlank = StringUtils.isBlank(dob);
       final var nupiIsBlank = StringUtils.isBlank(nupi);
+   // "eq(nupi) or (eq(phonetic_given_name) and eq(phonetic_family_name) and eq(gender) and eq(dob))"
       if ((nupiIsBlank && (phoneticGivenNameIsBlank || phoneticFamilyNameIsBlank || genderIsBlank || dobIsBlank))) {
          return new DgraphGoldenRecords(List.of());
       }
@@ -155,12 +156,12 @@ final class CustomDgraphQueries {
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
-   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
+   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByNupi(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nupi())) {
          return new DgraphGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$nupi", demographicData.nupi());
-      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI, map);
    }
 
    private static void updateCandidates(
@@ -195,7 +196,7 @@ final class CustomDgraphQueries {
       }
       var result = new LinkedList<CustomDgraphGoldenRecord>();
       updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByNupi(patient));
       return result;
    }
 

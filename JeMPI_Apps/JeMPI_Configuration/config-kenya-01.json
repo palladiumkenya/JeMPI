@@ -189,7 +189,7 @@
         "vars": ["phonetic_given_name", "phonetic_family_name", "dob"],
         "text": "match(phonetic_given_name,3) and match(phonetic_family_name,3) or match(phonetic_given_name,3) and match(dob,3) or match(phonetic_family_name,3) and match(dob,3)"
       },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI": {
         "vars": ["nupi"],
         "text": "match(nupi,3)"
       }

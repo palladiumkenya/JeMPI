@@ -54,7 +54,7 @@ final class DgraphClient {
          for (int i = 0; i < hostList.size(); i++) {
             AlphaHost alphaHost = hostList.get(i);
             dgraphStubs[i] = DgraphGrpc.newStub(ManagedChannelBuilder.forAddress(alphaHost.host, alphaHost.port)
-                                                                     .maxInboundMessageSize(1024 * 1024 * 1204)
+//                                                                   .maxInboundMessageSize(32 * 1024 * 1024)
                                                                      .usePlaintext()
                                                                      .build());
          }

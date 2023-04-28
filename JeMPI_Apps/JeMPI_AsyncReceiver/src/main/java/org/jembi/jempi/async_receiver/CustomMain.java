@@ -14,7 +14,6 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -35,16 +34,21 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public final class CustomMain {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMain.class.getName());
-   // private static final int REC_NUM_IDX = 0;
-   private static final int PKV_IDX = 0;
-   // private static final int GIVEN_NAME_IDX = 1;
-   // private static final int FAMILY_NAME_IDX = 2;
-   private static final int GENDER_IDX = 1;
-   private static final int DOB_IDX = 2;
-   private static final int NUPI_IDX = 3;
-   private static final int SITE_CODE_IDX = 4;
-   private static final int PATIENT_PK_IDX = 5;
-   // private static final int CLINICAL_DATA_IDX = 6;
+   private static final int LIVE_PKV_IDX = 0;
+   private static final int LIVE_GENDER_IDX = 1;
+   private static final int LIVE_DOB_IDX = 2;
+   private static final int LIVE_NUPI_IDX = 3;
+   private static final int LIVE_SITE_CODE_IDX = 4;
+   private static final int LIVE_PATIENT_PK_IDX = 5;
+
+   private static final int TEST_AUX_ID_IDX = 0;
+   private static final int TEST_GIVEN_NAME_IDX = 1;
+   private static final int TEST_FAMILY_NAME_IDX = 2;
+   private static final int TEST_GENDER_IDX = 3;
+   private static final int TEST_DOB_IDX = 4;
+   private static final int TEST_NUPI_IDX = 5;
+   private static final int TEST_CLINICAL_IDX = 6;
+
    private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
    private DWH dwh;
 
@@ -69,6 +73,7 @@ public final class CustomMain {
       }
       return null;
    }
+
    private static Tuple3<OperationType, OperationType, Float> parseFileName(final String fileName) {
       final String regex = "gn_(?<gn>\\w*)_fn_(?<fn>\\w*)_th_(?<th>\\d*[.]\\d+).csv$";
       final Pattern pattern = Pattern.compile(regex);
@@ -108,17 +113,76 @@ public final class CustomMain {
       return null;
    }
 
+   private CustomSourceRecord parseFakeRecord(
+         final String stan,
+         final String dwhId,
+         final CSVRecord csvRecord) {
+      LOGGER.debug("{} {} {}", stan, dwhId, csvRecord.stream().toList());
+
+      return new CustomSourceRecord(
+            stan,
+            parseSourceId(csvRecord.get(TEST_CLINICAL_IDX)),
+            csvRecord.get(TEST_AUX_ID_IDX),
+            dwhId,
+            getEncodedMF(csvRecord.get(TEST_GIVEN_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+            getEncodedMF(csvRecord.get(TEST_FAMILY_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+            csvRecord.get(TEST_GENDER_IDX),
+            csvRecord.get(TEST_DOB_IDX),
+            csvRecord.get(TEST_NUPI_IDX));
+   }
+
+   private CustomSourceRecord parseLiveRecord(
+         final String stan,
+         final String dwhId,
+         final CSVRecord csvRecord) {
+      final var phoneticTuple = parsePkv(csvRecord.get(LIVE_PKV_IDX));
+      return new CustomSourceRecord(
+            stan,
+            new SourceId(null, csvRecord.get(LIVE_SITE_CODE_IDX), csvRecord.get(LIVE_PATIENT_PK_IDX)),
+            null,
+            dwhId,
+            phoneticTuple != null
+                  ? phoneticTuple._1()
+                  : null,
+            phoneticTuple != null
+                  ? phoneticTuple._2()
+                  : null,
+            csvRecord.get(LIVE_GENDER_IDX),
+            csvRecord.get(LIVE_DOB_IDX),
+            csvRecord.get(LIVE_NUPI_IDX));
+
+   }
+
+   private String dbInsertFakeData(final CSVRecord csvRecord) {
+      final var sourceId = parseSourceId(csvRecord.get(TEST_CLINICAL_IDX));
+      final var pkv = String.format("%s%s",
+                                    getEncodedMF(csvRecord.get(TEST_GIVEN_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+                                    getEncodedMF(csvRecord.get(TEST_FAMILY_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX));
+      return dwh.insertClinicalData(pkv,
+                                    sourceId.facility(),
+                                    sourceId.patient(),
+                                    csvRecord.get(TEST_NUPI_IDX));
+   }
+
+   private String dbInsertLiveData(final CSVRecord csvRecord) {
+      return dwh.insertClinicalData(csvRecord.get(LIVE_PKV_IDX),
+                                    csvRecord.get(LIVE_SITE_CODE_IDX),
+                                    csvRecord.get(LIVE_PATIENT_PK_IDX),
+                                    csvRecord.get(LIVE_NUPI_IDX));
+   }
+
    private void sendToKafka(
          final String key,
          final AsyncSourceRecord asyncSourceRecord)
          throws InterruptedException, ExecutionException {
       try {
-         LOGGER.debug("{}", asyncSourceRecord);
+//         LOGGER.debug("{}", asyncSourceRecord);
          sourceRecordProducer.produceSync(key, asyncSourceRecord);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
+
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
@@ -144,6 +208,7 @@ public final class CustomMain {
                .setNullString(null)
                .build()
                .parse(reader);
+
          int index = 0;
          sendToKafka(uuid,
                      new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_START,
@@ -165,40 +230,34 @@ public final class CustomMain {
             //                               csvRecord.get(GENDER_IDX),
             //                               csvRecord.get(DOB_IDX));
             // LOGGER.debug("pkv: {}", pkv);
-            final var dwhId = dwh.insertClinicalData(csvRecord.get(PKV_IDX),
-                                                     csvRecord.get(SITE_CODE_IDX),
-                                                     csvRecord.get(PATIENT_PK_IDX),
-                                                     csvRecord.get(NUPI_IDX));
-                                                //      public record CustomSourceRecord(
-                                                //       // System Trace Audit Number
-                                                //       String stan,
-                                                //       SourceId sourceId,
-                                                //       String auxId,
-                                                //       String auxDwhId,
-                                                //       String phoneticGivenName,
-                                                //       String phoneticFamilyName,
-                                                //       String gender,
-                                                //       String dob,
-                                                //       String nupi) {
-                                                // }
-            final var phoneticTuple = parsePkv(csvRecord.get(PKV_IDX));
-            final var customSourceRecord = new CustomSourceRecord(
-                  String.format("%s:%07d", stanDate, ++index),
-                  new SourceId(null, csvRecord.get(SITE_CODE_IDX), csvRecord.get(PATIENT_PK_IDX)),
-                  null,
-                  dwhId,
-                  phoneticTuple != null ? phoneticTuple._1() : null,
-                  phoneticTuple != null ? phoneticTuple._2() : null,
-                  csvRecord.get(GENDER_IDX),
-                  csvRecord.get(DOB_IDX),
-                  csvRecord.get(NUPI_IDX));
+
+//          final var dwhId = dbInsertLiveDate(csvRecord);
+//          final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+            final var dwhId = dbInsertFakeData(csvRecord);
+            final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+
+//            final var phoneticTuple = parsePkv(csvRecord.get(LIVE_PKV_IDX));
+//            final var customSourceRecord = new CustomSourceRecord(
+//                  String.format("%s:%07d", stanDate, ++index),
+//                  new SourceId(null, csvRecord.get(LIVE_SITE_CODE_IDX), csvRecord.get(LIVE_PATIENT_PK_IDX)),
+//                  null,
+//                  dwhId,
+//                  phoneticTuple != null
+//                        ? phoneticTuple._1()
+//                        : null,
+//                  phoneticTuple != null
+//                        ? phoneticTuple._2()
+//                        : null,
+//                  csvRecord.get(LIVE_GENDER_IDX),
+//                  csvRecord.get(LIVE_DOB_IDX),
+//                  csvRecord.get(LIVE_NUPI_IDX));
 
             final var asyncSourceRecord = new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
                                                                 batchMetaData,
-                                                                customSourceRecord);
-            LOGGER.debug("{}", dwhId);
-            LOGGER.debug("{}", customSourceRecord);
-            LOGGER.debug("{}", asyncSourceRecord);
+                                                                sourceRecord);
+//            LOGGER.debug("{}", dwhId);
+//            LOGGER.debug("{}", sourceRecord);
+//            LOGGER.debug("{}", asyncSourceRecord);
             sendToKafka(uuid, asyncSourceRecord);
          }
          sendToKafka(uuid,

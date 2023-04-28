@@ -399,7 +399,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventLinkPatientAsyncHandler(final EventLinkPatientAsyncReq req) {
-      LOGGER.debug("{}", req);
+//      LOGGER.debug("{}", req);
       if (req.batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(5));
@@ -407,7 +407,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             return Behaviors.same();
          });
       }
-      LOGGER.debug("LINK PATIENT");
+//      LOGGER.debug("LINK PATIENT");
       final var listLinkInfo = linkPatient(
             req.batchPatientRecord.stan(),
             req.batchPatientRecord.patientRecord(),
@@ -415,7 +415,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             ((req.batchPatientRecord.batchMetaData().threshold() == null)
                    ? AppConfig.BACK_END_MATCH_THRESHOLD
                    : req.batchPatientRecord.batchMetaData().threshold()));
-      LOGGER.debug("{}", listLinkInfo);
+//      LOGGER.debug("{}", listLinkInfo);
       final var backPatchDWL = new BackPatchDWH(req.batchPatientRecord.patientRecord().demographicData().auxDwhId(),
                                                 listLinkInfo.getLeft().goldenUID(),
                                                 listLinkInfo.getLeft().patientUID());
