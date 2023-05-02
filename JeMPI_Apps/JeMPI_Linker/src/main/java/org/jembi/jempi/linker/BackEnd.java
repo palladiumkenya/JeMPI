@@ -123,9 +123,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT}; //, AppConfig.DGRAPH_ALPHA2_PORT, AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
       libMPI.startTransaction();
-      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-         LOGGER.error("Create Schema Error");
-      }
+      // if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
+      //    LOGGER.error("Create Schema Error");
+      // }
       libMPI.closeTransaction();
    }
 
