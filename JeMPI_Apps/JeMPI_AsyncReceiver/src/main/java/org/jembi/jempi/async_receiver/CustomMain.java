@@ -187,6 +187,7 @@ public final class CustomMain {
          throws InterruptedException, ExecutionException {
       try {
          // final var tuple3 = parseFileName(fileName);
+         final var threshold = 0.8f;
          final var reader = Files.newBufferedReader(Paths.get(fileName));
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
@@ -198,7 +199,7 @@ public final class CustomMain {
                                                      null,
                                                      null,
                                                      null,
-                                                     0.65f);
+                                                     threshold);
          final var csvParser = CSVFormat
                .DEFAULT
                .builder()

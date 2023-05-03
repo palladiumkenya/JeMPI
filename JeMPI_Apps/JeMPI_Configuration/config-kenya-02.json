@@ -32,8 +32,8 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
-      "m": 0.782501,
-      "u": 0.02372,
+      "m": 0.9,
+      "u": 0.2,
       "fieldLabel": "Phonetic First Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
@@ -54,8 +54,8 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
-      "m": 0.850909,
-      "u": 0.02975,
+      "m": 0.9,
+      "u": 0.2,
       "fieldLabel": "Phonetic Last Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
@@ -114,7 +114,7 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "m": 0.832336,
-      "u": 0.000133,
+      "u": 0.0000001,
       "fieldLabel": "National Uniqie Patient Identifier",
       "groups": ["identifiers", "linked_records"],
       "scope": [
@@ -180,14 +180,18 @@
   "rules": {
     "deterministic": {
       "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": ["phonetic_given_name", "phonetic_family_name", "gender", "dob", "nupi"],
-        "text": "eq(nupi) or (eq(phonetic_given_name) and eq(phonetic_family_name) and eq(gender) and eq(dob))"
+        "vars": ["nupi"],
+        "text": "eq(nupi)"
       }
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
         "vars": ["phonetic_given_name", "phonetic_family_name", "dob"],
-        "text": "match(phonetic_given_name,2) and match(phonetic_family_name,2) and match(dob,1)"
+        "text": "eq(phonetic_given_name) and eq(phonetic_family_name) or eq(phonetic_given_name) and match(dob,3) or eq(phonetic_family_name) and match(dob,3)"
+      },
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI": {
+        "vars": ["nupi"],
+        "text": "match(nupi,3)"
       }
     }
   }
