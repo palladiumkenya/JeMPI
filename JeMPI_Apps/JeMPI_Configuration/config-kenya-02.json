@@ -32,8 +32,8 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
-      "m": 0.9,
-      "u": 0.2,
+      "m": 0.782501,
+      "u": 0.02372,
       "fieldLabel": "Phonetic First Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
@@ -54,8 +54,8 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
-      "m": 0.9,
-      "u": 0.2,
+      "m": 0.850909,
+      "u": 0.02975,
       "fieldLabel": "Phonetic Last Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
@@ -114,7 +114,7 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "m": 0.832336,
-      "u": 0.0000001,
+      "u": 0.000133,
       "fieldLabel": "National Uniqie Patient Identifier",
       "groups": ["identifiers", "linked_records"],
       "scope": [

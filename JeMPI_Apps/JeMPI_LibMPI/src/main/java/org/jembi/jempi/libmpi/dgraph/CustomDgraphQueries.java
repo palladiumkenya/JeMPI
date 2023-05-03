@@ -13,23 +13,8 @@ final class CustomDgraphQueries {
 
    static final String QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES =
          """
-         query query_deterministic_golden_record_candidates($phonetic_given_name: string, $phonetic_family_name: string, $gender: string, $dob: string, $nupi: string) {
-            var(func: eq(GoldenRecord.phonetic_given_name, $phonetic_given_name)) {
-               A as uid
-            }
-            var(func: eq(GoldenRecord.phonetic_family_name, $phonetic_family_name)) {
-               B as uid
-            }
-            var(func: eq(GoldenRecord.gender, $gender)) {
-               C as uid
-            }
-            var(func: eq(GoldenRecord.dob, $dob)) {
-               D as uid
-            }
-            var(func: eq(GoldenRecord.nupi, $nupi)) {
-               E as uid
-            }
-            all(func: uid(D,E,A,B,C)) @filter (uid(E) OR (uid(A) AND uid(B) AND uid(C) AND uid(D))) {
+         query query_deterministic_golden_record_candidates($nupi: string) {
+            all(func: eq(GoldenRecord.nupi, $nupi)) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -48,10 +33,10 @@ final class CustomDgraphQueries {
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE =
          """
          query query_match_golden_record_candidates_by_distance($phonetic_given_name: string, $phonetic_family_name: string, $dob: string) {
-            var(func: match(GoldenRecord.phonetic_given_name, $phonetic_given_name, 3)) {
+            var(func: eq(GoldenRecord.phonetic_given_name, $phonetic_given_name)) {
                A as uid
             }
-            var(func: match(GoldenRecord.phonetic_family_name, $phonetic_family_name, 3)) {
+            var(func: eq(GoldenRecord.phonetic_family_name, $phonetic_family_name)) {
                B as uid
             }
             var(func: match(GoldenRecord.dob, $dob, 3)) {
@@ -94,40 +79,10 @@ final class CustomDgraphQueries {
 
 
    static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
-      final var phoneticGivenName = demographicData.phoneticGivenName();
-      final var phoneticFamilyName = demographicData.phoneticFamilyName();
-      final var gender = demographicData.gender();
-      final var dob = demographicData.dob();
-      final var nupi = demographicData.nupi();
-      final var phoneticGivenNameIsBlank = StringUtils.isBlank(phoneticGivenName);
-      final var phoneticFamilyNameIsBlank = StringUtils.isBlank(phoneticFamilyName);
-      final var genderIsBlank = StringUtils.isBlank(gender);
-      final var dobIsBlank = StringUtils.isBlank(dob);
-      final var nupiIsBlank = StringUtils.isBlank(nupi);
-   // "eq(nupi) or (eq(phonetic_given_name) and eq(phonetic_family_name) and eq(gender) and eq(dob))"
-      if ((nupiIsBlank && (phoneticGivenNameIsBlank || phoneticFamilyNameIsBlank || genderIsBlank || dobIsBlank))) {
+      if (StringUtils.isBlank(demographicData.nupi())) {
          return new DgraphGoldenRecords(List.of());
       }
-      final var map = Map.of("$phonetic_given_name",
-                             StringUtils.isNotBlank(phoneticGivenName)
-                                   ? phoneticGivenName
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$phonetic_family_name",
-                             StringUtils.isNotBlank(phoneticFamilyName)
-                                   ? phoneticFamilyName
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$gender",
-                             StringUtils.isNotBlank(gender)
-                                   ? gender
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$dob",
-                             StringUtils.isNotBlank(dob)
-                                   ? dob
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$nupi",
-                             StringUtils.isNotBlank(nupi)
-                                   ? nupi
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL);
+      final Map<String, String> map = Map.of("$nupi", demographicData.nupi());
       return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
