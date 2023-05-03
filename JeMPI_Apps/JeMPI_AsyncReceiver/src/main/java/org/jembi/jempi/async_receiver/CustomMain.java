@@ -231,10 +231,10 @@ public final class CustomMain {
             //                               csvRecord.get(DOB_IDX));
             // LOGGER.debug("pkv: {}", pkv);
 
-//          final var dwhId = dbInsertLiveDate(csvRecord);
-//          final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
-            final var dwhId = dbInsertFakeData(csvRecord);
-            final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+         final var dwhId = dbInsertLiveData(csvRecord);
+         final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+            // final var dwhId = dbInsertFakeData(csvRecord);
+            // final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
 
 //            final var phoneticTuple = parsePkv(csvRecord.get(LIVE_PKV_IDX));
 //            final var customSourceRecord = new CustomSourceRecord(
