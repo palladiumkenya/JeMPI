@@ -46,9 +46,9 @@ final class DgraphClient {
 
    void startTransaction() {
       if (dgraphClient == null) {
-         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]))); // ,
-//                                                new DgraphClient.AlphaHost(host[1], port[1]),
-//                                                new DgraphClient.AlphaHost(host[2], port[2])));
+         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]),
+                                                new DgraphClient.AlphaHost(host[1], port[1]),
+                                                new DgraphClient.AlphaHost(host[2], port[2])));
          var dgraphStubs = new DgraphGrpc.DgraphStub[hostList.size()];
          LOGGER.info("Using {} node cluster: {}", hostList.size(), hostList);
          for (int i = 0; i < hostList.size(); i++) {
