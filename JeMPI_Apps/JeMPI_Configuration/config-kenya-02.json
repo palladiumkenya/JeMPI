@@ -184,11 +184,11 @@
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
         "vars": ["phonetic_given_name", "phonetic_family_name", "dob"],
-        "text": "eq(phonetic_given_name) and eq(phonetic_family_name) or eq(phonetic_given_name) and match(dob,3) or eq(phonetic_family_name) and match(dob,3)"
+        "text": "eq(phonetic_given_name) and eq(phonetic_family_name) or eq(phonetic_given_name) and match(dob,1) or eq(phonetic_family_name) and match(dob,1)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI": {
         "vars": ["nupi"],
-        "text": "match(nupi,3)"
+        "text": "match(nupi,1)"
       }
     }
   }
