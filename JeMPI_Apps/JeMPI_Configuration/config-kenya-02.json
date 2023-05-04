@@ -30,8 +30,7 @@
     {
       "fieldName": "phonetic_given_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.782501,
       "u": 0.02372,
       "fieldLabel": "Phonetic First Name",
@@ -52,8 +51,7 @@
     {
       "fieldName": "phonetic_family_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.850909,
       "u": 0.02975,
       "fieldLabel": "Phonetic Last Name",
@@ -111,8 +109,7 @@
     {
       "fieldName": "nupi",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.832336,
       "u": 0.000133,
       "fieldLabel": "National Uniqie Patient Identifier",
