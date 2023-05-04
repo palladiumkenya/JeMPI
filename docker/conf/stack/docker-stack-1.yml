@@ -246,7 +246,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-       - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
     command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   ratel:
