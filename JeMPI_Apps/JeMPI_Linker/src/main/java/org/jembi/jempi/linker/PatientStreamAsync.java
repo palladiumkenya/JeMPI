@@ -53,11 +53,11 @@ public final class PatientStreamAsync {
             AskPattern.ask(
                   backEnd,
                   replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchPatientRecord, replyTo),
-                  java.time.Duration.ofSeconds(60),
+                  java.time.Duration.ofSeconds(120),
                   system.scheduler());
       final var completableFuture = result.toCompletableFuture();
       try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(130, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
