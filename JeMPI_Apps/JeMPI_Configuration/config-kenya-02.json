@@ -110,8 +110,8 @@
       "fieldName": "nupi",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact)",
-      "m": 0.832336,
-      "u": 0.000133,
+      "m": 0.931,
+      "u": 0.0000001,
       "fieldLabel": "National Uniqie Patient Identifier",
       "groups": ["identifiers", "linked_records"],
       "scope": [
