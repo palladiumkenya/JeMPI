@@ -104,11 +104,11 @@ public final class CustomLinkerProbabilistic {
    }
 
    private static Fields currentFields =
-      new Fields(new Field(0.782501F, 0.02372F),
-                 new Field(0.850909F, 0.02975F),
-                 new Field(0.786614F, 0.443018F),
-                 new Field(0.894637F, 0.012448F),
-                 new Field(0.832336F, 1.33E-4F));
+      new Fields(new Field(0.9F, 0.2F),
+                 new Field(0.9F, 0.2F),
+                 new Field(0.9F, 0.5F),
+                 new Field(0.9F, 0.2F),
+                 new Field(0.97F, 1.0E-7F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,

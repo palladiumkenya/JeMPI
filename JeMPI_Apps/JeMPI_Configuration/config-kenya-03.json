@@ -5,9 +5,7 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "fieldLabel": "AUX ID",
-      "groups": [
-        "identifiers"
-      ],
+      "groups": ["identifiers"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -20,9 +18,7 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "fieldLabel": "AUX DWH ID",
-      "groups": [
-        "identifiers"
-      ],
+      "groups": ["identifiers"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -30,16 +26,15 @@
       ],
       "accessLevel": []
     },
+
     {
       "fieldName": "phonetic_given_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
+      "m": 0.9,
+      "u": 0.2,
       "fieldLabel": "Phonetic First Name",
-      "groups": [
-        "name",
-        "demographics",
-        "linked_records"
-      ],
+      "groups": ["name", "demographics", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -56,13 +51,11 @@
     {
       "fieldName": "phonetic_family_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
+      "m": 0.9,
+      "u": 0.2,
       "fieldLabel": "Phonetic Last Name",
-      "groups": [
-        "name",
-        "demographics",
-        "linked_records"
-      ],
+      "groups": ["name", "demographics", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -80,12 +73,10 @@
       "fieldName": "gender",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.9,
+      "u": 0.5,
       "fieldLabel": "Gender",
-      "groups": [
-        "demographics",
-        "sub_heading",
-        "linked_records"
-      ],
+      "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -99,12 +90,10 @@
       "fieldName": "dob",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.9,
+      "u": 0.2,
       "fieldLabel": "Date of Birth",
-      "groups": [
-        "demographics",
-        "sub_heading",
-        "linked_records"
-      ],
+      "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -121,11 +110,10 @@
       "fieldName": "nupi",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "fieldLabel": "National Unique Patient Identifier",
-      "groups": [
-        "identifiers",
-        "linked_records"
-      ],
+      "m": 0.97,
+      "u": 0.0000001,
+      "fieldLabel": "National Uniqie Patient Identifier",
+      "groups": ["identifiers", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -144,9 +132,7 @@
       "fieldName": "recordType",
       "fieldType": "String",
       "fieldLabel": "Record Type",
-      "groups": [
-        "none"
-      ],
+      "groups": ["none"],
       "scope": [
         "/notifications/match-details"
       ],
@@ -156,11 +142,7 @@
       "fieldName": "uid",
       "fieldType": "String",
       "fieldLabel": "UID",
-      "groups": [
-        "identifiers",
-        "sub_heading",
-        "linked_records"
-      ],
+      "groups": ["identifiers", "sub_heading", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -175,23 +157,15 @@
       "fieldName": "score",
       "fieldType": "Number",
       "fieldLabel": "Match",
-      "groups": [
-        "none"
-      ],
-      "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid"
-      ],
+      "groups": ["none"],
+      "scope": ["/patient-record/:uid", "/golden-record/:uid"],
       "accessLevel": []
     },
     {
       "fieldName": "sourceId",
       "fieldType": "SourceId",
       "fieldLabel": "Site Code",
-      "groups": [
-        "registering_facility",
-        "linked_records"
-      ],
+      "groups": ["registering_facility", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
@@ -203,10 +177,19 @@
   "rules": {
     "deterministic": {
       "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": ["phonetic_given_name", "phonetic_family_name", "gender", "dob", "nupi"],
-        "text": "eq(nupi) or (eq(phonetic_given_name) and eq(phonetic_family_name) and eq(gender) and eq(dob))"
+        "vars": ["nupi"],
+        "text": "eq(nupi)"
+      }
+    },
+    "probabilistic": {
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
+        "vars": ["phonetic_given_name", "phonetic_family_name", "dob"],
+        "text": "eq(phonetic_given_name) and eq(phonetic_family_name) or eq(phonetic_given_name) and match(dob,1) or eq(phonetic_family_name) and match(dob,1)"
+      },
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI": {
+        "vars": ["nupi"],
+        "text": "match(nupi,1)"
       }
     }
   }
-
 }

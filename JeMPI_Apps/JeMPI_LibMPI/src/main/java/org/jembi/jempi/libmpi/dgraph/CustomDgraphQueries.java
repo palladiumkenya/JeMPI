@@ -39,7 +39,7 @@ final class CustomDgraphQueries {
             var(func: eq(GoldenRecord.phonetic_family_name, $phonetic_family_name)) {
                B as uid
             }
-            var(func: match(GoldenRecord.dob, $dob, 3)) {
+            var(func: match(GoldenRecord.dob, $dob, 1)) {
                C as uid
             }
             all(func: uid(A,B,C)) @filter ((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) {
@@ -61,7 +61,7 @@ final class CustomDgraphQueries {
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NUPI =
          """
          query query_match_golden_record_candidates_by_nupi($nupi: string) {
-            all(func: match(GoldenRecord.nupi, $nupi, 3)) {
+            all(func: match(GoldenRecord.nupi, $nupi, 1)) {
                uid
                GoldenRecord.source_id {
                   uid

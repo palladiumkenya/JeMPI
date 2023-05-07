@@ -124,8 +124,10 @@ public final class CustomMain {
             parseSourceId(csvRecord.get(TEST_CLINICAL_IDX)),
             csvRecord.get(TEST_AUX_ID_IDX),
             dwhId,
-            getEncodedMF(csvRecord.get(TEST_GIVEN_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
-            getEncodedMF(csvRecord.get(TEST_FAMILY_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+//            getEncodedMF(csvRecord.get(TEST_GIVEN_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+//            getEncodedMF(csvRecord.get(TEST_FAMILY_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
+            csvRecord.get(TEST_GIVEN_NAME_IDX),
+            csvRecord.get(TEST_FAMILY_NAME_IDX),
             csvRecord.get(TEST_GENDER_IDX),
             csvRecord.get(TEST_DOB_IDX),
             csvRecord.get(TEST_NUPI_IDX));
@@ -156,8 +158,8 @@ public final class CustomMain {
    private String dbInsertFakeData(final CSVRecord csvRecord) {
       final var sourceId = parseSourceId(csvRecord.get(TEST_CLINICAL_IDX));
       final var pkv = String.format("%s%s",
-                                    getEncodedMF(csvRecord.get(TEST_GIVEN_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX),
-                                    getEncodedMF(csvRecord.get(TEST_FAMILY_NAME_IDX), OperationType.OPERATION_TYPE_SOUNDEX));
+                                    csvRecord.get(TEST_GIVEN_NAME_IDX),
+                                    csvRecord.get(TEST_FAMILY_NAME_IDX));
       return dwh.insertClinicalData(pkv,
                                     sourceId.facility(),
                                     sourceId.patient(),
@@ -186,8 +188,9 @@ public final class CustomMain {
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
-         // final var tuple3 = parseFileName(fileName);
-         final var threshold = 0.85f;
+         final var tuple3 = parseFileName(fileName);
+         final var threshold = tuple3 == null ? 0.85f : tuple3._3();
+//         final var threshold = 0.85f;
          final var reader = Files.newBufferedReader(Paths.get(fileName));
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
@@ -232,10 +235,10 @@ public final class CustomMain {
             //                               csvRecord.get(DOB_IDX));
             // LOGGER.debug("pkv: {}", pkv);
 
-         final var dwhId = dbInsertLiveData(csvRecord);
-         final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
-            // final var dwhId = dbInsertFakeData(csvRecord);
-            // final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+//          final var dwhId = dbInsertLiveData(csvRecord);
+//          final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+            final var dwhId = dbInsertFakeData(csvRecord);
+            final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
 
 //            final var phoneticTuple = parsePkv(csvRecord.get(LIVE_PKV_IDX));
 //            final var customSourceRecord = new CustomSourceRecord(
