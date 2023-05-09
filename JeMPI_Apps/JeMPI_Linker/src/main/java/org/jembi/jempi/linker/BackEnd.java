@@ -81,8 +81,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final long countLeft,
          final String textRight,
          final long countRight) {
-      return (StringUtils.isBlank(textLeft) && countRight >= 1)
-             || (countRight > countLeft && !textRight.equals(textLeft));
+      return (StringUtils.isBlank(textLeft) && countRight >= 1);
+      // return (StringUtils.isBlank(textLeft) && countRight >= 1)
+      //        || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
    private static boolean isWithinThreshold(final float score) {
