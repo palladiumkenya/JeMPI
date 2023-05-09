@@ -282,8 +282,8 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
-         GoldenRecord.aux_id:                   string    @index(exact,trigram)              .
-         GoldenRecord.aux_dwh_id:               string    @index(exact,trigram)              .
+         GoldenRecord.aux_id:                   string    @index(exact)                      .
+         GoldenRecord.aux_dwh_id:               string                                       .
          GoldenRecord.phonetic_given_name:      string    @index(exact)                      .
          GoldenRecord.phonetic_family_name:     string    @index(exact)                      .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .
@@ -314,8 +314,11 @@ public final class CustomDgraphConstants {
          PatientRecord.aux_dwh_id:                   string                                       .
          PatientRecord.phonetic_given_name:          string                                       .
          PatientRecord.phonetic_family_name:         string                                       .
+         PatientRecord.phonetic_given_name:          string                                       .
+         PatientRecord.phonetic_family_name:         string                                       .
          PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .
+         PatientRecord.nupi:                         string                                       .
          PatientRecord.nupi:                         string                                       .
          """;
 
