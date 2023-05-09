@@ -262,7 +262,7 @@ public final class CustomMain {
 //            LOGGER.debug("{}", dwhId);
 //            LOGGER.debug("{}", sourceRecord);
 //            LOGGER.debug("{}", asyncSourceRecord);
-            sendToKafka(uuid, asyncSourceRecord);
+            sendToKafka(UUID.randomUUID().toString(), asyncSourceRecord);
          }
          sendToKafka(uuid,
                      new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_END,
