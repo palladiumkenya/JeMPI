@@ -3,7 +3,7 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": ["identifiers"],
       "scope": [
@@ -16,7 +16,6 @@
     {
       "fieldName": "aux_dwh_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
       "fieldLabel": "AUX DWH ID",
       "groups": ["identifiers"],
       "scope": [

@@ -314,11 +314,8 @@ public final class CustomDgraphConstants {
          PatientRecord.aux_dwh_id:                   string                                       .
          PatientRecord.phonetic_given_name:          string                                       .
          PatientRecord.phonetic_family_name:         string                                       .
-         PatientRecord.phonetic_given_name:          string                                       .
-         PatientRecord.phonetic_family_name:         string                                       .
          PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .
-         PatientRecord.nupi:                         string                                       .
          PatientRecord.nupi:                         string                                       .
          """;
 
