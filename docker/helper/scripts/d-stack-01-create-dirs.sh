@@ -11,7 +11,7 @@ pushd .
   source ./conf/images/conf-hub-images.sh
   source ./conf/images/conf-app-images.sh
 
-  docker system prune --volumes
+  # docker system prune --volumes
 
   sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
@@ -24,6 +24,7 @@ pushd .
   mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}
 
   mkdir -p ${DATA_POSTGRESQL_DIR}
+  mkdir -p ${DATA_POSTGRESQL_DIR}/data
   cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
 
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf
