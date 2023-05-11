@@ -276,7 +276,6 @@ services:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       ALLOW_EMPTY_PASSWORD: "yes"
-      PGDATA: /data/postgres
     networks:
     - backend-postgresql
     ports:
@@ -288,10 +287,7 @@ services:
     - type: bind
       source: ${DATA_POSTGRESQL_DIR}
       target: /conf
-      read_only: true
-    - type: bind
-      source: $DATA_POSTGRESQL_DIR/data
-      target: /data/postgres      
+      read_only: true   
     deploy:
       mode: replicated
       replicas: 0
