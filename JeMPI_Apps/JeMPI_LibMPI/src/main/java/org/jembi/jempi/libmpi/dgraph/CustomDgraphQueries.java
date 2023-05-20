@@ -42,7 +42,7 @@ final class CustomDgraphQueries {
             var(func: match(GoldenRecord.dob, $dob, 1)) {
                C as uid
             }
-            all(func: uid(A,B,C)) @filter ((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) {
+            all(func: uid(A,B,C)) @filter (uid(A) AND uid(B) AND uid(C)) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -93,7 +93,7 @@ final class CustomDgraphQueries {
       final var phoneticGivenNameIsBlank = StringUtils.isBlank(phoneticGivenName);
       final var phoneticFamilyNameIsBlank = StringUtils.isBlank(phoneticFamilyName);
       final var dobIsBlank = StringUtils.isBlank(dob);
-      if (((phoneticGivenNameIsBlank || phoneticFamilyNameIsBlank) && (phoneticGivenNameIsBlank || dobIsBlank) && (phoneticFamilyNameIsBlank || dobIsBlank))) {
+      if ((phoneticGivenNameIsBlank || phoneticFamilyNameIsBlank || dobIsBlank)) {
          return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$phonetic_given_name",
