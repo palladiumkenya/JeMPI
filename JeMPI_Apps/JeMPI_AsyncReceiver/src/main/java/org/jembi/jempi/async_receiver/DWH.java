@@ -95,26 +95,10 @@ CREATE TABLE IF NOT EXISTS dwh (
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               // if (pkv != null) {
                   pStmt.setString(1, pkv == null || pkv.isEmpty() ? null : pkv);
-               // } else {
-               //    pStmt.setNull(1, Types.NULL);
-               // }
-               if (siteCode != null) {
-                  pStmt.setString(2, siteCode);
-               } else {
-                  pStmt.setNull(2, Types.NULL);
-               }
-               if (patientPk != null) {
-                  pStmt.setString(3, patientPk);
-               } else {
-                  pStmt.setNull(3, Types.NULL);
-               }
-               if (nupi != null) {
-                  pStmt.setString(4, nupi);
-               } else {
-                  pStmt.setNull(4, Types.NULL);
-               }
+                  pStmt.setString(2, siteCode == null || siteCode.isEmpty() ? null : siteCode);
+                  pStmt.setString(3, patientPk == null || patientPk.isEmpty() ? null : patientPk);
+                  pStmt.setString(4, nupi == null || nupi.isEmpty() ? null : nupi);
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();

@@ -138,20 +138,24 @@ public final class CustomMain {
          final String dwhId,
          final CSVRecord csvRecord) {
       final var phoneticTuple = parsePkv(csvRecord.get(LIVE_PKV_IDX));
+      final var dob = csvRecord.get(LIVE_DOB_IDX);
+      final var nupi = csvRecord.get(LIVE_NUPI_IDX) == null || csvRecord.get(LIVE_NUPI_IDX).isEmpty() ? null : csvRecord.get(LIVE_NUPI_IDX);
+      final var givenNameSoundex = phoneticTuple == null
+            ? (dob != null ? getEncodedMF(dob, OperationType.OPERATION_TYPE_SOUNDEX) : null)
+            : phoneticTuple._1();
+      final var familyNameDoubleMetaphone = phoneticTuple == null
+            ? (dob != null ? getEncodedMF(dob, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE) : null)
+            : phoneticTuple._2();
       return new CustomSourceRecord(
             stan,
             new SourceId(null, csvRecord.get(LIVE_SITE_CODE_IDX), csvRecord.get(LIVE_PATIENT_PK_IDX)),
             null,
             dwhId,
-            phoneticTuple != null
-                  ? phoneticTuple._1()
-                  : null,
-            phoneticTuple != null
-                  ? phoneticTuple._2()
-                  : null,
+            givenNameSoundex,
+            familyNameDoubleMetaphone,
             csvRecord.get(LIVE_GENDER_IDX),
             csvRecord.get(LIVE_DOB_IDX),
-            csvRecord.get(LIVE_NUPI_IDX));
+            nupi);
 
    }
 
