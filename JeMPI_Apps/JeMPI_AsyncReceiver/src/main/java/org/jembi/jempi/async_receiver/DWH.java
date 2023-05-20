@@ -95,22 +95,25 @@ CREATE TABLE IF NOT EXISTS dwh (
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               if (pkv != null && !pkv.equalsIgnoreCase("null")) {
+               if (pkv.isEmpty()) {
+                  LOGGER.debug("Found empty PKV");
+               }
+               if (pkv != null) {
                   pStmt.setString(1, pkv);
                } else {
                   pStmt.setNull(1, Types.NULL);
                }
-               if (siteCode != null && !siteCode.equalsIgnoreCase("null")) {
+               if (siteCode != null) {
                   pStmt.setString(2, siteCode);
                } else {
                   pStmt.setNull(2, Types.NULL);
                }
-               if (patientPk != null && !patientPk.equalsIgnoreCase("null")) {
+               if (patientPk != null) {
                   pStmt.setString(3, patientPk);
                } else {
                   pStmt.setNull(3, Types.NULL);
                }
-               if (nupi != null && !nupi.equalsIgnoreCase("null")) {
+               if (nupi != null) {
                   pStmt.setString(4, nupi);
                } else {
                   pStmt.setNull(4, Types.NULL);
