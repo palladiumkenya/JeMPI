@@ -95,14 +95,11 @@ CREATE TABLE IF NOT EXISTS dwh (
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-               if (pkv.isEmpty()) {
-                  LOGGER.debug("Found empty PKV");
-               }
-               if (pkv != null) {
-                  pStmt.setString(1, pkv);
-               } else {
-                  pStmt.setNull(1, Types.NULL);
-               }
+               // if (pkv != null) {
+                  pStmt.setString(1, pkv == null || pkv.isEmpty() ? null : pkv);
+               // } else {
+               //    pStmt.setNull(1, Types.NULL);
+               // }
                if (siteCode != null) {
                   pStmt.setString(2, siteCode);
                } else {
