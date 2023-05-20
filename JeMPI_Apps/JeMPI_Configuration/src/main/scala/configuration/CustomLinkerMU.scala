@@ -51,7 +51,7 @@ object CustomLinkerMU {
            |   private static boolean fieldMismatch(
            |         final String left,
            |         final String right) {
-           |      return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.92;
+           |      return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.95;
            |   }
            |
            |   private void updateMatchedPair(
