@@ -26,6 +26,9 @@ public final class AppConfig {
     public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
     public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
 
+    public static final String INPUT_ENVIRONMENT = CONFIG.getString("input.environment");
+    public static final Float INPUT_DEFAULT_THRESHOLD = (float) CONFIG.getDouble("input.default-threshold");
+
     private AppConfig() {
     }
 

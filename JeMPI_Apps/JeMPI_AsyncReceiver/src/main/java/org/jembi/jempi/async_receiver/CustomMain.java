@@ -192,9 +192,8 @@ public final class CustomMain {
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
-         final var tuple3 = parseFileName(fileName);
-         final var threshold = tuple3 == null ? 0.85f : tuple3._3();
-//         final var threshold = 0.85f;
+         // final var tuple3 = parseFileName(fileName);
+         final var threshold = AppConfig.INPUT_DEFAULT_THRESHOLD;
          final var reader = Files.newBufferedReader(Paths.get(fileName));
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
@@ -238,9 +237,19 @@ public final class CustomMain {
             //                               csvRecord.get(GENDER_IDX),
             //                               csvRecord.get(DOB_IDX));
             // LOGGER.debug("pkv: {}", pkv);
+            //var dwhId;
+            final CustomSourceRecord sourceRecord;
+            final String dwhId;
+            if (AppConfig.INPUT_ENVIRONMENT.equals("prod")) {
+               dwhId = dbInsertLiveData(csvRecord);
+               sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+            } else {
+               dwhId = dbInsertFakeData(csvRecord);
+               sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+            }
 
-            final var dwhId = dbInsertLiveData(csvRecord);
-            final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
+//            final var dwhId = dbInsertLiveData(csvRecord);
+//            final var sourceRecord = parseLiveRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
 //            final var dwhId = dbInsertFakeData(csvRecord);
 //            final var sourceRecord = parseFakeRecord(String.format("%s:%07d", stanDate, ++index), dwhId, csvRecord);
 
