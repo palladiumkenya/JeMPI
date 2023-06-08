@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS dwh (
 */
 
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(pkv,site_code,patient_pk,nupi)
-                                            VALUES (?,?,?,?)
+                                            INSERT INTO dwh(pkv,gender,dob,nupi,site_code,patient_pk,ccc_number)
+                                            VALUES (?,?,?,?,?,?,?)
                                             """;
 
 
@@ -81,10 +81,14 @@ CREATE TABLE IF NOT EXISTS dwh (
 
    String insertClinicalData(
          final String pkv,
+         final String gender,
+         final String dob,
+         final String nupi,
          final String siteCode,
          final String patientPk,
-         final String nupi) {
-      LOGGER.debug("{} {} {} {}", pkv, siteCode, patientPk, nupi);
+         final String cccNumber
+         ) {
+      LOGGER.debug("{} {} {} {} {} {} {}", pkv, gender, dob, nupi, siteCode, patientPk, cccNumber);
       String dwhId = null;
       if (open()) {
          try {
@@ -96,9 +100,12 @@ CREATE TABLE IF NOT EXISTS dwh (
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
                   pStmt.setString(1, pkv == null || pkv.isEmpty() ? null : pkv);
-                  pStmt.setString(2, siteCode == null || siteCode.isEmpty() ? null : siteCode);
-                  pStmt.setString(3, patientPk == null || patientPk.isEmpty() ? null : patientPk);
+                  pStmt.setString(2, gender == null || gender.isEmpty() ? null : gender);
+                  pStmt.setString(3, dob == null || dob.isEmpty() ? null : dob);
                   pStmt.setString(4, nupi == null || nupi.isEmpty() ? null : nupi);
+                  pStmt.setString(5, siteCode == null || siteCode.isEmpty() ? null : siteCode);
+                  pStmt.setString(6, patientPk == null || patientPk.isEmpty() ? null : patientPk);
+                  pStmt.setString(7, cccNumber == null || cccNumber.isEmpty() ? null : cccNumber);
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
