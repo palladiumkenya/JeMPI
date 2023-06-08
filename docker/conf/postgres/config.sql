@@ -84,9 +84,13 @@ CREATE TABLE IF NOT EXISTS dwh
      golden_id     VARCHAR(32),
      encounter_id  VARCHAR(32),
      pkv           VARCHAR(150),
+     gender        VARCHAR(32),
+     dob           VARCHAR(32),
+     nupi          VARCHAR(32),
      site_code     VARCHAR(32),
      patient_pk    VARCHAR(32),
-     nupi          VARCHAR(32)
+     ccc_number    VARCHAR(150)
+     
 );
 
 
