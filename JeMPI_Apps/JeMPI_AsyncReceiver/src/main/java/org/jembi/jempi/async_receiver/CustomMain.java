@@ -48,8 +48,9 @@ public final class CustomMain {
    private static final int TEST_GENDER_IDX = 3;
    private static final int TEST_DOB_IDX = 4;
    private static final int TEST_NUPI_IDX = 5;
-   private static final int TEST_CLINICAL_IDX = 6;
-   private static final int TEST_CCC_NUMBER_IDX = 7;
+   private static final int TEST_CCC_NUMBER_IDX = 6;
+   private static final int TEST_CLINICAL_IDX = 7;
+   
 
    private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
    private DWH dwh;
