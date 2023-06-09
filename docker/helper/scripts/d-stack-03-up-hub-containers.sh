@@ -12,8 +12,8 @@ pushd .
   source ./0-conf.env
 
   docker service scale ${STACK_NAME}_kafka-01=${SCALE_KAFKA_01}
-  # docker service scale ${STACK_NAME}_kafka-02=${SCALE_KAFKA_02}
-  # docker service scale ${STACK_NAME}_kafka-03=${SCALE_KAFKA_03}
+  docker service scale ${STACK_NAME}_kafka-02=${SCALE_KAFKA_02}
+  docker service scale ${STACK_NAME}_kafka-03=${SCALE_KAFKA_03}
   docker service scale ${STACK_NAME}_zero-01=${SCALE_ZERO_01}
   docker service scale ${STACK_NAME}_alpha-01=${SCALE_ALPHA_01}
   docker service scale ${STACK_NAME}_alpha-02=${SCALE_ALPHA_02}
