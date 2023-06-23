@@ -292,6 +292,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(patientRecord, 1.0F);
          } else {
+            LOGGER.debug("Found {} candidates for patient with dwhId {}", candidateGoldenRecords.size(),
+                  patientRecord.demographicData().auxDwhId());
             final var allCandidateScores = candidateGoldenRecords
                   .parallelStream()
                   .unordered()
