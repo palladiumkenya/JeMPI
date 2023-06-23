@@ -63,7 +63,7 @@ public final class PatientStreamAsync {
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         close();
+         // close();
       }
    }
 
