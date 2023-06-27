@@ -289,7 +289,7 @@ services:
       target: /conf
       read_only: true
     - type: bind
-      source: $DATA_POSTGRESQL_DIR/data
+      source: ${DATA_POSTGRESQL_DIR}
       target: /bitnami/postgresql         
     deploy:
       mode: replicated
