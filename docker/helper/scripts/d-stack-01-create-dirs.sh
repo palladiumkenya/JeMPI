@@ -11,7 +11,7 @@ pushd .
   source ./conf/images/conf-hub-images.sh
   source ./conf/images/conf-app-images.sh
 
-  docker system prune --volumes
+  # docker system prune --volumes
 
   sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
@@ -29,7 +29,10 @@ pushd .
   if [ ! -z ${DATA_DGRAPH_ALPHA_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}; fi
   if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
 
-  mkdir -p ${DATA_POSTGRESQL_DIR}
+  mkdir -p ${DATA_POSTGRESQL_DIR}/data
+
+  # bitnami/postgres uses 1001 uid.
+  sudo chown -R 1001 ${DATA_POSTGRESQL_DIR}/data/
   cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
 
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf

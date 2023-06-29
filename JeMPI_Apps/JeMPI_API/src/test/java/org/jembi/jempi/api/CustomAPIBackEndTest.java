@@ -47,12 +47,11 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "John",
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "New York",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -68,12 +67,11 @@ class CustomAPIBackEndTest {
                   new SourceId("d0d38f0e", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId2",
+                        "auxDwlId",
                         "Jane",
                         "Smith",
                         "Female",
                         "1985-05-10",
-                        "Los Angeles",
-                        "555-5678",
                         "987-65-4321")
             ));
 
@@ -89,12 +87,11 @@ class CustomAPIBackEndTest {
                   new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId3",
+                        "auxDwhId",
                         "Robert",
                         "Johnson",
                         "Male",
                         "1975-12-18",
-                        "Chicago",
-                        "555-9012",
                         "456-78-9012")
             ));
 
@@ -146,12 +143,11 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"), // sourceId
             new CustomDemographicData(
                   "auxId", // auxId
+                  "auxDwhId",
                   "John", // givenName
                   "Doe", // familyName
                   "Male", // gender
                   "1990-01-01", // dob
-                  "New York", // city
-                  "555-1234", // phoneNumber
                   "123-45-6789")); // nationalId
 
       when(libMPI.findInteraction("1234")).thenReturn(patientRecord);
@@ -213,12 +209,11 @@ class CustomAPIBackEndTest {
             new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId3",
+                  "auxDwhId",
                   "Robert",
                   "Johnson",
                   "Male",
                   "1975-12-18",
-                  "Chicago",
-                  "555-9012",
                   "456-78-9012")
       );
 
@@ -275,12 +270,11 @@ class CustomAPIBackEndTest {
                   new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
                   new CustomDemographicData(
                         "auxId3",
+                        "auxDwhId",
                         "Robert",
                         "Johnson",
                         "Male",
                         "1975-12-18",
-                        "Chicago",
-                        "555-9012",
                         "456-78-9012")
             ));
       List<InteractionWithScore> interactionWithScoreList = List.of(
@@ -311,12 +305,11 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -326,12 +319,11 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "Jonathan",
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "Cape Town",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -372,12 +364,11 @@ class CustomAPIBackEndTest {
                   new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
                   new CustomDemographicData(
                         "auxId",
+                        "auxDwhId",
                         "Jonathan",
                         "Doe",
                         "Male",
                         "1990-01-01",
-                        "Cape Town",
-                        "555-1234",
                         "123-45-6789")
             ));
 
@@ -413,12 +404,11 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -451,12 +441,11 @@ class CustomAPIBackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId",
+                  "auxDwhId",
                   "John",
                   "Doe",
                   "Male",
                   "1990-01-01",
-                  "Johannesburg",
-                  "555-1234",
                   "123-45-6789")
       );
 
@@ -484,12 +473,11 @@ class CustomAPIBackEndTest {
             new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
             new CustomDemographicData(
                   "auxId3",
+                  "auxDwhId",
                   "Robert",
                   "Johnson",
                   "Male",
                   "1975-12-18",
-                  "Chicago",
-                  "555-9012",
                   "456-78-9012")
       );
       ExpandedInteraction expandedInteraction = new ExpandedInteraction(interaction, null);
