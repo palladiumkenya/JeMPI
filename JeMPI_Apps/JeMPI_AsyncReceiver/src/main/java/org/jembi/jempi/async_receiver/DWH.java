@@ -9,20 +9,26 @@ import java.sql.*;
 final class DWH {
 
 /*
-CREATE TABLE IF NOT EXISTS dwh (
-   dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
-   golden_id     VARCHAR(32),
-   encounter_id  VARCHAR(32),
-   pkv           VARCHAR(150),
-   site_code     VARCHAR(32),
-   patient_pk    VARCHAR(32),
-   nupi          VARCHAR(32)
+CREATE TABLE IF NOT EXISTS dwh
+(
+     dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+     golden_id     VARCHAR(32),
+     encounter_id  VARCHAR(32),
+     pkv           VARCHAR(150),
+     gender        VARCHAR(32),
+     dob           VARCHAR(32),
+     nupi          VARCHAR(32),
+     site_code     VARCHAR(32),
+     patient_pk    VARCHAR(32),
+     ccc_number    VARCHAR(150),
+     docket        VARCHAR(32)
+     
 );
 */
 
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(pkv,gender,dob,nupi,site_code,patient_pk,ccc_number)
-                                            VALUES (?,?,?,?,?,?,?)
+                                            INSERT INTO dwh(pkv,gender,dob,nupi,site_code,patient_pk,ccc_number,docket)
+                                            VALUES (?,?,?,?,?,?,?,?)
                                             """;
 
 
@@ -86,9 +92,10 @@ CREATE TABLE IF NOT EXISTS dwh (
          final String nupi,
          final String siteCode,
          final String patientPk,
-         final String cccNumber
+         final String cccNumber,
+         final String docket
          ) {
-      LOGGER.debug("{} {} {} {} {} {} {}", pkv, gender, dob, nupi, siteCode, patientPk, cccNumber);
+      LOGGER.debug("{} {} {} {} {} {} {} {}", pkv, gender, dob, nupi, siteCode, patientPk, cccNumber, docket);
       String dwhId = null;
       if (open()) {
          try {
@@ -106,6 +113,7 @@ CREATE TABLE IF NOT EXISTS dwh (
                   pStmt.setString(5, siteCode == null || siteCode.isEmpty() ? null : siteCode);
                   pStmt.setString(6, patientPk == null || patientPk.isEmpty() ? null : patientPk);
                   pStmt.setString(7, cccNumber == null || cccNumber.isEmpty() ? null : cccNumber);
+                  pStmt.setString(8, docket.isEmpty() ? null : docket);
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();

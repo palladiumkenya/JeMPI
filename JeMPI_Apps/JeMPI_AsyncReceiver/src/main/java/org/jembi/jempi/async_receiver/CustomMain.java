@@ -41,6 +41,7 @@ public final class CustomMain {
    private static final int LIVE_SITE_CODE_IDX = 4;
    private static final int LIVE_PATIENT_PK_IDX = 5;
    private static final int LIVE_CCC_NUMBER_IDX = 6;
+   private static final int LIVE_DOCKET_IDX = 7;
 
    private static final int TEST_AUX_ID_IDX = 0;
    private static final int TEST_GIVEN_NAME_IDX = 1;
@@ -49,7 +50,8 @@ public final class CustomMain {
    private static final int TEST_DOB_IDX = 4;
    private static final int TEST_NUPI_IDX = 5;
    private static final int TEST_CCC_NUMBER_IDX = 6;
-   private static final int TEST_CLINICAL_IDX = 7;
+   private static final int TEST_DOCKET_IDX = 7;
+   private static final int TEST_CLINICAL_IDX = 8;
 
    private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
    private DWH dwh;
@@ -172,7 +174,8 @@ public final class CustomMain {
             csvRecord.get(TEST_NUPI_IDX),
             sourceId.facility(),
             sourceId.patient(),
-            csvRecord.get(TEST_CCC_NUMBER_IDX));
+            csvRecord.get(TEST_CCC_NUMBER_IDX),
+            csvRecord.get(TEST_DOCKET_IDX));
    }
 
    private String dbInsertLiveData(final CSVRecord csvRecord) {
@@ -182,7 +185,8 @@ public final class CustomMain {
             csvRecord.get(LIVE_NUPI_IDX),
             csvRecord.get(LIVE_SITE_CODE_IDX),
             csvRecord.get(LIVE_PATIENT_PK_IDX),
-            csvRecord.get(LIVE_CCC_NUMBER_IDX));
+            csvRecord.get(LIVE_CCC_NUMBER_IDX),
+            csvRecord.get(LIVE_DOCKET_IDX));
    }
 
    private void sendToKafka(

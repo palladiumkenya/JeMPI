@@ -89,7 +89,8 @@ CREATE TABLE IF NOT EXISTS dwh
      nupi          VARCHAR(32),
      site_code     VARCHAR(32),
      patient_pk    VARCHAR(32),
-     ccc_number    VARCHAR(150)
+     ccc_number    VARCHAR(150),
+     docket        VARCHAR(32)
      
 );
 
