@@ -2,6 +2,7 @@ package org.jembi.jempi.async_receiver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.models.SourceId;
 import org.postgresql.util.PGobject;
 
 import java.sql.*;
@@ -22,7 +23,6 @@ CREATE TABLE IF NOT EXISTS dwh
      patient_pk    VARCHAR(32),
      ccc_number    VARCHAR(150),
      docket        VARCHAR(32)
-     
 );
 */
 
@@ -90,12 +90,11 @@ CREATE TABLE IF NOT EXISTS dwh
          final String gender,
          final String dob,
          final String nupi,
-         final String siteCode,
-         final String patientPk,
+         final SourceId sourceId,
          final String cccNumber,
          final String docket
          ) {
-      LOGGER.debug("{} {} {} {} {} {} {} {}", pkv, gender, dob, nupi, siteCode, patientPk, cccNumber, docket);
+      LOGGER.debug("{} {} {} {} {} {} {} {}", pkv, gender, dob, nupi, sourceId.facility(), sourceId.patient(), cccNumber, docket);
       String dwhId = null;
       if (open()) {
          try {
@@ -110,8 +109,8 @@ CREATE TABLE IF NOT EXISTS dwh
                   pStmt.setString(2, gender == null || gender.isEmpty() ? null : gender);
                   pStmt.setString(3, dob == null || dob.isEmpty() ? null : dob);
                   pStmt.setString(4, nupi == null || nupi.isEmpty() ? null : nupi);
-                  pStmt.setString(5, siteCode == null || siteCode.isEmpty() ? null : siteCode);
-                  pStmt.setString(6, patientPk == null || patientPk.isEmpty() ? null : patientPk);
+                  pStmt.setString(5, sourceId.facility() == null || sourceId.facility().isEmpty() ? null : sourceId.facility());
+                  pStmt.setString(6, sourceId.patient() == null || sourceId.patient().isEmpty() ? null : sourceId.patient());
                   pStmt.setString(7, cccNumber == null || cccNumber.isEmpty() ? null : cccNumber);
                   pStmt.setString(8, docket.isEmpty() ? null : docket);
                int affectedRows = pStmt.executeUpdate();

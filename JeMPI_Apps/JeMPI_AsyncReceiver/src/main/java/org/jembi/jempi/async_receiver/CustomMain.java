@@ -172,8 +172,7 @@ public final class CustomMain {
             csvRecord.get(TEST_GENDER_IDX),
             csvRecord.get(TEST_DOB_IDX),
             csvRecord.get(TEST_NUPI_IDX),
-            sourceId.facility(),
-            sourceId.patient(),
+            sourceId,
             csvRecord.get(TEST_CCC_NUMBER_IDX),
             csvRecord.get(TEST_DOCKET_IDX));
    }
@@ -183,8 +182,7 @@ public final class CustomMain {
             csvRecord.get(LIVE_GENDER_IDX),
             csvRecord.get(LIVE_DOB_IDX),
             csvRecord.get(LIVE_NUPI_IDX),
-            csvRecord.get(LIVE_SITE_CODE_IDX),
-            csvRecord.get(LIVE_PATIENT_PK_IDX),
+            new SourceId(null, csvRecord.get(LIVE_SITE_CODE_IDX), csvRecord.get(LIVE_PATIENT_PK_IDX)),
             csvRecord.get(LIVE_CCC_NUMBER_IDX),
             csvRecord.get(LIVE_DOCKET_IDX));
    }
