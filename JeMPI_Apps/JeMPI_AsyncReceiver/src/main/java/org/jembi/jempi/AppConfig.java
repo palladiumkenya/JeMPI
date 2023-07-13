@@ -26,6 +26,10 @@ public final class AppConfig {
     public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
     public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
     public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+    public static final String MSSQL_USER = CONFIG.getString("MSSQL_USER");
+    public static final String MSSQL_PASSWORD = CONFIG.getString("MSSQL_PASSWORD");
+    public static final String MSSQL_HOST = CONFIG.getString("MSSQL_HOST");
+    public static final String MSSQL_DATABASE = CONFIG.getString("MSSQL_DATABASE");
     private AppConfig() {
     }
 

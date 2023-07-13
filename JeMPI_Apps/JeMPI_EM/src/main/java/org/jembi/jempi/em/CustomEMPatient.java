@@ -1,6 +1,5 @@
 package org.jembi.jempi.em;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 record CustomEMPatient(
@@ -16,13 +15,21 @@ record CustomEMPatient(
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
-      this(patient.givenName, CustomEMTask.getPhonetic(patient.givenName),
-           patient.familyName, CustomEMTask.getPhonetic(patient.familyName),
-           patient.gender,
-           patient.dob,
-           StringUtils.EMPTY, StringUtils.EMPTY, // patient.city, CustomEMTask.getPhonetic(patient.city),
-           StringUtils.EMPTY, // patient.phoneNumber,
-           null);
+      this(null, null,
+              null, null,
+              null,
+              null,
+              null,
+              null, // patient.city, CustomEMTask.getPhonetic(patient.city),
+              null, // patient.phoneNumber,
+              null);
+//      this(patient.givenName, CustomEMTask.getPhonetic(patient.givenName),
+//           patient.familyName, CustomEMTask.getPhonetic(patient.familyName),
+//           patient.gender,
+//           patient.dob,
+//           StringUtils.EMPTY, StringUtils.EMPTY, // patient.city, CustomEMTask.getPhonetic(patient.city),
+//           StringUtils.EMPTY, // patient.phoneNumber,
+//           null);
    }
 }
 

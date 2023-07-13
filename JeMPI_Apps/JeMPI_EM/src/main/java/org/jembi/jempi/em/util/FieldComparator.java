@@ -34,8 +34,8 @@ public class FieldComparator {
     }
 
     public final boolean compareFields(final Interaction patient, final GoldenRecord candidate) {
-        boolean givenNameAgreement = compareField(patient.demographicData().getGivenName(), candidate.demographicData().getGivenName(), FieldType.GIVEN_NAME);
-        boolean familyNameAgreement = compareField(patient.demographicData().getFamilyName(), candidate.demographicData().getFamilyName(), FieldType.FAMILY_NAME);
+        boolean givenNameAgreement = compareField(patient.demographicData().getPhoneticGivenName(), candidate.demographicData().getPhoneticGivenName(), FieldType.GIVEN_NAME);
+        boolean familyNameAgreement = compareField(patient.demographicData().getPhoneticFamilyName(), candidate.demographicData().getPhoneticFamilyName(), FieldType.FAMILY_NAME);
         boolean dobAgreement = compareField(patient.demographicData().getDob(), candidate.demographicData().getDob(), FieldType.DATE_OF_BIRTH);
 //        boolean cityAgreement = compareField(patient.demographicData().getCity(), candidate.demographicData().getCity(), FieldType.CITY);
 //        boolean nationalIdAgreement = compareField(patient.demographicData().nationalId, candidate.demographicData().getNationalId(), FieldType.NATIONAL_ID);

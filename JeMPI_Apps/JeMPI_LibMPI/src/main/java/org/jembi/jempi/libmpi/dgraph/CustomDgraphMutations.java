@@ -21,27 +21,25 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.source_id>                     <%s>                  .
                            _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <Interaction.aux_id>                        %s                    .
-                           _:%s  <Interaction.aux_clinical_data>             %s                    .
-                           _:%s  <Interaction.given_name>                    %s                    .
-                           _:%s  <Interaction.family_name>                   %s                    .
+                           _:%s  <Interaction.aux_dwh_id>                    %s                    .
+                           _:%s  <Interaction.phonetic_given_name>           %s                    .
+                           _:%s  <Interaction.phonetic_family_name>          %s                    .
                            _:%s  <Interaction.gender>                        %s                    .
                            _:%s  <Interaction.dob>                           %s                    .
-                           _:%s  <Interaction.city>                          %s                    .
-                           _:%s  <Interaction.phone_number>                  %s                    .
-                           _:%s  <Interaction.national_id>                   %s                    .
+                           _:%s  <Interaction.nupi>                          %s                    .
+                           _:%s  <Interaction.ccc_number>                    %s                    .
                            _:%s  <dgraph.type>                               "Interaction"         .
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
-                           uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData()),
-                           uuid, AppUtils.quotedValue(demographicData.givenName),
-                           uuid, AppUtils.quotedValue(demographicData.familyName),
+                           uuid, AppUtils.quotedValue(uniqueInteractionData.auxDwhId()),
+                           uuid, AppUtils.quotedValue(demographicData.phoneticGivenName),
+                           uuid, AppUtils.quotedValue(demographicData.phoneticFamilyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
-                           uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.nupi),
+                           uuid, AppUtils.quotedValue(demographicData.cccNumber),
                            uuid);
    }
 
@@ -57,13 +55,12 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
                            _:%s  <GoldenRecord.aux_id>                        %s                    .
-                           _:%s  <GoldenRecord.given_name>                    %s                    .
-                           _:%s  <GoldenRecord.family_name>                   %s                    .
+                           _:%s  <GoldenRecord.phonetic_given_name>           %s                    .
+                           _:%s  <GoldenRecord.phonetic_family_name>          %s                    .
                            _:%s  <GoldenRecord.gender>                        %s                    .
                            _:%s  <GoldenRecord.dob>                           %s                    .
-                           _:%s  <GoldenRecord.city>                          %s                    .
-                           _:%s  <GoldenRecord.phone_number>                  %s                    .
-                           _:%s  <GoldenRecord.national_id>                   %s                    .
+                           _:%s  <GoldenRecord.nupi>                          %s                    .
+                           _:%s  <GoldenRecord.ccc_number>                    %s                    .
                            _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
@@ -71,13 +68,12 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId()),
-                           uuid, AppUtils.quotedValue(demographicData.givenName),
-                           uuid, AppUtils.quotedValue(demographicData.familyName),
+                           uuid, AppUtils.quotedValue(demographicData.phoneticGivenName),
+                           uuid, AppUtils.quotedValue(demographicData.phoneticFamilyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
-                           uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.nupi),
+                           uuid, AppUtils.quotedValue(demographicData.cccNumber),
                            uuid, interactionUID, score,
                            uuid);
    }

@@ -27,6 +27,8 @@ public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
 
+   private DWH dwh;
+
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
    public static void main(final String[] args)
@@ -72,6 +74,11 @@ public final class Main {
       }
    }
 
+   private String dbInsertLiveData(final CSVRecord csvRecord) {
+      return dwh.insertClinicalData(CustomAsyncHelper.customDemographicData(csvRecord),
+              CustomAsyncHelper.customSourceId(csvRecord));
+   }
+
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
@@ -95,12 +102,14 @@ public final class Main {
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
                                                   String.format("%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
+            final String dwhId = dbInsertLiveData(csvRecord);
+            LOGGER.debug("Inserted record with dwhId {}", dwhId);
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
                                                String.format("%s:%07d", stanDate, ++index),
                                                new Interaction(null,
                                                                CustomAsyncHelper.customSourceId(csvRecord),
-                                                               CustomAsyncHelper.customUniqueInteractionData(csvRecord),
+                                                               CustomAsyncHelper.customUniqueInteractionData(csvRecord, dwhId),
                                                                CustomAsyncHelper.customDemographicData(csvRecord))));
          }
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
@@ -146,6 +155,7 @@ public final class Main {
                                                          GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
                                                          keySerializer(), valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
+      dwh = new DWH();
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
          csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);

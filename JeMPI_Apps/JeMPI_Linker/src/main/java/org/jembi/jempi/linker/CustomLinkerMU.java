@@ -51,26 +51,22 @@ public final class CustomLinkerMU {
    void updateMatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
-      updateMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
-      updateMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
+      updateMatchedPair(fields.phoneticGivenName, patient.phoneticGivenName, goldenRecord.phoneticGivenName);
+      updateMatchedPair(fields.phoneticFamilyName, patient.phoneticFamilyName, goldenRecord.phoneticFamilyName);
       updateMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
       updateMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
-      updateMatchedPair(fields.city, patient.city, goldenRecord.city);
-      updateMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
-      updateMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
+      updateMatchedPair(fields.nupi, patient.nupi, goldenRecord.nupi);
       LOGGER.debug("{}", fields);
    }
 
    void updateMissmatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
-      updateUnMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
-      updateUnMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
+      updateUnMatchedPair(fields.phoneticGivenName, patient.phoneticGivenName, goldenRecord.phoneticGivenName);
+      updateUnMatchedPair(fields.phoneticFamilyName, patient.phoneticFamilyName, goldenRecord.phoneticFamilyName);
       updateUnMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
       updateUnMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
-      updateUnMatchedPair(fields.city, patient.city, goldenRecord.city);
-      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
-      updateUnMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
+      updateUnMatchedPair(fields.nupi, patient.nupi, goldenRecord.nupi);
       LOGGER.debug("{}", fields);
    }
 
@@ -90,13 +86,11 @@ public final class CustomLinkerMU {
    }
 
    static class Fields {
-      final Field givenName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
-      final Field familyName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field phoneticGivenName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field phoneticFamilyName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
       final Field gender = new Field(JARO_WINKLER_SIMILARITY, 0.92);
       final Field dob = new Field(JARO_WINKLER_SIMILARITY, 0.92);
-      final Field city = new Field(JARO_WINKLER_SIMILARITY, 0.92);
-      final Field phoneNumber = new Field(JARO_WINKLER_SIMILARITY, 0.92);
-      final Field nationalId = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field nupi = new Field(JARO_WINKLER_SIMILARITY, 0.92);
 
       private float computeM(final Field field) {
          return (float) (field.matchedPairFieldMatched)
@@ -110,14 +104,12 @@ public final class CustomLinkerMU {
 
       @Override
       public String toString() {
-         return String.format("f1(%f:%f) f2(%f:%f) f3(%f:%f) f4(%f:%f) f5(%f:%f) f6(%f:%f) f7(%f:%f)",
-                              computeM(givenName), computeU(givenName),
-                              computeM(familyName), computeU(familyName),
+         return String.format("f1(%f:%f) f2(%f:%f) f3(%f:%f) f4(%f:%f) f5(%f:%f)",
+                              computeM(phoneticGivenName), computeU(phoneticGivenName),
+                              computeM(phoneticFamilyName), computeU(phoneticFamilyName),
                               computeM(gender), computeU(gender),
                               computeM(dob), computeU(dob),
-                              computeM(city), computeU(city),
-                              computeM(phoneNumber), computeU(phoneNumber),
-                              computeM(nationalId), computeU(nationalId));
+                              computeM(nupi), computeU(nupi));
       }
 
    }

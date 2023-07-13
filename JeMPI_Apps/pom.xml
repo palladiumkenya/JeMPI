@@ -282,6 +282,12 @@
                 <version>42.6.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>11.2.3.jre17</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>

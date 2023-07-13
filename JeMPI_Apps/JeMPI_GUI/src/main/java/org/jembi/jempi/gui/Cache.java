@@ -41,7 +41,7 @@ public final class Cache {
    }
 
    private static final class GoldenRecordBuffer {
-      private static final Integer BUFFER_SIZE = 100;
+      private static final Integer BUFFER_SIZE = 1;
       private static final Integer BUFFER_FILL_SIZE = 25;
       final BufferItem[] buffer;
       int base = 0;
@@ -56,13 +56,13 @@ public final class Cache {
                expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId(),
                expandedGoldenRecord.goldenRecord().uid(),
                expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxDateCreated().toString(),
-               expandedGoldenRecord.goldenRecord().demographicData().givenName,
-               expandedGoldenRecord.goldenRecord().demographicData().familyName,
+               expandedGoldenRecord.goldenRecord().demographicData().phoneticGivenName,
+               expandedGoldenRecord.goldenRecord().demographicData().phoneticFamilyName,
                expandedGoldenRecord.goldenRecord().demographicData().gender,
                expandedGoldenRecord.goldenRecord().demographicData().dob,
-               expandedGoldenRecord.goldenRecord().demographicData().city,
-               expandedGoldenRecord.goldenRecord().demographicData().phoneNumber,
-               expandedGoldenRecord.goldenRecord().demographicData().nationalId,
+//               expandedGoldenRecord.goldenRecord().demographicData().city,
+//               expandedGoldenRecord.goldenRecord().demographicData().phoneNumber,
+               expandedGoldenRecord.goldenRecord().demographicData().nupi,
                null};
       }
 
@@ -71,13 +71,13 @@ public final class Cache {
                interactionWithScore.interaction().uniqueInteractionData().auxId(),
                interactionWithScore.interaction().uid(),
                interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString(),
-               interactionWithScore.interaction().demographicData().givenName,
-               interactionWithScore.interaction().demographicData().familyName,
+               interactionWithScore.interaction().demographicData().phoneticGivenName,
+               interactionWithScore.interaction().demographicData().phoneticFamilyName,
                interactionWithScore.interaction().demographicData().gender,
                interactionWithScore.interaction().demographicData().dob,
-               interactionWithScore.interaction().demographicData().city,
-               interactionWithScore.interaction().demographicData().phoneNumber,
-               interactionWithScore.interaction().demographicData().nationalId,
+//               interactionWithScore.interaction().demographicData().city,
+//               interactionWithScore.interaction().demographicData().phoneNumber,
+               interactionWithScore.interaction().demographicData().nupi,
                Float.toString(interactionWithScore.score())};
       }
 

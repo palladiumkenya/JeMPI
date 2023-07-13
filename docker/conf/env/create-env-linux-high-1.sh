@@ -34,6 +34,11 @@ export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="notifications"
 
+export MSSQL_USER="sa"
+export MSSQL_PASSWORD="password"
+export MSSQL_HOST="172.17.0.1"
+export MSSQL_DATABASE="notifications"
+
 export KAFKA_SERVERS="kafka-01:9092,kafka-02:9092,kafka-03:9092"
 export DGRAPH_HOSTS="alpha-01,alpha-02,alpha-03"
 export DGRAPH_PORTS="9080,9081,9082"

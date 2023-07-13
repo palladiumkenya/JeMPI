@@ -18,15 +18,9 @@ final class CustomLinkerDeterministic {
    static boolean deterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      final var givenNameL = goldenRecord.givenName;
-      final var givenNameR = interaction.givenName;
-      final var familyNameL = goldenRecord.familyName;
-      final var familyNameR = interaction.familyName;
-      final var phoneNumberL = goldenRecord.phoneNumber;
-      final var phoneNumberR = interaction.phoneNumber;
-      final var nationalIdL = goldenRecord.nationalId;
-      final var nationalIdR = interaction.nationalId;
-      return (isMatch(nationalIdL, nationalIdR) || (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR)));
+      final var nupiL = goldenRecord.nupi;
+      final var nupiR = interaction.nupi;
+      return isMatch(nupiL, nupiR);
    }
 
 }

@@ -4,20 +4,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomDemographicData {
-   public final String givenName;
-   public final String familyName;
+   public final String phoneticGivenName;
+   public final String phoneticFamilyName;
    public final String gender;
    public final String dob;
-   public final String city;
-   public final String phoneNumber;
-   public final String nationalId;
+   public final String nupi;
+   public final String cccNumber;
 
-   public final String getGivenName() {
-      return givenName;
+   public final String getPhoneticGivenName() {
+      return phoneticGivenName;
    }
 
-   public final String getFamilyName() {
-      return familyName;
+   public final String getPhoneticFamilyName() {
+      return phoneticFamilyName;
    }
 
    public final String getGender() {
@@ -28,47 +27,40 @@ public class CustomDemographicData {
       return dob;
    }
 
-   public final String getCity() {
-      return city;
+   public final String getNupi() {
+      return nupi;
    }
 
-   public final String getPhoneNumber() {
-      return phoneNumber;
-   }
-
-   public final String getNationalId() {
-      return nationalId;
+   public final String getCccNumber() {
+      return cccNumber;
    }
 
    public CustomDemographicData() {
-      this(null, null, null, null, null, null, null);
+      this(null, null, null, null, null, null);
    }
 
    public CustomDemographicData(
-      final String givenName,
-      final String familyName,
+      final String phoneticGivenName,
+      final String phoneticFamilyName,
       final String gender,
       final String dob,
-      final String city,
-      final String phoneNumber,
-      final String nationalId) {
-         this.givenName = givenName;
-         this.familyName = familyName;
+      final String nupi,
+      final String cccNumber) {
+         this.phoneticGivenName = phoneticGivenName;
+         this.phoneticFamilyName = phoneticFamilyName;
          this.gender = gender;
          this.dob = dob;
-         this.city = city;
-         this.phoneNumber = phoneNumber;
-         this.nationalId = nationalId;
+         this.nupi = nupi;
+         this.cccNumber = cccNumber;
    }
 
    public CustomDemographicData clean() {
-      return new CustomDemographicData(this.givenName.toLowerCase().replaceAll("\\W", ""),
-                                       this.familyName.toLowerCase().replaceAll("\\W", ""),
+      return new CustomDemographicData(this.phoneticGivenName.toLowerCase().replaceAll("\\W", ""),
+                                       this.phoneticFamilyName.toLowerCase().replaceAll("\\W", ""),
                                        this.gender.toLowerCase().replaceAll("\\W", ""),
                                        this.dob.toLowerCase().replaceAll("\\W", ""),
-                                       this.city.toLowerCase().replaceAll("\\W", ""),
-                                       this.phoneNumber.toLowerCase().replaceAll("\\W", ""),
-                                       this.nationalId.toLowerCase().replaceAll("\\W", ""));
+                                       this.nupi.toLowerCase().replaceAll("\\W", ""),
+                                       this.cccNumber.toLowerCase().replaceAll("\\W", ""));
    }
 
 }

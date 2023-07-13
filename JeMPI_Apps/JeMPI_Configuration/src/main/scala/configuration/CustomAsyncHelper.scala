@@ -56,6 +56,8 @@ private object CustomAsyncHelper {
             s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
           } else if (f.fieldName.toUpperCase.equals("AUX_DATE_CREATED")) {
             s"""${" " * 45}java.time.LocalDateTime.now()"""
+          } else if (f.fieldName.toUpperCase.equals("AUX_DWH_ID")) {
+                        s"""${" " * 45}dwhId"""
           } else {
             s"""${" " * 45}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM)"""
           })
@@ -100,7 +102,7 @@ private object CustomAsyncHelper {
          |   private ${customClassName}() {
          |   }
          |
-         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
+         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord, final String dwhId) {
          |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments(config)});
          |   }
          |
