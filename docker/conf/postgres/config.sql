@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS dwh
      pkv           VARCHAR(150),
      gender        VARCHAR(32),
      dob           VARCHAR(32),
-     nupi          VARCHAR(32),
+     nupi          VARCHAR(150),
      site_code     VARCHAR(32),
      patient_pk    VARCHAR(32),
      ccc_number    VARCHAR(150),
