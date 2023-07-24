@@ -45,7 +45,7 @@ public final class SPInteractions {
       }
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, batchInteraction).toCompletableFuture();
       try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(120, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
