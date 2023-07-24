@@ -13,7 +13,7 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public final class LibMPI {
@@ -163,7 +163,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -172,7 +172,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -181,7 +181,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -190,7 +190,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -199,15 +199,18 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<String> filterGids(
-         final List<SearchParameter> params,
-         final LocalDate createdAt,
-         final Integer offset,
-         final Integer limit,
-         final String sortBy,
-         final Boolean sortAsc) {
-      return client.filterGids(params, createdAt, offset, limit, sortBy, sortAsc);
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      return client.filterGids(params, createdAt, paginationOptions);
    }
 
+   public PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      return client.filterGidsWithInteractionCount(params, createdAt, paginationOptions);
+   }
    /*
     * *****************************************************************************
     * *

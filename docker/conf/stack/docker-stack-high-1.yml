@@ -34,6 +34,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_POSTGRESQL}
+      resources:
+        limits:
+          memory: ${POSTGRESQL_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -68,6 +71,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
+      resources:
+        limits:
+          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -84,6 +90,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_NGINX}
+      resources:
+        limits:
+          memory: ${NGINX_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -128,6 +137,9 @@ services:
         read_only: true
     deploy:
       mode: global
+      resources:
+        limits:
+          memory: ${HAPROXY_RAM_LIMIT}
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -156,6 +168,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_KAFKA_01}
+      resources:
+        limits:
+          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -192,6 +207,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_KAFKA_02}
+      resources:
+        limits:
+          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -228,6 +246,9 @@ services:
     deploy:
       mode: replicated
       replicas: ${SCALE_KAFKA_03}
+      resources:
+        limits:
+          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -257,6 +278,9 @@ services:
       target: /dgraph
     deploy:
       replicas: ${SCALE_ZERO_01}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -265,7 +289,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=zero-01:5080 --replicas 1
+    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   alpha-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -287,6 +311,9 @@ services:
       mode: host
     deploy:
       replicas: ${SCALE_ALPHA_01}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -295,7 +322,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -317,6 +344,9 @@ services:
       mode: host
     deploy:
       replicas: ${SCALE_ALPHA_02}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -325,7 +355,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -347,6 +377,9 @@ services:
       mode: host
     deploy:
       replicas: ${SCALE_ALPHA_03}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -355,7 +388,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
-    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
@@ -368,6 +401,9 @@ services:
     - backend
     deploy:
       replicas: ${SCALE_RATEL}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -402,6 +438,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${ASYNC_RECEIVER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -429,6 +468,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${ETL_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -466,6 +508,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${CONTROLLER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -492,6 +537,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
+      resources:
+        limits:
+          memory: ${EM_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -506,7 +554,7 @@ services:
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     environment:
-      LOG4J2_LEVEL: "INFO" 
+      LOG4J2_LEVEL: "TRACE" 
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -517,7 +565,7 @@ services:
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
       HTTP_SERVER_PORT: 50000
-      LINKER_MATCH_THRESHOLD: 0.55
+      LINKER_MATCH_THRESHOLD: 0.65
       LINKER_MATCH_THRESHOLD_MARGIN: 0.1
     networks:
     - backend
@@ -569,6 +617,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -615,6 +666,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -628,16 +682,14 @@ services:
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
-    environment:
-      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
-      REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
-      REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
-    command: sh -c "yarn build && serve -s build"
     networks:
       - frontend
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${UI_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s

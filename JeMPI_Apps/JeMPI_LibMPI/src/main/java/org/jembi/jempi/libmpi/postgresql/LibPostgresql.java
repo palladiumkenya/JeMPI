@@ -9,7 +9,6 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -135,7 +134,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -145,7 +144,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -155,7 +154,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -165,7 +164,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -176,13 +175,18 @@ public final class LibPostgresql implements LibMPIClientInterface {
 
    @Override
    public LibMPIPaginatedResultSet<String> filterGids(
-         final List<SearchParameter> params,
-         final LocalDate createdAt,
-         final Integer offset,
-         final Integer limit,
-         final String sortBy,
-         final Boolean sortAsc) {
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
       LOGGER.error("Not implemented");
+      return null;
+   }
+
+   public PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      LOGGER.error("filterGidsWithInteractionCount Not implemented");
       return null;
    }
 

@@ -3,5 +3,7 @@ target
 .idea
 deprecated
 *.json
-!config-reference-api.json
-!config-reference.json
+kenya
+!openmrs/*
+!reference/config-reference-api.json
+!reference/config-reference.json

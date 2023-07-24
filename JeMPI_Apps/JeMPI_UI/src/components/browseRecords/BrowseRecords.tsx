@@ -5,7 +5,9 @@ import {
   Box,
   Container,
   Divider,
+  FormControlLabel,
   Paper,
+  Switch,
   Typography
 } from '@mui/material'
 import {
@@ -35,8 +37,8 @@ import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import locale from 'dayjs/locale/uk'
-import { formatDate } from 'utils/formatters'
+import { formatDateTime } from 'utils/formatters'
+import SourceIdComponent from './SourceIdComponent'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -52,31 +54,19 @@ const Records = () => {
   const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
 
+  const [isFetchingInteractions, setIsFetchingInteractions] = useState(false)
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 100
+    pageSize: 10
   })
 
-  const [dateFilter, setDateFilter] = useState(
-    dayjs().locale({
-      ...locale
-    })
-  )
+  const [dateFilter, setDateFilter] = useState(dayjs())
 
-  const [dateSearch, setDateSearch] = useState(
-    dayjs().locale({
-      ...locale
-    })
-  )
+  const [dateSearch, setDateSearch] = useState(dayjs())
 
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
     parameters: [],
-    createdAt: dayjs()
-      .locale({
-        ...locale
-      })
-      .format('YYYY-MM-DD'),
     limit: 1000,
     offset: 0,
     sortAsc: false,
@@ -90,10 +80,10 @@ const Records = () => {
       return {
         field: fieldName,
         headerName: fieldLabel,
-        flex: 1,
+        flex: fieldName === 'sourceId' ? 2 : 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
           fieldName === 'createdAt'
-            ? formatDate(value as Date)
+            ? formatDateTime(value as Date)
             : formatValue(value),
         sortable: false,
         disableColumnMenu: true,
@@ -103,13 +93,7 @@ const Records = () => {
         headerClassName: 'super-app-theme--header',
         renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'sourceId') {
-            return (
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                {params.row.sourceId.map((value: any) => (
-                  <Typography fontSize={'9px'}>{value.facility}</Typography>
-                ))}
-              </Box>
-            )
+            return <SourceIdComponent content={params.row.sourceId} />
           }
         }
       }
@@ -125,9 +109,15 @@ const Records = () => {
       ...filterPayload.parameters,
       filterPayload.createdAt,
       filterPayload.offset,
-      filterPayload.limit
+      filterPayload.limit,
+      isFetchingInteractions
     ],
-    queryFn: async () => await ApiClient.getFilteredGoldenIds(filterPayload),
+    queryFn: async () =>
+      isFetchingInteractions
+        ? await ApiClient.getFilteredGoldenIdsWithInteractionCount(
+            filterPayload
+          )
+        : await ApiClient.getFilteredGoldenIds(filterPayload),
     onSuccess: data => {
       if (filterPayload.offset > 0) {
         setGoldenIds([...goldenIds, ...data.data])
@@ -144,7 +134,12 @@ const Records = () => {
       paginationModel.page,
       paginationModel.pageSize,
       ...filterPayload.parameters,
-      goldenIds
+      goldenIds?.slice(
+        paginationModel.page * paginationModel.pageSize,
+        paginationModel.page * paginationModel.pageSize +
+          paginationModel.pageSize
+      ),
+      isFetchingInteractions
     ],
     queryFn: async () =>
       (await ApiClient.getExpandedGoldenRecords(
@@ -153,7 +148,7 @@ const Records = () => {
           paginationModel.page * paginationModel.pageSize +
             paginationModel.pageSize
         ),
-        false
+        isFetchingInteractions
       )) as Array<GoldenRecord>,
     enabled: goldenIds.length > 0,
     onSuccess: data =>
@@ -179,7 +174,7 @@ const Records = () => {
     setFilterPayload({
       ...filterPayload,
       parameters: [...query],
-      createdAt: dateFilter.format('YYYY-MM-DD')
+      createdAt: dateFilter.toJSON()
     })
   }
 
@@ -251,7 +246,14 @@ const Records = () => {
             <Typography variant="h6">Filter by</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ p: 1, display: 'flex', gap: '10px' }}>
+            <Box
+              sx={{
+                p: 1,
+                display: 'flex',
+                gap: '20px',
+                alignItems: 'center'
+              }}
+            >
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   value={dateFilter}
@@ -265,6 +267,17 @@ const Records = () => {
                   }}
                 />
               </LocalizationProvider>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isFetchingInteractions}
+                    onChange={(e, checked) =>
+                      setIsFetchingInteractions(checked)
+                    }
+                  />
+                }
+                label="Get Interactions"
+              />
             </Box>
             <FilterTable
               onSubmit={onFilter}
@@ -321,23 +334,41 @@ const Records = () => {
                   backgroundColor: '#a2cf6e'
                 }
               },
+
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
               },
               '& .super-app-theme--header': {
                 backgroundColor: '#274263',
                 color: 'white'
+              },
+              '& .super-app-theme--Golden': {
+                backgroundColor: '#f5df68',
+                '&:hover': {
+                  backgroundColor: '#fff08d'
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#e2be1d',
+                  '&:hover': { backgroundColor: '#fff08d' }
+                }
               }
             }}
             getRowId={({ uid }) => uid}
+            paginationModel={paginationModel}
             columns={columns}
             rows={expandeGoldenRecordsQuery?.data || []}
-            pageSizeOptions={[25, 50, 100]}
+            pageSizeOptions={[10, 25, 50, 100]}
             onRowDoubleClick={params =>
               navigate({ to: `/record-details/${params.row.uid}` })
             }
-            getRowClassName={params => `${getClassName(params.row)}`}
-            onPaginationModelChange={model => handlePagination(model)}
+            getRowClassName={params =>
+              `${
+                params.row.type === 'Golden' && isFetchingInteractions
+                  ? 'super-app-theme--Golden'
+                  : getClassName(params.row)
+              }`
+            }
+            onPaginationModelChange={handlePagination}
             paginationMode="server"
             loading={expandeGoldenRecordsQuery.isLoading}
             rowCount={goldenIdsQuery?.data?.pagination.total || 0}

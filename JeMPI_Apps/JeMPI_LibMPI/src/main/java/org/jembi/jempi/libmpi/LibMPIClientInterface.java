@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LibMPIClientInterface {
@@ -52,45 +52,49 @@ public interface LibMPIClientInterface {
 
    List<String> findGoldenIds();
 
-   List<String> fetchGoldenIds(long offset, long length);
+   List<String> fetchGoldenIds(
+         long offset,
+         long length);
 
    List<GoldenRecord> findCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         List<SearchParameter> params,
+         List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         List<SimpleSearchRequestPayload> params,
+         List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         List<SearchParameter> params,
+         List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
-         List<SimpleSearchRequestPayload> params,
+         List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<String> filterGids(
-         List<SearchParameter> params,
-         LocalDate createdAt,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc);
+         List<ApiModels.ApiSearchParameter> params,
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
+
+   PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         List<ApiModels.ApiSearchParameter> params,
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
 
    /*
     * *****************************************************************************

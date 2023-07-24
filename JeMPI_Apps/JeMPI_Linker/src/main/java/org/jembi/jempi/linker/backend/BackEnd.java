@@ -17,6 +17,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -128,7 +129,51 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
                                 .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+                                .onMessage(CrFindRequest.class, this::crFind)
+                                .onMessage(CrRegisterRequest.class, this::crRegister)
+                                .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
                                 .build();
+   }
+
+   private Behavior<Request> crFind(final CrFindRequest req) {
+      if (LOGGER.isTraceEnabled()) {
+         LOGGER.trace("{}", req.crFindData.parameters());
+      }
+      req.replyTo.tell(new CrFindResponse(Either.left(new MpiServiceError.NotImplementedError("crFind"))));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crRegister(final CrRegisterRequest req) {
+      if (LOGGER.isTraceEnabled()) {
+         LOGGER.trace("{}", req.crRegister.demographicData());
+      }
+
+      final var candidateGoldenRecords = libMPI.findCandidates(req.crRegister.demographicData());
+      LOGGER.debug("{}", candidateGoldenRecords);
+      if (candidateGoldenRecords.isEmpty()) {
+         LOGGER.debug("IS EMPTY");
+         final var interaction = new Interaction(null,
+                                                 req.crRegister.sourceId(),
+                                                 req.crRegister.uniqueInteractionData(),
+                                                 req.crRegister.demographicData());
+         final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+         LOGGER.debug("{}", linkInfo);
+         req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
+      } else {
+         LOGGER.debug("EXISTS");
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.ClientExists(candidateGoldenRecords.get(0)
+                                                                                                                    .demographicData(),
+                                                                                              req.crRegister.demographicData()))));
+      }
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
+      if (LOGGER.isTraceEnabled()) {
+         LOGGER.trace("{}", req.crUpdateField);
+      }
+      req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.NotImplementedError("crUpdateField"))));
+      return Behaviors.same();
    }
 
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
@@ -592,6 +637,38 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       public record Candidate(
             GoldenRecord goldenRecord,
             float score) {
+      }
+   }
+
+   public record CrRegisterRequest(
+         ApiModels.ApiCrRegisterRequest crRegister,
+         ActorRef<CrRegisterResponse> replyTo) implements Request {
+   }
+
+   public record CrRegisterResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrFindRequest(
+         ApiModels.ApiCrFindRequest crFindData,
+         ActorRef<CrFindResponse> replyTo) implements Request {
+   }
+
+   public record CrFindResponse(
+         Either<MpiGeneralError, List<GoldenRecord>> response) implements Response {
+   }
+
+   public record CrUpdateFieldRequest(
+         ApiModels.ApiCrUpdateFieldRequest crUpdateField,
+         ActorRef<CrUpdateFieldResponse> replyTo) implements Request {
+   }
+
+   public record CrUpdateFieldResponse(
+         Either<MpiGeneralError, UpdateFieldResponse> response) implements Response {
+      public record UpdateFieldResponse(
+            String goldenId,
+            String name,
+            String value) {
       }
    }
 

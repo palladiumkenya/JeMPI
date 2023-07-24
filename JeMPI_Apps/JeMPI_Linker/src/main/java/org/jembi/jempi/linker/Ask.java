@@ -3,6 +3,8 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
@@ -13,8 +15,54 @@ import java.util.concurrent.CompletionStage;
 
 final class Ask {
 
+   private static final Logger LOGGER = LogManager.getLogger(Ask.class);
+
+
    private Ask() {
    }
+
+   static CompletionStage<BackEnd.CrFindResponse> getCrFind(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrFindRequest body) {
+      CompletionStage<BackEnd.CrFindResponse> stage = AskPattern.ask(backEnd,
+                                                                     replyTo -> new BackEnd.CrFindRequest(body, replyTo),
+                                                                     java.time.Duration.ofSeconds(10),
+                                                                     actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.CrRegisterResponse> postCrRegister(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrRegisterRequest body) {
+      final CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern.ask(backEnd,
+                                                                               replyTo -> new BackEnd.CrRegisterRequest(body,
+                                                                                                                        replyTo),
+                                                                               java.time.Duration.ofSeconds(10),
+                                                                               actorSystem.scheduler());
+      return stage.thenApply(response -> {
+         if (response.linkInfo().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.linkInfo().get());
+         }
+         return response;
+      });
+   }
+
+   static CompletionStage<BackEnd.CrUpdateFieldResponse> patchCrUpdateField(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrUpdateFieldRequest body) {
+      CompletionStage<BackEnd.CrUpdateFieldResponse> stage = AskPattern.ask(backEnd,
+                                                                            replyTo -> new BackEnd.CrUpdateFieldRequest(body,
+                                                                                                                        replyTo),
+                                                                            java.time.Duration.ofSeconds(10),
+                                                                            actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
 
    static CompletionStage<BackEnd.SyncLinkInteractionResponse> postLinkInteraction(
          final ActorSystem<Void> actorSystem,

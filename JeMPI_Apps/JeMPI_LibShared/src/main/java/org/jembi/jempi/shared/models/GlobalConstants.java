@@ -45,6 +45,11 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_CUSTOM_SEARCH = "custom-search";
    public static final String SEGMENT_POST_UPLOAD_CSV_FILE = "Upload";
    public static final String SEGMENT_POST_FILTER_GIDS = "filter-gids";
+   public static final String SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT = "filter-gids-interaction";
+
+   public static final String SEGMENT_PROXY_CR_REGISTER = "cr-register";
+   public static final String SEGMENT_PROXY_CR_FIND = "cr-find";
+   public static final String SEGMENT_PROXY_CR_UPDATE_FIELD = "cr-update-field";
 
 
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidate-golden-records";
