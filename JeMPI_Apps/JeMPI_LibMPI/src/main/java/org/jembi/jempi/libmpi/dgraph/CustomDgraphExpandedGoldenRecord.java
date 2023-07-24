@@ -16,12 +16,11 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED) Boolean auxAutoUpdateEnabled,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONETIC_GIVEN_NAME) String phoneticGivenName,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONETIC_FAMILY_NAME) String phoneticFamilyName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NUPI) String nupi,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CCC_NUMBER) String cccNumber,
       @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
 
    GoldenRecord toGoldenRecord() {
@@ -32,12 +31,11 @@ record CustomDgraphExpandedGoldenRecord(
                               new CustomUniqueGoldenRecordData(this.auxDateCreated(),
                                                                this.auxAutoUpdateEnabled(),
                                                                this.auxId()),
-                              new CustomDemographicData(this.phoneticGivenName(),
-                                                        this.phoneticFamilyName(),
+                              new CustomDemographicData(this.givenName(),
+                                                        this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
-                                                        this.nupi(),
-                                                        this.cccNumber()));
+                                                        this.nupi()));
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {

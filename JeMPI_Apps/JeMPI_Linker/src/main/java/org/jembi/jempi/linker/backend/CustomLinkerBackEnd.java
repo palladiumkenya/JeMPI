@@ -22,11 +22,11 @@ public final class CustomLinkerBackEnd {
       var k = 0;
 
       k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "phoneticGivenName", demographicData.phoneticGivenName, CustomDemographicData::getPhoneticGivenName)
+                                                 "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
             ? 1
             : 0;
       k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "phoneticFamilyName", demographicData.phoneticFamilyName, CustomDemographicData::getPhoneticFamilyName)
+                                                 "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
             ? 1
             : 0;
       k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,

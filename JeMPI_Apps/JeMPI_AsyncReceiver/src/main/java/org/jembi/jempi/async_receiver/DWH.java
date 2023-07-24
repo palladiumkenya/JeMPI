@@ -103,12 +103,15 @@ CREATE TABLE notifications.dbo.dwh
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                  pStmt.setString(1, customDemographicData.getPhoneticGivenName().isEmpty() ? null : customDemographicData.getPhoneticGivenName());
-                  pStmt.setString(2, customDemographicData.getPhoneticFamilyName().isEmpty() ? null : customDemographicData.getPhoneticFamilyName());
+//                  pStmt.setString(1, customDemographicData.getPhoneticGivenName().isEmpty() ? null : customDemographicData.getPhoneticGivenName());
+                  pStmt.setString(1, customDemographicData.getGivenName().isEmpty() ? null : customDemographicData.getGivenName());
+//                  pStmt.setString(2, customDemographicData.getPhoneticFamilyName().isEmpty() ? null : customDemographicData.getPhoneticFamilyName());
+                  pStmt.setString(2, customDemographicData.getFamilyName().isEmpty() ? null : customDemographicData.getFamilyName());
                   pStmt.setString(3, customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
                   pStmt.setString(4, customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
                   pStmt.setString(5, customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
-                  pStmt.setString(6, customDemographicData.getCccNumber().isEmpty() ? null : customDemographicData.getCccNumber());
+//                  pStmt.setString(6, customDemographicData.getCccNumber().isEmpty() ? null : customDemographicData.getCccNumber());
+                  pStmt.setString(6, null);
                   pStmt.setString(7, customSourceId.facility().isEmpty() ? null : customSourceId.facility());
                   pStmt.setString(8, customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                int affectedRows = pStmt.executeUpdate();

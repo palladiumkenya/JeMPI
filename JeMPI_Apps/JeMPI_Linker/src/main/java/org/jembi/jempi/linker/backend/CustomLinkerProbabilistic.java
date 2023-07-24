@@ -20,27 +20,27 @@ final class CustomLinkerProbabilistic {
 
    static CustomMU getMU() {
       return new CustomMU(
-         LinkerProbabilistic.getProbability(currentFields.phoneticGivenName),
-         LinkerProbabilistic.getProbability(currentFields.phoneticFamilyName),
+         LinkerProbabilistic.getProbability(currentFields.givenName),
+         LinkerProbabilistic.getProbability(currentFields.familyName),
          LinkerProbabilistic.getProbability(currentFields.gender),
          LinkerProbabilistic.getProbability(currentFields.dob),
          LinkerProbabilistic.getProbability(currentFields.nupi));
    }
 
    private record Fields(
-         LinkerProbabilistic.Field phoneticGivenName,
-         LinkerProbabilistic.Field phoneticFamilyName,
+         LinkerProbabilistic.Field givenName,
+         LinkerProbabilistic.Field familyName,
          LinkerProbabilistic.Field gender,
          LinkerProbabilistic.Field dob,
          LinkerProbabilistic.Field nupi) {
    }
 
    static Fields currentFields =
-      new Fields(new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9F, 0.2F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9F, 0.2F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9F, 0.5F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.7428104F, 4.52E-5F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.97F, 1.0E-7F));
+      new Fields(new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), 0.9828191F, 0.0093628F),
+                 new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), 0.9926113F, 0.0058055F),
+                 new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), 0.9999F, 0.4999997F),
+                 new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), 0.9999999F, 6.87E-5F),
+                 new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), 0.9444177F, 5.0E-7F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
@@ -48,9 +48,9 @@ final class CustomLinkerProbabilistic {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.phoneticGivenName, interaction.phoneticGivenName, currentFields.phoneticGivenName);
+                                                      goldenRecord.givenName, interaction.givenName, currentFields.givenName);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.phoneticFamilyName, interaction.phoneticFamilyName, currentFields.phoneticFamilyName);
+                                                      goldenRecord.familyName, interaction.familyName, currentFields.familyName);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
                                                       goldenRecord.gender, interaction.gender, currentFields.gender);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
@@ -61,17 +61,17 @@ final class CustomLinkerProbabilistic {
    }
 
    public static void updateMU(final CustomMU mu) {
-      if (mu.phoneticGivenName().m() > mu.phoneticGivenName().u()
-          && mu.phoneticFamilyName().m() > mu.phoneticFamilyName().u()
+      if (mu.givenName().m() > mu.givenName().u()
+          && mu.familyName().m() > mu.familyName().u()
           && mu.gender().m() > mu.gender().u()
           && mu.dob().m() > mu.dob().u()
           && mu.nupi().m() > mu.nupi().u()) {
          updatedFields = new Fields(
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.phoneticGivenName().m(), mu.phoneticGivenName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.phoneticFamilyName().m(), mu.phoneticFamilyName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.gender().m(), mu.gender().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.dob().m(), mu.dob().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.nupi().m(), mu.nupi().u()));
+            new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), mu.givenName().m(), mu.givenName().u()),
+            new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), mu.familyName().m(), mu.familyName().u()),
+            new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), mu.gender().m(), mu.gender().u()),
+            new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), mu.dob().m(), mu.dob().u()),
+            new LinkerProbabilistic.Field(JARO_SIMILARITY, List.of(0.96F), mu.nupi().m(), mu.nupi().u()));
       }
    }
 

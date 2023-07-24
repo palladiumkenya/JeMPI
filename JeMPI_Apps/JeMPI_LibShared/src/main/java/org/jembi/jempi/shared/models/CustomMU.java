@@ -3,8 +3,8 @@ package org.jembi.jempi.shared.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record CustomMU(Probability phoneticGivenName,
-                       Probability phoneticFamilyName,
+public record CustomMU(Probability givenName,
+                       Probability familyName,
                        Probability gender,
                        Probability dob,
                        Probability nupi) {
