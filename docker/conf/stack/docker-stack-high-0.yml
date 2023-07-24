@@ -34,9 +34,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${POSTGRESQL_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${POSTGRESQL_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -71,9 +71,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -90,9 +90,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${NGINX_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${NGINX_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -137,9 +137,9 @@ services:
         read_only: true
     deploy:
       mode: global
-      resources:
-        limits:
-          memory: ${HAPROXY_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${HAPROXY_RAM_LIMIT}
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -168,9 +168,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -207,9 +207,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -246,9 +246,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${KAFKA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -278,9 +278,9 @@ services:
       target: /dgraph
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -311,9 +311,9 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -344,9 +344,9 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -377,9 +377,9 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -401,9 +401,9 @@ services:
     - backend
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${DGRAPH_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -438,9 +438,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${ASYNC_RECEIVER_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${ASYNC_RECEIVER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -468,9 +468,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${ETL_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${ETL_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -508,9 +508,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${CONTROLLER_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${CONTROLLER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -537,9 +537,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${EM_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${EM_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -577,9 +577,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${LINKER_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${LINKER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -617,9 +617,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${API_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${API_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -666,9 +666,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${API_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${API_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -687,9 +687,9 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${UI_RAM_LIMIT}
+#      resources:
+#        limits:
+#          memory: ${UI_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
