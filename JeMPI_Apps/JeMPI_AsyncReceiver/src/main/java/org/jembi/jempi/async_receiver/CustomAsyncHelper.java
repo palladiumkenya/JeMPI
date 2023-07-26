@@ -8,7 +8,8 @@ import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 final class CustomAsyncHelper {
 
    private static final int AUX_ID_COL_NUM = 0;
-   private static final int AUX_CLINICAL_DATA_COL_NUM = 8;
+   private static final int CCC_NUMBER_COL_NUM = 8;
+   private static final int PKV_COL_NUM = 9;
    private static final int SOURCEID_FACILITY_COL_NUM = 6;
    private static final int SOURCEID_PATIENT_COL_NUM = 7;
    private static final int GIVEN_NAME_COL_NUM = 1;
@@ -23,7 +24,8 @@ final class CustomAsyncHelper {
    static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord, final String dwhId) {
       return new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                                              Main.parseRecordNumber(csvRecord.get(AUX_ID_COL_NUM)),
-                                             csvRecord.get(AUX_CLINICAL_DATA_COL_NUM),
+                                             csvRecord.get(CCC_NUMBER_COL_NUM),
+                                             csvRecord.get(PKV_COL_NUM),
                                              dwhId);
    }
 
