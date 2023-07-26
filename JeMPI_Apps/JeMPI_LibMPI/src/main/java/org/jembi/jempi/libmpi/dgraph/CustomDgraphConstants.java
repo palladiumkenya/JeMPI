@@ -14,6 +14,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
    public static final String PREDICATE_INTERACTION_AUX_CLINICAL_DATA = "Interaction.aux_clinical_data";
+   public static final String PREDICATE_INTERACTION_AUX_DWH_ID = "Interaction.aux_dwh_id";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
    public static final String PREDICATE_INTERACTION_FAMILY_NAME = "Interaction.family_name";
    public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
@@ -64,6 +65,7 @@ public final class CustomDgraphConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
+            Interaction.aux_dwh_id
             Interaction.given_name
             Interaction.family_name
             Interaction.gender
@@ -82,6 +84,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
+         Interaction.aux_dwh_id
          Interaction.given_name
          Interaction.family_name
          Interaction.gender
@@ -100,6 +103,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
+         Interaction.aux_dwh_id
          Interaction.given_name
          Interaction.family_name
          Interaction.gender
@@ -136,6 +140,7 @@ public final class CustomDgraphConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
+               Interaction.aux_dwh_id
                Interaction.given_name
                Interaction.family_name
                Interaction.gender
@@ -180,6 +185,7 @@ public final class CustomDgraphConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
+               Interaction.aux_dwh_id
                Interaction.given_name
                Interaction.family_name
                Interaction.gender
@@ -255,6 +261,7 @@ public final class CustomDgraphConstants {
                   Interaction.aux_date_created
                   Interaction.aux_id
                   Interaction.aux_clinical_data
+                  Interaction.aux_dwh_id
                   Interaction.given_name
                   Interaction.family_name
                   Interaction.gender
@@ -318,6 +325,7 @@ public final class CustomDgraphConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
+            Interaction.aux_dwh_id
             Interaction.given_name
             Interaction.family_name
             Interaction.gender
@@ -332,6 +340,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.aux_clinical_data:            string                                       .
+         Interaction.aux_dwh_id:                   string                                       .
          Interaction.given_name:                   string                                       .
          Interaction.family_name:                  string                                       .
          Interaction.gender:                       string                                       .

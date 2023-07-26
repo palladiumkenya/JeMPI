@@ -31,7 +31,7 @@ export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="notifications"
 
 export MSSQL_USER="sa"
-export MSSQL_PASSWORD="password"
+export MSSQL_PASSWORD="E8@6*i^jMl8"
 export MSSQL_HOST="172.17.0.1"
 export MSSQL_DATABASE="notifications"
 

@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomSourceId;
-import org.postgresql.util.PGobject;
 
 import java.sql.*;
 
@@ -73,12 +72,13 @@ CREATE TABLE notifications.dbo.dwh
       if (open()) {
          try {
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
-               final PGobject uuid = new PGobject();
-               uuid.setType("uuid");
-               uuid.setValue(dwlId);
+//               final PGobject uuid = new PGobject();
+//               uuid.setType("uuid");
+//               uuid.setValue(dwlId);
                pStmt.setString(1, goldenId);
                pStmt.setString(2, encounterId);
-               pStmt.setObject(3, uuid);
+//               pStmt.setObject(3, uuid);
+               pStmt.setInt(3, Integer.parseInt(dwlId));
                pStmt.executeUpdate();
             }
          } catch (SQLException e) {

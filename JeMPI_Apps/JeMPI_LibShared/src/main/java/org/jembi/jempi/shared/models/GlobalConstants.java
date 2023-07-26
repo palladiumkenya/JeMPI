@@ -9,6 +9,7 @@ public final class GlobalConstants {
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
+   public static final String TOPIC_BACK_PATCH_DWH = "JeMPI-back-patch-dwh";
 
 
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";

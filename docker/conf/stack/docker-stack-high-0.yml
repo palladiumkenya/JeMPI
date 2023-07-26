@@ -420,6 +420,7 @@ services:
       LOG4J2_LEVEL: "DEBUG" 
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_CLIENT_ID: client-id-syncrx
+      KAFKA_APPLICATION_ID: async-receiver-app-id
       MSSQL_USER: ${MSSQL_USER}
       MSSQL_PASSWORD: ${MSSQL_PASSWORD}
       MSSQL_HOST: ${MSSQL_HOST}

@@ -42,6 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private LibMPI libMPI = null;
    private MyKafkaProducer<String, Notification> topicNotifications;
    private MyKafkaProducer<String, AuditEvent> topicAuditEvents;
+   private MyKafkaProducer<String, BackPatchDWH> topicBackPatchDWH;
 
    private BackEnd(final ActorContext<Request> context) {
       super(context);
@@ -60,6 +61,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                new StringSerializer(),
                                                new JsonPojoSerializer<>(),
                                                AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+      topicBackPatchDWH = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                GlobalConstants.TOPIC_BACK_PATCH_DWH,
+                                                new StringSerializer(),
+                                                new JsonPojoSerializer<>(),
+                                                AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -189,6 +195,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
       final var listLinkInfo =
             linkInteraction(req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
+
+      final var backPatchDWL = new BackPatchDWH(req.batchInteraction.interaction().uniqueInteractionData().auxDwhId(),
+              listLinkInfo.getLeft().goldenUID(),
+              listLinkInfo.getLeft().interactionUID());
+      LOGGER.debug("{}", backPatchDWL);
+      try {
+         topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);
+      } catch (ExecutionException | InterruptedException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       req.replyTo.tell(new AsyncLinkInteractionResponse(listLinkInfo.getLeft()));
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));

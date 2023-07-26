@@ -148,14 +148,17 @@ public final class Main {
    }
 
    private void run() throws InterruptedException, ExecutionException, IOException {
-      LOGGER.info("KAFKA: {} {}",
-                  AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_CLIENT_ID);
+      LOGGER.info("KAFKA: {} {} {}",
+              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+              AppConfig.KAFKA_APPLICATION_ID,
+              AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
                                                          keySerializer(), valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
       dwh = new DWH();
+      final BackPatchStream backPatchStream = BackPatchStream.create();
+      backPatchStream.open();
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
          csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);

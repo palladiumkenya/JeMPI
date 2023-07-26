@@ -23,7 +23,8 @@ final class CustomAsyncHelper {
    static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord, final String dwhId) {
       return new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                                              Main.parseRecordNumber(csvRecord.get(AUX_ID_COL_NUM)),
-                                             csvRecord.get(AUX_CLINICAL_DATA_COL_NUM));
+                                             csvRecord.get(AUX_CLINICAL_DATA_COL_NUM),
+                                             dwhId);
    }
 
    static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
