@@ -103,12 +103,16 @@ public final class Main {
                                                   String.format("%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
             final String dwhId = dbInsertLiveData(csvRecord);
+            final var sourceId = CustomAsyncHelper.customSourceId(csvRecord);
+            if (dwhId == null) {
+               LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
+            }
             LOGGER.debug("Inserted record with dwhId {}", dwhId);
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
                                                String.format("%s:%07d", stanDate, ++index),
                                                new Interaction(null,
-                                                               CustomAsyncHelper.customSourceId(csvRecord),
+                                                               sourceId,
                                                                CustomAsyncHelper.customUniqueInteractionData(csvRecord, dwhId),
                                                                CustomAsyncHelper.customDemographicData(csvRecord))));
          }
