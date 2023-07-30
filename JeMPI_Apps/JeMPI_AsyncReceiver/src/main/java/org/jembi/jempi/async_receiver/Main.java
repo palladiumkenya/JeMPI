@@ -76,7 +76,7 @@ public final class Main {
 
    private String dbInsertLiveData(final CSVRecord csvRecord) {
       return dwh.insertClinicalData(CustomAsyncHelper.customDemographicData(csvRecord),
-              CustomAsyncHelper.customSourceId(csvRecord));
+              CustomAsyncHelper.customSourceId(csvRecord), CustomAsyncHelper.customUniqueInteractionData(csvRecord, null));
    }
 
    private void apacheReadCSV(final String fileName)

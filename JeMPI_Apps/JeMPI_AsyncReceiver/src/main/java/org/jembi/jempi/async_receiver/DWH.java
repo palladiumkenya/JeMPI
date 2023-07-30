@@ -1,10 +1,12 @@
 package org.jembi.jempi.async_receiver;
 
+import org.apache.commons.csv.CSVRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomSourceId;
+import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 
 import java.sql.*;
 
@@ -72,12 +74,8 @@ CREATE TABLE notifications.dbo.dwh
       if (open()) {
          try {
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
-//               final PGobject uuid = new PGobject();
-//               uuid.setType("uuid");
-//               uuid.setValue(dwlId);
                pStmt.setString(1, goldenId);
                pStmt.setString(2, encounterId);
-//               pStmt.setObject(3, uuid);
                pStmt.setInt(3, Integer.parseInt(dwlId));
                pStmt.executeUpdate();
             }
@@ -91,8 +89,9 @@ CREATE TABLE notifications.dbo.dwh
 
    String insertClinicalData(
            final CustomDemographicData customDemographicData,
-           final CustomSourceId customSourceId
-         ) {
+           final CustomSourceId customSourceId,
+           final CustomUniqueInteractionData customUniqueInteractionData
+           ) {
       String dwhId = null;
       if (open()) {
          try {
@@ -103,15 +102,12 @@ CREATE TABLE notifications.dbo.dwh
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-//                  pStmt.setString(1, customDemographicData.getPhoneticGivenName().isEmpty() ? null : customDemographicData.getPhoneticGivenName());
                   pStmt.setString(1, customDemographicData.getGivenName().isEmpty() ? null : customDemographicData.getGivenName());
-//                  pStmt.setString(2, customDemographicData.getPhoneticFamilyName().isEmpty() ? null : customDemographicData.getPhoneticFamilyName());
                   pStmt.setString(2, customDemographicData.getFamilyName().isEmpty() ? null : customDemographicData.getFamilyName());
                   pStmt.setString(3, customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
                   pStmt.setString(4, customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
                   pStmt.setString(5, customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
-//                  pStmt.setString(6, customDemographicData.getCccNumber().isEmpty() ? null : customDemographicData.getCccNumber());
-                  pStmt.setString(6, null);
+                  pStmt.setString(6, customUniqueInteractionData.cccNumber().isEmpty() ? null : customUniqueInteractionData.cccNumber());
                   pStmt.setString(7, customSourceId.facility().isEmpty() ? null : customSourceId.facility());
                   pStmt.setString(8, customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                int affectedRows = pStmt.executeUpdate();
