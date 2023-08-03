@@ -1,0 +1,148 @@
+{
+  "uniqueInteractionFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ccc_number",
+      "fieldType": "String",
+      "csvCol": 6
+    },
+    {
+      "fieldName": "pkv",
+      "fieldType": "String",
+      "csvCol": 0
+    },
+    {
+      "fieldName": "aux_dwh_id",
+      "fieldType": "String"
+    }
+  ],
+  "uniqueGoldenRecordFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_auto_update_enabled",
+      "fieldType": "Bool",
+      "default": "true"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    }
+  ],
+  "additionalNodes": [
+    {
+      "nodeName": "SourceId",
+      "fields": [
+        {
+          "fieldName": "facility",
+          "fieldType": "String",
+          "csvCol": 4
+        },
+        {
+          "fieldName": "patient",
+          "fieldType": "String",
+          "csvCol": 5
+        }
+      ]
+    }
+  ],
+  "demographicFields": [
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(hash)",
+      "comparison": "JARO_SIMILARITY",
+      "comparisonLevels": [
+        0.96
+      ],
+      "m": 0.9828191,
+      "u": 0.0093628
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(hash)",
+      "comparison": "JARO_SIMILARITY",
+      "comparisonLevels": [
+        0.96
+      ],
+      "m": 0.9926113,
+      "u": 0.0058055
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "csvCol": 1,
+      "indexGoldenRecord": "@index(hash)",
+      "comparison": "JARO_SIMILARITY",
+      "comparisonLevels": [
+        0.96
+      ],
+      "m": 0.9999000,
+      "u": 0.4999997
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "csvCol": 2,
+      "indexGoldenRecord": "@index(hash)",
+      "comparison": "JARO_SIMILARITY",
+      "comparisonLevels": [
+        0.96
+      ],
+      "m": 0.9999999,
+      "u": 0.0000687
+    },
+    {
+      "fieldName": "nupi",
+      "fieldType": "String",
+      "csvCol": 3,
+      "indexGoldenRecord": "@index(hash)",
+      "comparison": "JARO_SIMILARITY",
+      "comparisonLevels": [
+        0.96
+      ],
+      "m": 0.9444177,
+      "u": 0.0000005
+    }
+  ],
+  "rules": {
+    "deterministic": {
+      "QUERY_DETERMINISTIC_A": {
+        "vars": [
+          "nupi"
+        ],
+        "text": "eq(nupi)"
+      },
+      "QUERY_DETERMINISTIC_B": {
+        "vars": [
+          "given_name",
+          "family_name",
+          "gender",
+          "dob"
+        ],
+        "text": "eq(given_name) and eq(family_name) and eq(gender) and eq(dob)"
+      }
+    },
+    "probabilistic": {
+      "QUERY_PROBABILISTIC": {
+        "vars": [
+          "given_name",
+          "family_name",
+          "dob",
+          "gender"
+        ],
+        "text": "eq(given_name) and eq(family_name) or (eq(given_name) or eq(family_name)) and eq(dob) and eq(gender)"
+      }
+    }
+  }
+}
