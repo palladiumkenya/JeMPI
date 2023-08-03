@@ -4,7 +4,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-import scala.Tuple2;
 
 final class CustomAsyncHelper {
 
@@ -12,11 +11,10 @@ final class CustomAsyncHelper {
    private static final int PKV_COL_NUM = 0;
    private static final int SOURCEID_FACILITY_COL_NUM = 4;
    private static final int SOURCEID_PATIENT_COL_NUM = 5;
-//   private static final int GIVEN_NAME_COL_NUM = 0;
-//   private static final int FAMILY_NAME_COL_NUM = 0;
    private static final int GENDER_COL_NUM = 1;
    private static final int DOB_COL_NUM = 2;
    private static final int NUPI_COL_NUM = 3;
+
 
    private CustomAsyncHelper() {
    }
@@ -30,12 +28,9 @@ final class CustomAsyncHelper {
    }
 
    static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
-      Tuple2<String, String> phoneticNames =  CustomInputHelper.parsePkv(csvRecord.get(PKV_COL_NUM));
-      String givenNameSoundex = phoneticNames == null ? "" : phoneticNames._1();
-      String familyNameDoubleMetaphone = phoneticNames == null ? "" : phoneticNames._2();
       return new CustomDemographicData(
-         givenNameSoundex,
-         familyNameDoubleMetaphone,
+         null,
+         null,
          csvRecord.get(GENDER_COL_NUM),
          csvRecord.get(DOB_COL_NUM),
          csvRecord.get(NUPI_COL_NUM));

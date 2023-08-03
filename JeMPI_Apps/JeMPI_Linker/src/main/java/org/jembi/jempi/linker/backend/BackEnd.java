@@ -198,7 +198,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
       final var backPatchDWL = new BackPatchDWH(req.batchInteraction.interaction().uniqueInteractionData().auxDwhId(),
               listLinkInfo.getLeft().goldenUID(),
-              listLinkInfo.getLeft().interactionUID());
+              listLinkInfo.getLeft().interactionUID(),
+              req.batchInteraction.interaction().demographicData().getGivenName(),
+              req.batchInteraction.interaction().demographicData().familyName);
       LOGGER.debug("{}", backPatchDWL);
       try {
          topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);

@@ -33,15 +33,22 @@ private object CustomAsyncHelper {
       config
         .demographicFields
         .map(f =>
-          s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};""")
-        .mkString("\n")
+            if(f.csvCol.isEmpty) "" else {
+                s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};
+                |""".stripMargin
+            })
+        .mkString("").stripMargin
   end columnIndices
 
   private def demographicFields(config: Config): String =
     config
       .demographicFields
       .map(f =>
-        s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),""")
+        if (f.csvCol.isEmpty) {
+            s"""${" " * 9}null,"""
+        } else {
+            s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),"""
+        })
       .mkString("\n")
       .dropRight(1)
   end demographicFields
@@ -53,7 +60,8 @@ private object CustomAsyncHelper {
         .get
         .map(f =>
           if (f.fieldName.toUpperCase.equals("AUX_ID")) {
-            s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
+            if(f.csvCol.isEmpty) s"""${" " * 45}null""" else {
+                s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""}
           } else if (f.fieldName.toUpperCase.equals("AUX_DATE_CREATED")) {
             s"""${" " * 45}java.time.LocalDateTime.now()"""
           } else if (f.fieldName.toUpperCase.equals("AUX_DWH_ID")) {

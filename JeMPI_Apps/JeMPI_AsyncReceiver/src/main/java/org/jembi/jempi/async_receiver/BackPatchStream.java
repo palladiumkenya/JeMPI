@@ -37,7 +37,7 @@ class BackPatchStream {
          final BackPatchDWH rec) {
       LOGGER.debug("{} - {}", key, rec);
       if (rec.dwhId() != null && !rec.dwhId().isEmpty()) {
-         dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
+         dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId(), rec.phoneticGivenName(), rec.phoneticFamilyName());
       } else {
          LOGGER.warn("BackPatch record with no dwhId. goldenId({})", rec.goldenId());
       }
