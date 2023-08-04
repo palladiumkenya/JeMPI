@@ -21,26 +21,6 @@ public final class CustomLinkerBackEnd {
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
-            ? 1
-            : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
-            ? 1
-            : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "gender", demographicData.gender, CustomDemographicData::getGender)
-            ? 1
-            : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "dob", demographicData.dob, CustomDemographicData::getDob)
-            ? 1
-            : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "nupi", demographicData.nupi, CustomDemographicData::getNupi)
-            ? 1
-            : 0;
 
       if (k > 0) {
         backEnd.helperUpdateInteractionsScore(threshold, expandedGoldenRecord);
