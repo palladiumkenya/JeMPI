@@ -45,13 +45,13 @@ public final class SPInteractions {
       }
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, batchInteraction).toCompletableFuture();
       try {
-         final var reply = completableFuture.get(120, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(80, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         close();
+//         close();
       }
    }
 
