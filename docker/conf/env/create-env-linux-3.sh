@@ -12,12 +12,12 @@ source ./cluster-ip.sh
 export SCALE_NGINX=1
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
-export SCALE_KAFKA_02=1
-export SCALE_KAFKA_03=1
+#export SCALE_KAFKA_02=1
+#export SCALE_KAFKA_03=1
 export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
-export SCALE_ALPHA_02=1
-export SCALE_ALPHA_03=1
+#export SCALE_ALPHA_02=1
+#export SCALE_ALPHA_03=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
 export SCALE_LINKER=3
@@ -32,8 +32,8 @@ export MSSQL_HOST="172.17.0.1"
 export MSSQL_DATABASE="notifications"
 
 export KAFKA_SERVERS="kafka-01:9092"
-export DGRAPH_HOSTS="alpha-01,alpha-02,alpha-03"
-export DGRAPH_PORTS="9080,9081,9082"
+export DGRAPH_HOSTS="alpha-01"
+export DGRAPH_PORTS="9080"
 
 # API related env vars
 export KC_REALM_NAME="jempi-dev"
