@@ -22,6 +22,18 @@ final class ETLUtil {
                 demographicData.getDob(),
                 demographicData.getNupi());
     }
+
+    static CustomUniqueInteractionData cleanUniqueInteractionData(final CustomUniqueInteractionData uniqueInteractionData) {
+        return new CustomUniqueInteractionData(
+                uniqueInteractionData.auxDateCreated(),
+                uniqueInteractionData.auxId(),
+                uniqueInteractionData.cccNumber().replaceAll("([\\\\])", "/"),
+                uniqueInteractionData.pkv(),
+                uniqueInteractionData.auxDwhId()
+        );
+    }
+
+
     static Tuple2<String, String> parsePkv(final String pkv) {
         final String regex = "^(?<gender>[M|F])(?<pgn>[A-Z]\\d+)(?<pfn>[A-Z]+)(?<dob>\\d\\d\\d\\d)$";
         final Pattern pattern = Pattern.compile(regex);

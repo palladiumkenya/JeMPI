@@ -87,8 +87,6 @@ final class DWH {
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-//                  pStmt.setString(1, customDemographicData.getGivenName().isEmpty() ? null : customDemographicData.getGivenName());
-//                  pStmt.setString(2, customDemographicData.getFamilyName().isEmpty() ? null : customDemographicData.getFamilyName());
                   pStmt.setString(1, customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
                   pStmt.setString(2, customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
                   pStmt.setString(3, customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());

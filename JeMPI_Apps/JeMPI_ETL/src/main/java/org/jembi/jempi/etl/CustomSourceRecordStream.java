@@ -60,7 +60,7 @@ public final class CustomSourceRecordStream {
                         rec.stan(),
                         new Interaction(null,
                                         rec.interaction().sourceId(),
-                                        interaction.uniqueInteractionData(),
+                                        ETLUtil.cleanUniqueInteractionData(interaction.uniqueInteractionData()),
                                         ETLUtil.addPhoneticsToDemographicData(demographicData, interaction.uniqueInteractionData()).clean()));
                   return KeyValue.pair(key, newEnvelop);
                } else {
