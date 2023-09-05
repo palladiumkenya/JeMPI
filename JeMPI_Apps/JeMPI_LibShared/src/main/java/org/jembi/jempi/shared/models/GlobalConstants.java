@@ -58,6 +58,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION = "link-interaction";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID = "link-interaction-to-gid";
 
+   public static final String SEGMENT_SCHEMA_RECREATE = "recreate-schema";
+
 
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    //                         SEGMENT_VALIDATE_OAUTH: '/authenticate',

@@ -126,7 +126,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
             .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
             .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+            .onMessage(PostRecreateSchemaRequest.class, this::postRecreateSchemaHandler)
             .build();
+   }
+
+   private Behavior<Event> postRecreateSchemaHandler(final PostRecreateSchemaRequest request) {
+      LOGGER.debug("Recreating Dgraph schema");
+      libMPI.startTransaction();
+      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
+         LOGGER.error("Create Schema Error");
+      }
+      libMPI.closeTransaction();
+      request.replyTo.tell(new RecreateSchemaResponse());
+      return Behaviors.same();
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
@@ -454,7 +466,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event {
    }
-
+   public record RecreateSchemaResponse() implements EventResponse {
+   }
    public record CountRecordsResponse(
          long goldenRecords,
          long patientRecords) implements EventResponse {
@@ -640,6 +653,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {
+   }
+   public record PostRecreateSchemaRequest(ActorRef<RecreateSchemaResponse> replyTo) implements Event {
    }
 
 }

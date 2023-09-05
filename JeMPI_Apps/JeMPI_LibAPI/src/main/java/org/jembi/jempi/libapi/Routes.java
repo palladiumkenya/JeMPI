@@ -578,5 +578,13 @@ public final class Routes {
                        }
                     });
    }
+   public static Route postRecreateSchema(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(Ask.recreateSchema(actorSystem, backEnd),
+              response -> response.isSuccess()
+                      ? complete(StatusCodes.OK)
+                      : complete(StatusCodes.IM_A_TEAPOT));
+   }
 
 }

@@ -118,11 +118,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
-      libMPI.startTransaction();
-      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-         LOGGER.error("Create Schema Error");
-      }
-      libMPI.closeTransaction();
    }
 
    @Override

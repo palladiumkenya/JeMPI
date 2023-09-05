@@ -54,6 +54,17 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.RecreateSchemaResponse> recreateSchema(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.RecreateSchemaResponse> stage = AskPattern
+              .ask(backEnd,
+                      BackEnd.PostRecreateSchemaRequest::new,
+                      java.time.Duration.ofSeconds(10),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetGidsAllResponse> getGidsAll(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
