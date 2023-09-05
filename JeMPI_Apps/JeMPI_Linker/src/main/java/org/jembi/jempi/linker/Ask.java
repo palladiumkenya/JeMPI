@@ -84,7 +84,7 @@ final class Ask {
          final InteractionEnvelop batchInteraction) {
       return AskPattern.ask(backEnd,
                             replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
-                            java.time.Duration.ofSeconds(60),
+                            java.time.Duration.ofSeconds(120),
                             actorSystem.scheduler());
    }
 
