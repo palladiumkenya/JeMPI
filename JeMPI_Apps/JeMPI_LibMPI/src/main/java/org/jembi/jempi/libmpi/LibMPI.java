@@ -325,6 +325,7 @@ public final class LibMPI {
                         result.goldenUID(),
                         String.format("Interaction -> New GoldenRecord (%f)", score));
       } else {
+         LOGGER.error("Failed to insert interation {}", interaction.uniqueInteractionData());
          sendAuditEvent(interaction.interactionId(),
                         null,
                         String.format("Interaction -> error linking to new GoldenRecord (%f)", score));

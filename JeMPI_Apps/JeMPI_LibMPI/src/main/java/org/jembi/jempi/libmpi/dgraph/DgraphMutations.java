@@ -31,7 +31,7 @@ final class DgraphMutations {
    LinkInfo addNewDGraphInteraction(final Interaction interaction) {
       final var result = insertInteraction(interaction);
       if (result.interactionUID == null) {
-         LOGGER.error("Failed to insert interaction");
+         LOGGER.error("Failed to insert interaction {}", interaction.uniqueInteractionData());
          return null;
       }
       final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(),
