@@ -28,6 +28,7 @@ final class ETLUtil {
                 uniqueInteractionData.auxDateCreated(),
                 uniqueInteractionData.auxId(),
                 uniqueInteractionData.cccNumber().replaceAll("([\\\\])", "/"),
+                uniqueInteractionData.docket(),
                 uniqueInteractionData.pkv(),
                 uniqueInteractionData.auxDwhId()
         );
