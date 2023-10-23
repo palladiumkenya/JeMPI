@@ -14,6 +14,11 @@
       "csvCol": 6
     },
     {
+      "fieldName": "docket",
+      "fieldType": "String",
+      "csvCol": 7
+    },
+    {
       "fieldName": "pkv",
       "fieldType": "String",
       "csvCol": 0

@@ -14,6 +14,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
    public static final String PREDICATE_INTERACTION_CCC_NUMBER = "Interaction.ccc_number";
+   public static final String PREDICATE_INTERACTION_DOCKET = "Interaction.docket";
    public static final String PREDICATE_INTERACTION_PKV = "Interaction.pkv";
    public static final String PREDICATE_INTERACTION_AUX_DWH_ID = "Interaction.aux_dwh_id";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
@@ -66,6 +67,7 @@ public final class CustomDgraphConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.ccc_number
+            Interaction.docket
             Interaction.pkv
             Interaction.aux_dwh_id
             Interaction.given_name
@@ -86,6 +88,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.ccc_number
+         Interaction.docket
          Interaction.pkv
          Interaction.aux_dwh_id
          Interaction.given_name
@@ -106,6 +109,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.ccc_number
+         Interaction.docket
          Interaction.pkv
          Interaction.aux_dwh_id
          Interaction.given_name
@@ -144,6 +148,7 @@ public final class CustomDgraphConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.ccc_number
+               Interaction.docket
                Interaction.pkv
                Interaction.aux_dwh_id
                Interaction.given_name
@@ -190,6 +195,7 @@ public final class CustomDgraphConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.ccc_number
+               Interaction.docket
                Interaction.pkv
                Interaction.aux_dwh_id
                Interaction.given_name
@@ -267,6 +273,7 @@ public final class CustomDgraphConstants {
                   Interaction.aux_date_created
                   Interaction.aux_id
                   Interaction.ccc_number
+                  Interaction.docket
                   Interaction.pkv
                   Interaction.aux_dwh_id
                   Interaction.given_name
@@ -332,6 +339,7 @@ public final class CustomDgraphConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.ccc_number
+            Interaction.docket
             Interaction.pkv
             Interaction.aux_dwh_id
             Interaction.given_name
@@ -348,6 +356,7 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.ccc_number:                   string                                       .
+         Interaction.docket:                       string                                       .
          Interaction.pkv:                          string                                       .
          Interaction.aux_dwh_id:                   string                                       .
          Interaction.given_name:                   string                                       .

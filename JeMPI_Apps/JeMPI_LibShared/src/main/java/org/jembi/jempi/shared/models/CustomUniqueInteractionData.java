@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record CustomUniqueInteractionData(java.time.LocalDateTime auxDateCreated,
                                           String auxId,
                                           String cccNumber,
+                                          String docket,
                                           String pkv,
                                           String auxDwhId) {
 }

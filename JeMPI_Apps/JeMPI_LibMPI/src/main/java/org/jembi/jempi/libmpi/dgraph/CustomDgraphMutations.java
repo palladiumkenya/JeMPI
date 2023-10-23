@@ -22,6 +22,7 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <Interaction.aux_id>                        %s                    .
                            _:%s  <Interaction.ccc_number>                    %s                    .
+                           _:%s  <Interaction.docket>                        %s                    .
                            _:%s  <Interaction.pkv>                           %s                    .
                            _:%s  <Interaction.aux_dwh_id>                    %s                    .
                            _:%s  <Interaction.given_name>                    %s                    .
@@ -35,6 +36,7 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.cccNumber()),
+                           uuid, AppUtils.quotedValue(uniqueInteractionData.docket()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.pkv()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDwhId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),

@@ -11,8 +11,8 @@ import java.sql.*;
 
 final class DWH {
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv)
-                                            VALUES (?,?,?,?,?,?,?)
+                                            INSERT INTO dwh(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket)
+                                            VALUES (?,?,?,?,?,?,?,?)
                                             """;
 
 
@@ -94,6 +94,7 @@ final class DWH {
                   pStmt.setString(5, customSourceId.facility().isEmpty() ? null : customSourceId.facility());
                   pStmt.setString(6, customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                   pStmt.setString(7, customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
+                  pStmt.setString(8, customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
