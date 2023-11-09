@@ -1,0 +1,4 @@
+*
+!.gitignore
+!*.ps1
+local.ps1

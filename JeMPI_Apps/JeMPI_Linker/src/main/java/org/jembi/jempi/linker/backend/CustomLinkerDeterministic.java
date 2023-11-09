@@ -6,6 +6,10 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 
 final class CustomLinkerDeterministic {
 
+   static final boolean DETERMINISTIC_DO_LINKING = true;
+   static final boolean DETERMINISTIC_DO_VALIDATING = false;
+   static final boolean DETERMINISTIC_DO_MATCHING = false;
+
    private CustomLinkerDeterministic() {
    }
 
@@ -15,12 +19,33 @@ final class CustomLinkerDeterministic {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   static boolean deterministicMatch(
+   static boolean canApplyLinking(
+         final CustomDemographicData interaction) {
+      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
+             || StringUtils.isNotBlank(interaction.nationalId)
+             || StringUtils.isNotBlank(interaction.givenName)
+             && StringUtils.isNotBlank(interaction.familyName)
+             && StringUtils.isNotBlank(interaction.phoneNumber);
+   }
+
+   static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nupiL = goldenRecord.nupi;
       final var nupiR = interaction.nupi;
       return isMatch(nupiL, nupiR);
+   }
+
+   static boolean validateDeterministicMatch(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData interaction) {
+      return false;
+   }
+
+   static boolean matchNotificationDeterministicMatch(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData interaction) {
+      return false;
    }
 
 }

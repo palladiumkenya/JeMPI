@@ -88,9 +88,19 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
-      final var candidates = CustomDgraphQueries.getCandidates(demographicData);
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      final var candidates = CustomDgraphQueries.findLinkCandidates(demographicData);
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      final var candidates = CustomDgraphQueries.findMatchCandidates(demographicData);
+      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   }
+
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      final var goldenRecords = DgraphQueries.findGoldenRecords(request);
+      return goldenRecords.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
    private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(
@@ -112,20 +122,20 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
-   private LibMPIPaginatedResultSet<String> paginatedGids(final  DgraphPaginatedUidList list) {
+   private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(item -> item.uid()).toList();
+      final var data = list.all().stream().map(DgraphUid::uid).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
-   private PaginatedGIDsWithInteractionCount paginatedGidsWithInteractionCount(final  DgraphPaginationUidListWithInteractionCount list) {
+   private PaginatedGIDsWithInteractionCount paginatedGidsWithInteractionCount(final DgraphPaginationUidListWithInteractionCount list) {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(item -> item.uid()).toList();
+      final var data = list.all().stream().map(DgraphUid::uid).toList();
       final var pagination = list.pagination().get(0);
       final var interactionCount = list.interactionCount().get(0);
       return new PaginatedGIDsWithInteractionCount(data, pagination, interactionCount);

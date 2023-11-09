@@ -1,4 +1,3 @@
-import { useLocation, useNavigate } from '@tanstack/react-location'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -11,12 +10,12 @@ import { useSnackbar } from 'notistack'
 import React, { useEffect, useRef } from 'react'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 
-import { config } from 'config'
 import ApiErrorMessage from '../components/error/ApiErrorMessage'
-import ApiClient from '../services/ApiClient'
-import keycloak from '../services/keycloak'
+import getKeycloak from '../services/keycloak'
 import { OAuthParams, User } from '../types/User'
 import { parseQuery } from '../utils/misc'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useConfig } from './useConfig'
 
 export interface AuthContextValue {
   user: User | undefined
@@ -45,7 +44,8 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const oauthRef = useRef<OAuthParams | null>(null)
   const key = 'auth-user'
   const currentUrl = window.location.href
-  const isLoginPage = location.current.pathname === '/login'
+  const isLoginPage = location.pathname === '/login'
+  const { config, apiClient } = useConfig()
 
   const {
     data: user,
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   } = useQuery<User, AxiosError<unknown, User>>({
     queryKey: [key],
     queryFn: async () => {
-      return await ApiClient.getCurrentUser()
+      return await apiClient.getCurrentUser()
     },
     retry: false,
     refetchOnWindowFocus: false,
@@ -65,30 +65,29 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const { refetch: logout } = useQuery({
     queryKey: ['logout'],
     queryFn: async () => {
-      return await ApiClient.logout()
+      return await apiClient.logout()
     },
     onSuccess() {
       queryClient.clear()
-      navigate({ to: '/login' })
+      navigate({ pathname: '/login' })
     },
     refetchOnWindowFocus: false,
     enabled: false
   })
 
   const { mutate: validateOAuth } = useMutation({
-    mutationFn: ApiClient.validateOAuth,
+    mutationFn: apiClient.validateOAuth,
     onSuccess(response) {
       enqueueSnackbar(`Successfully logged in using KeyCloak`, {
         variant: 'success'
       })
       setUser(response)
-      navigate({ to: '/' })
+      navigate({ pathname: '/' })
     },
-    onError(err) {
+    onError() {
       enqueueSnackbar(`Unable to login using KeyCloak`, {
         variant: 'error'
       })
-      console.error('Unable to validate OAuth params', err)
     }
   })
 
@@ -96,7 +95,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     queryClient.setQueryData([key], data)
 
   const signInWithKeyCloak = () => {
-    keycloak.init({
+    getKeycloak(config).init({
       onLoad: 'login-required',
       redirectUri: currentUrl,
       checkLoginIframe: false
@@ -104,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   }
 
   useEffect(() => {
-    const currentLocation = location.current
+    const currentLocation = location
     if (
       config.useSso &&
       !oauthRef.current &&
@@ -123,9 +122,9 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
       if (config.useSso) {
         if (!isLoading) {
           if (!user && !isLoginPage) {
-            navigate({ to: '/login' })
+            navigate({ pathname: '/login' })
           } else if (user && isLoginPage) {
-            navigate({ to: '/' })
+            navigate({ pathname: '/' })
           }
         }
       }

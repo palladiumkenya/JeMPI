@@ -17,13 +17,13 @@ import java.util.*;
 
 import static java.lang.Math.min;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
-import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
 public final class StatsTask {
 
    private static final Logger LOGGER = LogManager.getLogger(StatsTask.class);
-   private static final String URL = "http://api:50000";
-   private static final String URL_LINK = String.format("%s/JeMPI/", URL);
+   private static final String URL = String.format(Locale.ROOT, "http://%s:%s", AppConfig.API_IP, AppConfig.API_HTTP_PORT);
+
+   private static final String URL_LINK = String.format(Locale.ROOT, "%s/JeMPI/", URL);
    // 01234567890123456
    // rec-0000000001-....
    private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
@@ -54,12 +54,13 @@ public final class StatsTask {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_INTERACTIONS)).newBuilder();
       final String url = urlBuilder.build().toString();
+      LOGGER.debug("{}", url);
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
-         var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, ApiModels.ApiInterationCount.class).count();
+         final var json = response.body().string();
+         return OBJECT_MAPPER.readValue(json, ApiModels.ApiInteractionCount.class).count();
       }
    }
 
@@ -105,6 +106,7 @@ public final class StatsTask {
    }
 
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
+      /*
       final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
@@ -121,6 +123,7 @@ public final class StatsTask {
       } else {
          entry.add(new GoldenRecordMembers(goldenRecordAuxId, list));
       }
+      */
    }
 
    private void processSubList(
@@ -154,6 +157,8 @@ public final class StatsTask {
             LOGGER.info("Sub Lists:            {}", subLists);
             LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
          }
+
+/*
          int fromIdx;
          int toIdx;
          for (long i = 0; i < subLists; i++) {
@@ -206,7 +211,7 @@ public final class StatsTask {
                precision,
                recall,
                fScore);
-
+*/
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

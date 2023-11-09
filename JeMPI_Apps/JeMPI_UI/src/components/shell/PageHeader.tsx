@@ -7,12 +7,12 @@ import {
   Stack,
   Typography
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 interface PageHeaderProps {
   breadcrumbs?: Array<{ icon?: JSX.Element; title?: string; link?: string }>
   buttons?: JSX.Element[]
   title: string
-  description?: string | JSX.Element
   color?: string
 }
 
@@ -20,9 +20,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   breadcrumbs,
   buttons,
   title,
-  description,
   color = 'rgba(0, 0, 0, 0.87)'
 }) => {
+  const Navigate = useNavigate()
   return (
     <Grid container justifyContent="space-between">
       <Grid item container direction="column" xs="auto">
@@ -37,7 +37,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   <Link
                     underline="hover"
                     color="inherit"
-                    href={link || '#'}
+                    onClick={() => Navigate(link || '')}
                     key={idx}
                   >
                     <Stack direction={'row'} spacing={1}>
@@ -61,19 +61,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           >
             {title}
           </Typography>
-          {typeof description === 'string' ? (
-            <Typography
-              sx={{
-                fontSize: '16px',
-                fontWeight: 400,
-                color: 'rgba(0, 0, 0, 0.6)'
-              }}
-            >
-              {description}
-            </Typography>
-          ) : (
-            description
-          )}
         </Grid>
       </Grid>
       <Grid item container spacing={1} xs="auto">

@@ -16,6 +16,13 @@ private object CustomPatient {
 
   private val indent = 3
 
+  def generate(config: Config): Unit =
+    generateDemographicData(config)
+    generateUniqueGoldenRecordData(config)
+    generateUniqueInteractionData(config)
+    generateAdditionalNodes(config)
+  end generate
+
   private def generateDemographicData(config: Config): Unit =
 
     def cleanedFields(config: Config): String =
@@ -23,7 +30,7 @@ private object CustomPatient {
         .demographicFields
         .map(f =>
           s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     end cleanedFields
@@ -40,18 +47,18 @@ private object CustomPatient {
          |public class $customClassNameCustomDemographicData {
          |""".stripMargin)
     config.demographicFields.zipWithIndex.foreach {
-      case (field, idx) =>
+      case (field, _) =>
         val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(s"""${" " * (indent * 1)}public final ${typeString} ${fieldName};""")
+        writer.println(s"""${" " * (indent * 1)}public final $typeString $fieldName;""")
     }
-    writer.println();
+    writer.println()
     for (field <- config.demographicFields) {
       val typeString = field.fieldType
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
       writer.println(
-        s"""${" " * (indent * 1)}public final ${typeString} get${fieldName.charAt(0).toUpper}${fieldName.substring(1)}() {
-           |${" " * (indent * 2)}return ${fieldName};
+        s"""${" " * (indent * 1)}public final $typeString get${fieldName.charAt(0).toUpper}${fieldName.substring(1)}() {
+           |${" " * (indent * 2)}return $fieldName;
            |${" " * (indent * 1)}}
            |""".stripMargin)
     }
@@ -72,8 +79,8 @@ private object CustomPatient {
           s"""${" " * indent * 2}final $typeString $fieldName${if (idx < config.demographicFields.length - 1) ',' else ") {"}""".stripMargin)
     }
     config.demographicFields.zipWithIndex.foreach {
-      case (field, idx) =>
-        val typeString = field.fieldType
+      case (field, _) =>
+        //        val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(
           s"""${" " * indent * 3}this.$fieldName = $fieldName;""".stripMargin)
@@ -81,8 +88,8 @@ private object CustomPatient {
     writer.println(
       s"""${" " * indent * 1}}
          |
-         |   public ${customClassNameCustomDemographicData} clean() {
-         |      return new ${customClassNameCustomDemographicData}(${cleanedFields(config)});
+         |   public $customClassNameCustomDemographicData clean() {
+         |      return new $customClassNameCustomDemographicData(${cleanedFields(config)});
          |   }
          |
          |}""".stripMargin)
@@ -100,10 +107,22 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 43}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields
+
+    def fromInteraction(): String =
+      if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => if (f.source.isEmpty) "" else
+            s""",
+               |${" " * 9}uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.source.get)}()""".stripMargin)
+          .mkString(sys.props("line.separator"))
+          .trim
+    end fromInteraction
 
     println("Creating " + classCustomUniqueGoldenRecordDataFile)
     val file: File = new File(classCustomUniqueGoldenRecordDataFile)
@@ -113,8 +132,17 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
+         |import java.time.LocalDateTime;
+         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public record $customClassNameCustomUniqueGoldenRecordData(${fields(config)}) {
+         |
+         |  public CustomUniqueGoldenRecordData(final CustomUniqueInteractionData uniqueInteractionData) {
+         |    this(LocalDateTime.now(),
+         |         true${fromInteraction()}
+         |    );
+         |  }
+         |
          |}
          |""".stripMargin)
     writer.flush()
@@ -130,7 +158,7 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 42}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields
@@ -157,13 +185,13 @@ private object CustomPatient {
       val nodes = config.additionalNodes.get
       nodes.foreach(n => {
 
-        def nodeFields(): String =
+        def nodeFields(): String = {
           n.fields
             .map(f => s"""${" " * 6}${f.fieldType} ${f.fieldName}""".stripMargin)
             .mkString(
               s""",
                  |""")
-        end nodeFields
+        }
 
         val className = "Custom" + n.nodeName
         val fileName = classLocation + File.separator + className + ".java"
@@ -176,7 +204,7 @@ private object CustomPatient {
              |import com.fasterxml.jackson.annotation.JsonInclude;
              |
              |@JsonInclude(JsonInclude.Include.NON_NULL)
-             |public record ${className}(
+             |public record $className(
              |      String uid,
              |${nodeFields()}) {
              |}
@@ -186,12 +214,5 @@ private object CustomPatient {
       })
     }
   end generateAdditionalNodes
-
-  def generate(config: Config): Unit =
-    generateDemographicData(config)
-    generateUniqueGoldenRecordData(config)
-    generateUniqueInteractionData(config)
-    generateAdditionalNodes(config)
-  end generate
 
 }

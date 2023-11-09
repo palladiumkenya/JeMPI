@@ -6,10 +6,7 @@ import org.jembi.jempi.shared.models.MatchesForReviewResult;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 final class PsqlNotifications {
    private static final String QUERY = """
@@ -23,10 +20,12 @@ final class PsqlNotifications {
    private final PsqlClient psqlClient;
 
    PsqlNotifications(
+         final String pgServer,
+         final int pgPort,
          final String pgDatabase,
          final String pgUser,
          final String pgPassword) {
-      psqlClient = new PsqlClient(pgDatabase, pgUser, pgPassword);
+      psqlClient = new PsqlClient(pgServer, pgPort, pgDatabase, pgUser, pgPassword);
    }
 
    /**
@@ -133,9 +132,8 @@ final class PsqlNotifications {
          final String state) throws SQLException {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
-         ResultSet rs = stmt.executeQuery("update notification set state_id = "
-                                          + "(select id from notification_state where state = '" + state + "' )where id = '" + id
-                                          + "'");
+         ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
+                                                        "update notification set state = \'%s\' where id = \'%s\'", state, id));
          psqlClient.commit();
       }
    }

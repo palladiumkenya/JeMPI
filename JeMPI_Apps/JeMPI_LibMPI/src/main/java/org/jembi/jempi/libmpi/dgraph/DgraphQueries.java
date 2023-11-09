@@ -1,8 +1,8 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.vavr.control.Either;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +11,8 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.jembi.jempi.libmpi.dgraph.CustomDgraphConstants.GOLDEN_RECORD_FIELD_NAMES;
 
 final class DgraphQueries {
 
@@ -60,7 +62,7 @@ final class DgraphQueries {
       return new DgraphPaginatedUidList(List.of());
    }
 
-   static DgraphPaginationUidListWithInteractionCount runfilterGidsWithInteractionCountQuery(
+   static DgraphPaginationUidListWithInteractionCount runFilterGidsWithInteractionCountQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -129,7 +131,8 @@ final class DgraphQueries {
    }
 
    static List<String> findExpandedGoldenIds(final String goldenId) {
-      final String query = String.format("""
+      final String query = String.format(Locale.ROOT,
+                                         """
                                          query recordGoldenUidInteractionUidList() {
                                              list(func: uid(%s)) {
                                                  uid
@@ -174,7 +177,8 @@ final class DgraphQueries {
    static List<String> fetchGoldenIds(
          final long offset,
          final long length) {
-      final String query = String.format("""
+      final String query = String.format(Locale.ROOT,
+                                         """
                                          query recordGoldenIds() {
                                            list(func: type(GoldenRecord), offset: %d, first: %d) {
                                              uid
@@ -217,7 +221,8 @@ final class DgraphQueries {
    }
 
    static long countGoldenRecordEntities(final String goldenId) {
-      final var query = String.format("""
+      final var query = String.format(Locale.ROOT,
+                                      """
                                       query recordCount() {
                                         list(func: uid(%s)) {
                                           count: count(GoldenRecord.interactions)
@@ -236,9 +241,12 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData interaction) {
+   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(
+         final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
+         final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : CustomDgraphQueries.DETERMINISTIC_FUNCTIONS) {
+      for (Function1<CustomDemographicData,
+            DgraphGoldenRecords> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -252,7 +260,8 @@ final class DgraphQueries {
    }
 
    static List<CustomDgraphExpandedInteraction> findExpandedInteractions(final List<String> ids) {
-      final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_INTERACTIONS, String.join(",", ids));
+      final String query =
+            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_INTERACTIONS, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class);
@@ -264,7 +273,7 @@ final class DgraphQueries {
    }
 
    static List<CustomDgraphGoldenRecord> findGoldenRecords(final List<String> ids) {
-      final String query = String.format(CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, String.join(",", ids));
+      final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
@@ -276,7 +285,8 @@ final class DgraphQueries {
    }
 
    static List<CustomDgraphExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
-      final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS, String.join(",", ids));
+      final String query =
+            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
@@ -309,7 +319,7 @@ final class DgraphQueries {
       for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
-            args.add(String.format("$%s: string", fieldName));
+            args.add(String.format(Locale.ROOT, "$%s: string", fieldName));
          }
       }
       return args;
@@ -322,7 +332,7 @@ final class DgraphQueries {
          for (ApiModels.ApiSearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
-               args.add(String.format("$%s_%d: string", fieldName, i));
+               args.add(String.format(Locale.ROOT, "$%s_%d: string", fieldName, i));
             }
          }
       }
@@ -349,7 +359,7 @@ final class DgraphQueries {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                String value = param.value();
-               vars.put(String.format("$%s_%d", fieldName, i), value);
+               vars.put(String.format(Locale.ROOT, "$%s_%d", fieldName, i), value);
             }
          }
       }
@@ -365,8 +375,10 @@ final class DgraphQueries {
             String fieldName = camelToSnake(param.fieldName());
             Integer distance = param.distance();
             String value = param.value();
-            if (distance == 0) {
-               gqlFilters.add("regexp(" + recordType + "." + fieldName + ", /^" + value + "$/i)");
+            if (distance == -1) {
+               gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+            } else if (distance == 0) {
+               gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
@@ -391,7 +403,7 @@ final class DgraphQueries {
                Integer distance = param.distance();
                String value = param.value();
                if (distance == 0) {
-                  gqlAndCondition.add("regexp(" + recordType + "." + fieldName + ", /^" + value + "$/i)");
+                  gqlAndCondition.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
                } else {
                   gqlAndCondition.add("match(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ", " + distance + ")");
                }
@@ -412,22 +424,22 @@ final class DgraphQueries {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc) {
+         final boolean sortAsc) {
       String direction = sortAsc
             ? "asc"
             : "desc";
       String sort = "";
       // Sort by default is by uid
       if (sortBy != null && !sortBy.isBlank() && !sortBy.equals("uid")) {
-         sort = String.format(", order%s: %s.%s", direction, recordType, camelToSnake(sortBy));
+         sort = String.format(Locale.ROOT, ", order%s: %s.%s", direction, recordType, camelToSnake(sortBy));
       }
-      return String.format("func: type(%s), first: %d, offset: %d", recordType, limit, offset) + sort;
+      return String.format(Locale.ROOT, "func: type(%s), first: %d, offset: %d", recordType, limit, offset) + sort;
    }
 
    private static String getSearchQueryPagination(
          final RecordType recordType,
          final String gqlFilters) {
-      return String.format("pagination(func: type(%s)) @filter(%s) {%ntotal: count(uid)%n}", recordType, gqlFilters);
+      return String.format(Locale.ROOT, "pagination(func: type(%s)) @filter(%s) {%ntotal: count(uid)%n}", recordType, gqlFilters);
    }
 
    private static DgraphExpandedGoldenRecords searchGoldenRecords(
@@ -442,7 +454,7 @@ final class DgraphQueries {
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
 
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
-      gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+      gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += CustomDgraphConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES;
       gql += "}\n";
@@ -493,7 +505,7 @@ final class DgraphQueries {
       String gqlFunc = getSearchQueryFunc(RecordType.Interaction, offset, limit, sortBy, sortAsc);
       String gqlPagination = getSearchQueryPagination(RecordType.Interaction, gqlFilters);
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
-      gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+      gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += CustomDgraphConstants.INTERACTION_FIELD_NAMES;
       gql += "}\n";
@@ -517,8 +529,9 @@ final class DgraphQueries {
                                           paginationOptions.sortBy(),
                                           paginationOptions.sortAsc());
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
-      String gqlPaginationCount = getInteractionCount
-            ? String.format("""
+      String gqlPaginationCount = Boolean.TRUE.equals(getInteractionCount)
+            ? String.format(Locale.ROOT,
+                            """
                               var(func: type(GoldenRecord)) @filter(%s){
                                 a as count(GoldenRecord.interactions)}
                                   interactionCount(){
@@ -527,7 +540,7 @@ final class DgraphQueries {
                             """, gqlFilters)
             : "";
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
-      gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+      gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += "uid";
       gql += "}\n";
@@ -537,8 +550,8 @@ final class DgraphQueries {
 
       LOGGER.debug("Filter Gids Query {}", gql);
       LOGGER.debug("Filter Gids Variables {}", gqlVars);
-      return getInteractionCount
-            ? Either.right(runfilterGidsWithInteractionCountQuery(gql, gqlVars))
+      return Boolean.TRUE.equals(getInteractionCount)
+            ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
             : Either.left(runfilterGidsQuery(gql, gqlVars));
    }
 
@@ -548,9 +561,11 @@ final class DgraphQueries {
          final PaginationOptions paginationOptions,
          final Boolean getInteractionCount) {
       LOGGER.debug("Filter Gids Params {}", params);
-      String dateFilter = String.format("le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
+      String dateFilter = String.format(Locale.ROOT, "le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
-      String gqlFilters = filter.length() > 0 ? String.format("%s AND %s",  filter, dateFilter) : dateFilter;
+      String gqlFilters = !filter.isEmpty()
+            ? String.format(Locale.ROOT, "%s AND %s", filter, dateFilter)
+            : dateFilter;
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
       return filterGidsFunc(gqlFilters, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
@@ -583,5 +598,70 @@ final class DgraphQueries {
 
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
+
+   static DgraphGoldenRecords findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
+
+      final var op = req.operand();
+      StringBuilder queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(op.name())).append(":string");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
+            queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
+         }
+      }
+      queryBuilder.append(") {\n\n");
+      char alias = 'A';
+      queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                  .append(op.fn())
+                  .append("(GoldenRecord.")
+                  .append(camelToSnake(op.name()))
+                  .append(", $")
+                  .append(camelToSnake(op.name()))
+                  .append(op.fn().equals("match")
+                                ? String.format(Locale.ROOT, ", %d", op.distance())
+                                : "")
+                  .append(")) {\n    ")
+                  .append(alias)
+                  .append(" as uid\n  }\n\n");
+
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                        .append(o.operand().fn())
+                        .append("(GoldenRecord.")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(", $")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(o.operand().fn().equals("match")
+                                      ? String.format(Locale.ROOT, ", %d", o.operand().distance())
+                                      : "")
+                        .append(")) {\n    ")
+                        .append(++alias)
+                        .append(" as uid\n  }\n\n");
+         }
+      }
+
+      alias = 'A';
+      queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
+         }
+      }
+      queryBuilder.append(") {\n")
+                  .append(GOLDEN_RECORD_FIELD_NAMES)
+                  .append("  }\n}\n");
+      final var query = queryBuilder.toString();
+      final var map = new HashMap<String, String>();
+      map.put("$" + camelToSnake(op.name()), op.value());
+      for (var o : req.operands()) {
+         map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
+      }
+      LOGGER.debug("{}", "\n" + query);
+      LOGGER.debug("{}", map);
+      final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
+      LOGGER.debug("{}", dgraphGoldenRecords);
+      return dgraphGoldenRecords;
+   }
+
 
 }

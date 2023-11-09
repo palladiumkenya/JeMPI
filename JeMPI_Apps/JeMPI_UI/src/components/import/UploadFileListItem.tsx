@@ -1,12 +1,11 @@
 import {
-  Circle as CircleIcon,
   Close as CloseIcon,
   UploadFile as UploadFileIcon
 } from '@mui/icons-material'
-import { Box, Grid, LinearProgress, Typography } from '@mui/material'
+import { Avatar, Box, Grid, LinearProgress, Typography } from '@mui/material'
 import { FC } from 'react'
 import { FileObj, UploadStatus } from '../../types/FileUpload'
-import './Import.css'
+import { formatBytesSize } from 'utils/formatters'
 
 interface FileObjProps {
   fileObj: FileObj
@@ -14,22 +13,12 @@ interface FileObjProps {
 }
 
 const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
-  const addStatusClass = (status: UploadStatus): string => {
-    switch (status) {
-      case UploadStatus.Failed:
-        return 'failed'
-      default:
-        return ''
-    }
-  }
-
   return (
     <Grid
       container
       justifyContent="center"
       alignItems="center"
       spacing={0}
-      className={`import__upload-list-item ${addStatusClass}`}
       key={props.fileObj.file.name}
     >
       <Grid
@@ -38,26 +27,40 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
         justifyContent="center"
         alignItems="center"
         textAlign="center"
+        padding={'0.5rem'}
       >
-        <Box className="import__upload-icon">
+        <Avatar sx={{ bgcolor: '#305982' }}>
           <UploadFileIcon />
-        </Box>
+        </Avatar>
       </Grid>
-      <Grid item xs={10} justifyContent="center" alignItems="center">
-        <Typography color="primary.disabled" fontSize="16px">
+      <Grid
+        item
+        padding={'1.5rem'}
+        xs={10}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Typography
+          fontWeight="bold"
+          fontSize="1rem"
+          noWrap
+          maxWidth="100%"
+          overflow="hidden"
+          textOverflow="ellipsis"
+        >
           {props.fileObj.file.name}
         </Typography>
-        <Typography
-          color="#00000099"
-          fontSize="14px"
-          className={`import__upload-list-item ${addStatusClass}`}
-        >
-          {Math.round(props.fileObj.file.size / 1000)}kb
-          {'  '}
-          <CircleIcon sx={{ fontSize: '5px', alignItems: 'center' }} />
-          {'  '}
-          {UploadStatus[props.fileObj.status]}
-        </Typography>
+        <Box display="flex">
+          Size:
+          <Typography color="#00000099" fontSize="1rem" px="0.5rem">
+            {formatBytesSize(props.fileObj.file.size)}
+          </Typography>
+          Status:
+          <Typography color="#00000099" fontSize="1rem" px="0.5rem">
+            {UploadStatus[props.fileObj.status]}
+            {props.fileObj.progress > 0 && ` ${props.fileObj.progress}%`}
+          </Typography>
+        </Box>
       </Grid>
       <Grid
         item
@@ -67,7 +70,7 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
         textAlign="center"
       >
         <Box
-          className="import__close-icon"
+          display={props.fileObj.status !== 'Loading' ? 'block' : 'none'}
           onClick={() => props.handleRemoveFile(props.fileObj)}
         >
           <CloseIcon />
@@ -75,7 +78,6 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
       </Grid>
       <Grid item xs={10} justifyContent="center" alignItems="center">
         <LinearProgress
-          className="import__upload-progress-bar"
           variant="buffer"
           value={props.fileObj.progress}
           valueBuffer={100}

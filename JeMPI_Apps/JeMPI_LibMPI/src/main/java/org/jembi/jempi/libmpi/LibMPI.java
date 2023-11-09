@@ -15,6 +15,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 public final class LibMPI {
 
@@ -158,8 +159,16 @@ public final class LibMPI {
       return client.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
-      return client.findCandidates(demographicData);
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      return client.findLinkCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      return client.findMatchCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      return client.findGoldenRecords(request);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -211,6 +220,7 @@ public final class LibMPI {
          final PaginationOptions paginationOptions) {
       return client.filterGidsWithInteractionCount(params, createdAt, paginationOptions);
    }
+
    /*
     * *****************************************************************************
     * *
@@ -228,15 +238,23 @@ public final class LibMPI {
       if (result) {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format("score: %.5f -> %.5f", oldScore, newScore));
+                        String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore));
       } else {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format("set score error: %.5f -> %.5f", oldScore, newScore));
+                        String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore));
 
       }
       return result;
    }
+
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final String newValue) {
+      return client.updateGoldenRecordField(goldenId, fieldName, newValue);
+   }
+
 
    public boolean updateGoldenRecordField(
          final String interactionId,
@@ -248,11 +266,11 @@ public final class LibMPI {
       if (result) {
          sendAuditEvent(interactionId,
                         goldenId,
-                        String.format("%s: '%s' -> '%s'", fieldName, oldValue, newValue));
+                        String.format(Locale.ROOT, "%s: '%s' -> '%s'", fieldName, oldValue, newValue));
       } else {
          sendAuditEvent(interactionId,
                         goldenId,
-                        String.format("%s: error updating '%s' -> '%s'", fieldName, oldValue, newValue));
+                        String.format(Locale.ROOT, "%s: error updating '%s' -> '%s'", fieldName, oldValue, newValue));
       }
       return result;
    }
@@ -265,14 +283,15 @@ public final class LibMPI {
       if (result.isRight()) {
          sendAuditEvent(interactionId,
                         result.get().goldenUID(),
-                        String.format("Interaction -> new GoldenID: old(%s) new(%s) [%f]",
+                        String.format(Locale.ROOT,
+                                      "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
                                       currentGoldenId,
                                       result.get().goldenUID(),
                                       score));
       } else {
          sendAuditEvent(interactionId,
                         currentGoldenId,
-                        String.format("Interaction -> update GoldenID error: old(%s) [%f]", currentGoldenId, score));
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID error: old(%s) [%f]", currentGoldenId, score));
       }
       return result;
    }
@@ -286,11 +305,11 @@ public final class LibMPI {
       if (result.isRight()) {
          sendAuditEvent(interactionID,
                         newGoldenID,
-                        String.format("Interaction -> update GoldenID: old(%s) new(%s) [%f]", goldenID, newGoldenID, score));
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID: old(%s) new(%s) [%f]", goldenID, newGoldenID, score));
       } else {
          sendAuditEvent(interactionID,
                         newGoldenID,
-                        String.format("Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
                                       goldenID,
                                       newGoldenID,
                                       score));
@@ -300,16 +319,19 @@ public final class LibMPI {
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
-         final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
+         final LibMPIClientInterface.GoldenIdScore goldenIdScore,
+         final boolean deterministicValidation,
+         final float probabilisticValidation) {
       final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format("Interaction -> Existing GoldenRecord (%.5f)", result.score()));
+                        String.format(Locale.ROOT, "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), Probabilistic(%.3f)", result.score(),
+                                      deterministicValidation, probabilisticValidation));
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),
-                        String.format("Interaction -> error linking to existing GoldenRecord (%.5f)",
+                        String.format(Locale.ROOT, "Interaction -> error linking to existing GoldenRecord (%.5f)",
                                       goldenIdScore.score()));
       }
       return result;
@@ -323,12 +345,12 @@ public final class LibMPI {
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format("Interaction -> New GoldenRecord (%f)", score));
+                        String.format(Locale.ROOT, "Interaction -> New GoldenRecord (%f)", score));
       } else {
          LOGGER.error("Failed to insert interation {}", interaction.uniqueInteractionData());
          sendAuditEvent(interaction.interactionId(),
                         null,
-                        String.format("Interaction -> error linking to new GoldenRecord (%f)", score));
+                        String.format(Locale.ROOT, "Interaction -> error linking to new GoldenRecord (%f)", score));
       }
       return result;
    }

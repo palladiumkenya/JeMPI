@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-final class DgraphClient {
+public final class DgraphClient {
 
    private static final Logger LOGGER = LogManager.getLogger(DgraphClient.class);
    private io.dgraph.DgraphClient dgraphClient;
@@ -163,7 +163,8 @@ final class DgraphClient {
                startTransaction();
                return null;
             } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage());
+               LOGGER.error(ex.getLocalizedMessage(), ex);
+               LOGGER.debug("{}", mutation.toByteString());
                done = false;
                zapTransaction();
                sleep();

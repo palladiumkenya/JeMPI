@@ -8,7 +8,6 @@ private object CustomPostgresqlGoldenRecord {
   private val packageText = "org.jembi.jempi.libmpi.postgresql"
   private val customClassName = "CustomGoldenRecordData"
   private val classFile: String = classLocation + File.separator + customClassName + ".java"
-  private val indent = 3
 
   def generate(fields: Array[DemographicField]): Unit = {
     println("Creating " + classFile)
@@ -22,7 +21,7 @@ private object CustomPostgresqlGoldenRecord {
          |final class $customClassName extends CustomDemographicData implements NodeData {
          |
          |   $customClassName(final CustomDemographicData customDemographicData) {
-         |      super(${fields.map(field => s"""customDemographicData.${Utils.snakeCaseToCamelCase(field.fieldName)}""").mkString(",\n            ")});
+         |      super(${fields.map(field => s"""customDemographicData.${Utils.snakeCaseToCamelCase(field.fieldName)}""").mkString(s",${sys.props("line.separator")}            ")});
          |   }
          |
          |}

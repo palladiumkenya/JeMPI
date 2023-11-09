@@ -2,6 +2,8 @@ package org.jembi.jempi.libmpi;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
+import java.util.List;
+
 public sealed interface MpiServiceError extends MpiGeneralError {
 
    record NotImplementedError(
@@ -29,9 +31,19 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          String predicate) implements MpiServiceError {
    }
 
-   record ClientExists(
-         CustomDemographicData exists,
+   record CRMissingFieldError(
+         String field
+   ) implements MpiServiceError {
+   }
+
+   record CRClientExistsError(
+         List<CustomDemographicData> exists,
          CustomDemographicData request) implements MpiServiceError {
+   }
+
+   record CRUpdateFieldError(
+         String goldenId,
+         List<String> fields) implements MpiServiceError {
    }
 
    record GeneralError(String error) implements MpiServiceError {

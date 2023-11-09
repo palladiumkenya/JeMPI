@@ -31,13 +31,13 @@ public final class Main {
 
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
+   public Main() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   }
+
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
       new Main().run();
-   }
-
-   public Main() {
-      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
    @SuppressWarnings("unchecked")
@@ -53,7 +53,8 @@ public final class Main {
          final var rNumber = matcher.group("rnum");
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
-         return String.format("rec-%010d-%s-%d",
+         return String.format(Locale.ROOT,
+                              "rec-%010d-%s-%d",
                               Integer.parseInt(rNumber),
                               klass,
                               (("org".equals(klass) || "aaa".equals(klass))
@@ -100,7 +101,7 @@ public final class Main {
 
          int index = 0;
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
-                                                  String.format("%s:%07d", stanDate, ++index), null));
+                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
             final String dwhId = dbInsertLiveData(csvRecord);
             final var sourceId = CustomAsyncHelper.customSourceId(csvRecord);
@@ -110,14 +111,14 @@ public final class Main {
             LOGGER.debug("Inserted record with dwhId {}", dwhId);
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
-                                               String.format("%s:%07d", stanDate, ++index),
+                                               String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                new Interaction(null,
                                                                sourceId,
                                                                CustomAsyncHelper.customUniqueInteractionData(csvRecord, dwhId),
                                                                CustomAsyncHelper.customDemographicData(csvRecord))));
          }
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
-                                                  String.format("%s:%07d", stanDate, ++index), null));
+                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -137,7 +138,7 @@ public final class Main {
             apacheReadCSV("csv/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
-         LOGGER.info("EVENT:{}", kind);
+         LOGGER.info("EVENT: {}", kind);
       } else if (ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
@@ -173,6 +174,10 @@ public final class Main {
             }
             key.reset();
          }
+      } catch (IOException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      } catch (InterruptedException e) {
+         LOGGER.warn(e.getLocalizedMessage(), e);
       }
    }
 }

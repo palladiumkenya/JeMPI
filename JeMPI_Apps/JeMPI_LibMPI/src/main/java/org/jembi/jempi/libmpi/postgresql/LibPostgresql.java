@@ -71,11 +71,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                                                                                                x.data()
                                                                                                                 .patient()))
                                                                                                          .toList(),
-                                                                                        new CustomUniqueGoldenRecordData(
-                                                                                              LocalDateTime.now(),
-                                                                                              true,
-                                                                                              interaction.uniqueInteractionData()
-                                                                                                         .auxId()),
+                                                                                        new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()),
                                                                                         goldenRecord.data()),
                                                                        PostgresqlQueries.getScore(goldenRecord.uid(),
                                                                                                   UUID.fromString(eid)))));
@@ -92,7 +88,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                               sourceIds.stream()
                                        .map(x -> new CustomSourceId(x.id().toString(), x.data().facility(), x.data().patient()))
                                        .toList(),
-                              new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, "AUX_ID"),
+                              new CustomUniqueGoldenRecordData(null),
                               goldenRecord.data());
    }
 
@@ -129,8 +125,17 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return Collections.emptyList();
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
       return PostgresqlQueries.findCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      return List.of();
+   }
+
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      LOGGER.error("Not implemented");
+      return Collections.emptyList();
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

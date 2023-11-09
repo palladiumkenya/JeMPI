@@ -1,26 +1,30 @@
-# FROM node:16-alpine
+# Development 
 
-# WORKDIR /app
+FROM node:18-alpine as development-stage
 
-# COPY . .
+WORKDIR /app
+COPY package.json ./
+COPY yarn.lock ./
 
-# RUN yarn install
+ENV NODE_ENV=development
 
-# RUN yarn build
+RUN yarn
 
-# RUN yarn global add serve
+COPY . .
 
-# CMD serve -s build  
+CMD ["yarn", "start"]
 
+# Build
 
-# Build 
-FROM node:16-alpine as development-stage
+FROM node:18-alpine as build-stage
 
 WORKDIR /app
 
 COPY package.json ./
 
 COPY yarn.lock ./
+
+ENV NODE_ENV=production
 
 RUN yarn
 
@@ -28,23 +32,28 @@ COPY . .
 
 RUN yarn build
 
-CMD ["yarn","start"]
+# Production
 
-# Production 
-FROM node:16-alpine as production-stage
+FROM node:18-alpine as production-stage
+
+ENV BUILD_DEPS="gettext"  \
+    RUNTIME_DEPS="libintl"
+
+RUN set -x && \
+    apk add --update $RUNTIME_DEPS && \
+    apk add --virtual build_deps $BUILD_DEPS &&  \
+    cp /usr/bin/envsubst /usr/local/bin/envsubst && \
+    apk del build_deps
 
 WORKDIR /app
 
-COPY package.json ./
-
-COPY yarn.lock ./
-
 RUN yarn global add serve
 
-RUN yarn install --production=true
+COPY --chown=node:node --from=build-stage /app/build ./
 
-COPY --chown=node:node --from=development-stage /app/build ./build
+COPY ./docker-entrypoint.sh /usr/local/bin/
 
-ENV NODE_ENV=production
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-CMD ["serve" ,"-s", "build"]
+ENTRYPOINT [ "/bin/sh", "/usr/local/bin/docker-entrypoint.sh" ]
+

@@ -28,9 +28,11 @@ import java.util.*;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
-   private final String pgDatabase;
+   private final String pgIP;
+   private final Integer pgPort;
    private final String pgUser;
    private final String pgPassword;
+   private final String pgDatabase;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
@@ -43,6 +45,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
+         final String sqlIP,
+         final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase,
@@ -52,11 +56,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
       this.dgraphPorts = dgraphPorts;
-      this.pgDatabase = sqlDatabase;
+      this.pgIP = sqlIP;
+      this.pgPort = sqlPort;
       this.pgUser = sqlUser;
       this.pgPassword = sqlPassword;
-      psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
-      psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
+      this.pgDatabase = sqlDatabase;
+      psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
+      psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
       openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
    }
 
@@ -64,6 +70,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final Level level,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
+         final String sqlIP,
+         final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase,
@@ -73,6 +81,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     context,
                                                     dgraphHosts,
                                                     dgraphPorts,
+                                                    sqlIP,
+                                                    sqlPort,
                                                     sqlUser,
                                                     sqlPassword,
                                                     sqlDatabase,
@@ -87,7 +97,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgDatabase),
                              pgUser,
                              pgPassword,
                              kafkaBootstrapServers,
