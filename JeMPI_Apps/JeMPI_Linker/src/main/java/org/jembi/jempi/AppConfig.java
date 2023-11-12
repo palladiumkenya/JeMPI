@@ -2,10 +2,12 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -21,29 +23,38 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
-   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
-   public static final String KAFKA_APPLICATION_ID_ENTITIES = CONFIG.getString("kafka.application-id-entities");
-   public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("kafka.application-id-mu");
-   public static final String KAFKA_APPLICATION_ID_NOTIFICATIONS = CONFIG.getString("kafka.application-id-notifications");
-   public static final String KAFKA_CLIENT_ID_ENTITIES = CONFIG.getString("kafka.client-id-entities");
-   public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("kafka.client-id-mu");
-   public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("kafka.client-id-notifications");
-   public static final String KAFKA_CLIENT_ID_BACK_PATCH_DWH = CONFIG.getString("kafka.client-id-back-patch-dwh");
-   public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
 
-   public static final Float BACK_END_MATCH_THRESHOLD = (float) CONFIG.getDouble("back-end.match-threshold");
-   public static final Float FLAG_FOR_NOTIFICATION_ALLOWANCE = (float) CONFIG.getDouble("back-end.flag-for-notification-allowance");
-   public static final Boolean BACK_END_DETERMINISTIC = CONFIG.getBoolean("back-end.deterministic");
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
+   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
+   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
+   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+   public static final String KAFKA_APPLICATION_ID_INTERACTIONS = CONFIG.getString("KAFKA_APPLICATION_ID_INTERACTIONS");
+   public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("KAFKA_APPLICATION_ID_MU");
+   public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("KAFKA_CLIENT_ID_NOTIFICATIONS");
+   private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
+   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
+   public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
+   public static final String API_IP = CONFIG.getString("API_IP");
+   public static final String API_HTTP_PORT = CONFIG.getString("API_HTTP_PORT");
+   public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
+   public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
 
-   public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
-   public static final int DGRAPH_ALPHA1_PORT = CONFIG.getInt("dgraph.alpha1.port");
+   public static String[] getDGraphHosts() {
+      return DGRAPH_ALPHA_HOSTS;
+   }
+   public static int[] getDGraphPorts() {
+      return DGRAPH_ALPHA_PORTS;
+   }
 
-   public static final String DGRAPH_ALPHA2_HOST = CONFIG.getString("dgraph.alpha2.host");
-   public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
-
-   public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
-   public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    private AppConfig() {
    }

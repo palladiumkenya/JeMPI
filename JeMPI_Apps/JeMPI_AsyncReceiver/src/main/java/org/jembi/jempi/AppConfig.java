@@ -2,6 +2,7 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,13 +23,14 @@ public final class AppConfig {
             .withResource("application.conf")
             .build();
 
-    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
-    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
-    public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
-
-    public static final String INPUT_ENVIRONMENT = CONFIG.getString("input.environment");
-    public static final Float INPUT_DEFAULT_THRESHOLD = (float) CONFIG.getDouble("input.default-threshold");
-
+    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
+    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
+    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+    public static final String MSSQL_USER = CONFIG.getString("MSSQL_USER");
+    public static final String MSSQL_PASSWORD = CONFIG.getString("MSSQL_PASSWORD");
+    public static final String MSSQL_HOST = CONFIG.getString("MSSQL_HOST");
+    public static final String MSSQL_DATABASE = CONFIG.getString("MSSQL_DATABASE");
     private AppConfig() {
     }
 

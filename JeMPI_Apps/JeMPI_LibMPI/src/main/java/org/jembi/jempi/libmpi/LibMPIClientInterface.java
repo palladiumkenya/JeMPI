@@ -3,9 +3,8 @@ package org.jembi.jempi.libmpi;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LibMPIClientInterface {
@@ -35,15 +34,15 @@ public interface LibMPIClientInterface {
     * *
     */
 
-   long countPatientRecords();
+   long countInteractions();
 
    long countGoldenRecords();
 
-   PatientRecord findPatientRecord(String patientId);
+   Interaction findInteraction(String interactionID);
 
-   List<PatientRecord> findPatientRecords(List<String> patientIds);
+   List<Interaction> findInteractions(List<String> interactionIDs);
 
-   List<ExpandedPatientRecord> findExpandedPatientRecords(List<String> patientIds);
+   List<ExpandedInteraction> findExpandedInteractions(List<String> interactionIDs);
 
    GoldenRecord findGoldenRecord(String goldenId);
 
@@ -53,37 +52,53 @@ public interface LibMPIClientInterface {
 
    List<String> findGoldenIds();
 
-   List<GoldenRecord> findCandidates(
-         CustomDemographicData demographicData,
-         boolean applyDeterministicFilter);
+   List<String> fetchGoldenIds(
+         long offset,
+         long length);
+
+   List<GoldenRecord> findLinkCandidates(CustomDemographicData demographicData);
+
+   List<GoldenRecord> findMatchCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
+         List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         List<SimpleSearchRequestPayload> params,
+         List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
+   LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
+         List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
-         List<SimpleSearchRequestPayload> params,
+   LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
+         List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
+
+   LibMPIPaginatedResultSet<String> filterGids(
+         List<ApiModels.ApiSearchParameter> params,
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
+
+   PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         List<ApiModels.ApiSearchParameter> params,
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
+
+   List<GoldenRecord> findGoldenRecords(ApiModels.ApiCrFindRequest request);
 
    /*
     * *****************************************************************************
@@ -93,7 +108,7 @@ public interface LibMPIClientInterface {
     * *
     */
    boolean setScore(
-         String patientUID,
+         String interactionUID,
          String goldenRecordUid,
          float score);
 
@@ -102,23 +117,38 @@ public interface LibMPIClientInterface {
          String fieldName,
          String value);
 
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Boolean value);
+
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Double value);
+
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Long value);
+
    Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          String currentGoldenId,
-         String patientId,
+         String interactionId,
          float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
          String goldenId,
          String newGoldenId,
-         String patientId,
+         String interactionId,
          float score);
 
-   LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         PatientRecord patientRecord,
+   LinkInfo createInteractionAndLinkToExistingGoldenRecord(
+         Interaction interaction,
          GoldenIdScore goldenIdScore);
 
-   LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         PatientRecord patientRecord,
+   LinkInfo createInteractionAndLinkToClonedGoldenRecord(
+         Interaction interaction,
          float score);
 
    record GoldenIdScore(

@@ -2,21 +2,26 @@ package org.jembi.jempi.libmpi.dgraph;
 
 public final class CustomDgraphConstants {
 
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED = "GoldenRecord.aux_date_created";
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED = "GoldenRecord.aux_auto_update_enabled";
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
-   public static final String PREDICATE_GOLDEN_RECORD_AUX_DWH_ID = "GoldenRecord.aux_dwh_id";
-   public static final String PREDICATE_GOLDEN_RECORD_PHONETIC_GIVEN_NAME = "GoldenRecord.phonetic_given_name";
-   public static final String PREDICATE_GOLDEN_RECORD_PHONETIC_FAMILY_NAME = "GoldenRecord.phonetic_family_name";
+   public static final String PREDICATE_GOLDEN_RECORD_GIVEN_NAME = "GoldenRecord.given_name";
+   public static final String PREDICATE_GOLDEN_RECORD_FAMILY_NAME = "GoldenRecord.family_name";
    public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
    public static final String PREDICATE_GOLDEN_RECORD_DOB = "GoldenRecord.dob";
    public static final String PREDICATE_GOLDEN_RECORD_NUPI = "GoldenRecord.nupi";
-   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
-   public static final String PREDICATE_PATIENT_RECORDAUX_ID = "PatientRecord.aux_id";
-   public static final String PREDICATE_PATIENT_RECORDAUX_DWH_ID = "PatientRecord.aux_dwh_id";
-   public static final String PREDICATE_PATIENT_RECORDPHONETIC_GIVEN_NAME = "PatientRecord.phonetic_given_name";
-   public static final String PREDICATE_PATIENT_RECORDPHONETIC_FAMILY_NAME = "PatientRecord.phonetic_family_name";
-   public static final String PREDICATE_PATIENT_RECORDGENDER = "PatientRecord.gender";
-   public static final String PREDICATE_PATIENT_RECORDDOB = "PatientRecord.dob";
-   public static final String PREDICATE_PATIENT_RECORDNUPI = "PatientRecord.nupi";
+   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
+   public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
+   public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
+   public static final String PREDICATE_INTERACTION_CCC_NUMBER = "Interaction.ccc_number";
+   public static final String PREDICATE_INTERACTION_DOCKET = "Interaction.docket";
+   public static final String PREDICATE_INTERACTION_PKV = "Interaction.pkv";
+   public static final String PREDICATE_INTERACTION_AUX_DWH_ID = "Interaction.aux_dwh_id";
+   public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
+   public static final String PREDICATE_INTERACTION_FAMILY_NAME = "Interaction.family_name";
+   public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
+   public static final String PREDICATE_INTERACTION_DOB = "Interaction.dob";
+   public static final String PREDICATE_INTERACTION_NUPI = "Interaction.nupi";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """
@@ -26,10 +31,11 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         GoldenRecord.aux_date_created
+         GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.aux_dwh_id
-         GoldenRecord.phonetic_given_name
-         GoldenRecord.phonetic_family_name
+         GoldenRecord.given_name
+         GoldenRecord.family_name
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
@@ -43,94 +49,113 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         GoldenRecord.aux_date_created
+         GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.aux_dwh_id
-         GoldenRecord.phonetic_given_name
-         GoldenRecord.phonetic_family_name
+         GoldenRecord.given_name
+         GoldenRecord.family_name
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
-         GoldenRecord.patients @facets(score) {
+         GoldenRecord.interactions @facets(score) {
             uid
-            PatientRecord.source_id {
+            Interaction.source_id {
                uid
                SourceId.facility
                SourceId.patient
             }
-            PatientRecord.aux_id
-            PatientRecord.aux_dwh_id
-            PatientRecord.phonetic_given_name
-            PatientRecord.phonetic_family_name
-            PatientRecord.gender
-            PatientRecord.dob
-            PatientRecord.nupi
+            Interaction.aux_date_created
+            Interaction.aux_id
+            Interaction.ccc_number
+            Interaction.docket
+            Interaction.pkv
+            Interaction.aux_dwh_id
+            Interaction.given_name
+            Interaction.family_name
+            Interaction.gender
+            Interaction.dob
+            Interaction.nupi
          }
          """;
-   static final String PATIENT_RECORD_FIELD_NAMES =
+   static final String INTERACTION_FIELD_NAMES =
          """
          uid
-         PatientRecord.source_id {
+         Interaction.source_id {
             uid
             SourceId.facility
             SourceId.patient
          }
-         PatientRecord.aux_id
-         PatientRecord.aux_dwh_id
-         PatientRecord.phonetic_given_name
-         PatientRecord.phonetic_family_name
-         PatientRecord.gender
-         PatientRecord.dob
-         PatientRecord.nupi
+         Interaction.aux_date_created
+         Interaction.aux_id
+         Interaction.ccc_number
+         Interaction.docket
+         Interaction.pkv
+         Interaction.aux_dwh_id
+         Interaction.given_name
+         Interaction.family_name
+         Interaction.gender
+         Interaction.dob
+         Interaction.nupi
          """;
-   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
+
+   static final String EXPANDED_INTERACTION_FIELD_NAMES =
          """
          uid
-         PatientRecord.source_id {
+         Interaction.source_id {
             uid
             SourceId.facility
             SourceId.patient
          }
-         PatientRecord.aux_id
-         PatientRecord.aux_dwh_id
-         PatientRecord.phonetic_given_name
-         PatientRecord.phonetic_family_name
-         PatientRecord.gender
-         PatientRecord.dob
-         PatientRecord.nupi
-         ~GoldenRecord.patients @facets(score) {
+         Interaction.aux_date_created
+         Interaction.aux_id
+         Interaction.ccc_number
+         Interaction.docket
+         Interaction.pkv
+         Interaction.aux_dwh_id
+         Interaction.given_name
+         Interaction.family_name
+         Interaction.gender
+         Interaction.dob
+         Interaction.nupi
+         ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
               uid
               SourceId.facility
               SourceId.patient
             }
+            GoldenRecord.aux_date_created
+            GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.aux_dwh_id
-            GoldenRecord.phonetic_given_name
-            GoldenRecord.phonetic_family_name
+            GoldenRecord.given_name
+            GoldenRecord.family_name
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
          }
          """;
 
-   static final String QUERY_GET_PATIENT_BY_UID =
+   static final String QUERY_GET_INTERACTION_BY_UID =
          """
-         query patientByUid($uid: string) {
+         query interactionByUid($uid: string) {
             all(func: uid($uid)) {
                uid
-               PatientRecord.source_id {
+               Interaction.source_id {
                  uid
                  SourceId.facility
                  SourceId.patient
                }
-               PatientRecord.aux_id
-               PatientRecord.aux_dwh_id
-               PatientRecord.phonetic_given_name
-               PatientRecord.phonetic_family_name
-               PatientRecord.gender
-               PatientRecord.dob
-               PatientRecord.nupi
+               Interaction.aux_date_created
+               Interaction.aux_id
+               Interaction.ccc_number
+               Interaction.docket
+               Interaction.pkv
+               Interaction.aux_dwh_id
+               Interaction.given_name
+               Interaction.family_name
+               Interaction.gender
+               Interaction.dob
+               Interaction.nupi
             }
          }
          """;
@@ -145,10 +170,11 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.aux_dwh_id
-               GoldenRecord.phonetic_given_name
-               GoldenRecord.phonetic_family_name
+               GoldenRecord.given_name
+               GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
@@ -156,34 +182,39 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_EXPANDED_PATIENTS =
+   static final String QUERY_GET_EXPANDED_INTERACTIONS =
          """
-         query expandedPatient() {
+         query expandedInteraction() {
             all(func: uid(%s)) {
                uid
-               PatientRecord.source_id {
+               Interaction.source_id {
                   uid
                   SourceId.facility
                   SourceId.patient
                }
-               PatientRecord.aux_id
-               PatientRecord.aux_dwh_id
-               PatientRecord.phonetic_given_name
-               PatientRecord.phonetic_family_name
-               PatientRecord.gender
-               PatientRecord.dob
-               PatientRecord.nupi
-               ~GoldenRecord.patients @facets(score) {
+               Interaction.aux_date_created
+               Interaction.aux_id
+               Interaction.ccc_number
+               Interaction.docket
+               Interaction.pkv
+               Interaction.aux_dwh_id
+               Interaction.given_name
+               Interaction.family_name
+               Interaction.gender
+               Interaction.dob
+               Interaction.nupi
+               ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
                     uid
                     SourceId.facility
                     SourceId.patient
                   }
+                  GoldenRecord.aux_date_created
+                  GoldenRecord.aux_auto_update_enabled
                   GoldenRecord.aux_id
-                  GoldenRecord.aux_dwh_id
-                  GoldenRecord.phonetic_given_name
-                  GoldenRecord.phonetic_family_name
+                  GoldenRecord.given_name
+                  GoldenRecord.family_name
                   GoldenRecord.gender
                   GoldenRecord.dob
                   GoldenRecord.nupi
@@ -202,10 +233,11 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.aux_dwh_id
-               GoldenRecord.phonetic_given_name
-               GoldenRecord.phonetic_family_name
+               GoldenRecord.given_name
+               GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
@@ -216,34 +248,39 @@ public final class CustomDgraphConstants {
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          """
          query expandedGoldenRecord() {
-            all(func: uid(%s)) {
+            all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {
                uid
                GoldenRecord.source_id {
                   uid
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.aux_dwh_id
-               GoldenRecord.phonetic_given_name
-               GoldenRecord.phonetic_family_name
+               GoldenRecord.given_name
+               GoldenRecord.family_name
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
-               GoldenRecord.patients @facets(score) {
+               GoldenRecord.interactions @facets(score) {
                   uid
-                  PatientRecord.source_id {
+                  Interaction.source_id {
                     uid
                     SourceId.facility
                     SourceId.patient
                   }
-                  PatientRecord.aux_id
-                  PatientRecord.aux_dwh_id
-                  PatientRecord.phonetic_given_name
-                  PatientRecord.phonetic_family_name
-                  PatientRecord.gender
-                  PatientRecord.dob
-                  PatientRecord.nupi
+                  Interaction.aux_date_created
+                  Interaction.aux_id
+                  Interaction.ccc_number
+                  Interaction.docket
+                  Interaction.pkv
+                  Interaction.aux_dwh_id
+                  Interaction.given_name
+                  Interaction.family_name
+                  Interaction.gender
+                  Interaction.dob
+                  Interaction.nupi
                }
             }
          }
@@ -256,67 +293,77 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          """;
-     
+       
    static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
          """;
-       
+         
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
          """
 
          type GoldenRecord {
             GoldenRecord.source_id:                 [SourceId]
+            GoldenRecord.aux_date_created
+            GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.aux_dwh_id
-            GoldenRecord.phonetic_given_name
-            GoldenRecord.phonetic_family_name
+            GoldenRecord.given_name
+            GoldenRecord.family_name
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
-            GoldenRecord.patients:                  [PatientRecord]
+            GoldenRecord.interactions:              [Interaction]
          }
          """;
-         
+           
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
-         GoldenRecord.aux_id:                   string    @index(exact)                      .
-         GoldenRecord.aux_dwh_id:               string                                       .
-         GoldenRecord.phonetic_given_name:      string    @index(exact)                      .
-         GoldenRecord.phonetic_family_name:     string    @index(exact)                      .
-         GoldenRecord.gender:                   string    @index(exact,trigram)              .
-         GoldenRecord.dob:                      string    @index(exact,trigram)              .
-         GoldenRecord.nupi:                     string    @index(exact,trigram)              .
-         GoldenRecord.patients:                 [uid]     @reverse                           .
+         GoldenRecord.aux_date_created:         datetime                                     .
+         GoldenRecord.aux_auto_update_enabled:  bool                                         .
+         GoldenRecord.aux_id:                   string                                       .
+         GoldenRecord.given_name:               string    @index(hash)                       .
+         GoldenRecord.family_name:              string    @index(hash)                       .
+         GoldenRecord.gender:                   string    @index(hash)                       .
+         GoldenRecord.dob:                      string    @index(hash)                       .
+         GoldenRecord.nupi:                     string    @index(hash)                       .
+         GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
-   static final String MUTATION_CREATE_PATIENT_TYPE =
+   static final String MUTATION_CREATE_INTERACTION_TYPE =
          """
 
-         type PatientRecord {
-            PatientRecord.source_id:                     SourceId
-            PatientRecord.aux_id
-            PatientRecord.aux_dwh_id
-            PatientRecord.phonetic_given_name
-            PatientRecord.phonetic_family_name
-            PatientRecord.gender
-            PatientRecord.dob
-            PatientRecord.nupi
+         type Interaction {
+            Interaction.source_id:                     SourceId
+            Interaction.aux_date_created
+            Interaction.aux_id
+            Interaction.ccc_number
+            Interaction.docket
+            Interaction.pkv
+            Interaction.aux_dwh_id
+            Interaction.given_name
+            Interaction.family_name
+            Interaction.gender
+            Interaction.dob
+            Interaction.nupi
          }
          """;
 
-   static final String MUTATION_CREATE_PATIENT_FIELDS =
+   static final String MUTATION_CREATE_INTERACTION_FIELDS =
          """
-         PatientRecord.source_id:                    uid                                          .
-         PatientRecord.aux_id:                       string                                       .
-         PatientRecord.aux_dwh_id:                   string                                       .
-         PatientRecord.phonetic_given_name:          string                                       .
-         PatientRecord.phonetic_family_name:         string                                       .
-         PatientRecord.gender:                       string                                       .
-         PatientRecord.dob:                          string                                       .
-         PatientRecord.nupi:                         string                                       .
+         Interaction.source_id:                    uid                                          .
+         Interaction.aux_date_created:             datetime                                     .
+         Interaction.aux_id:                       string                                       .
+         Interaction.ccc_number:                   string                                       .
+         Interaction.docket:                       string                                       .
+         Interaction.pkv:                          string                                       .
+         Interaction.aux_dwh_id:                   string                                       .
+         Interaction.given_name:                   string                                       .
+         Interaction.family_name:                  string                                       .
+         Interaction.gender:                       string                                       .
+         Interaction.dob:                          string                                       .
+         Interaction.nupi:                         string                                       .
          """;
 
    private CustomDgraphConstants() {}

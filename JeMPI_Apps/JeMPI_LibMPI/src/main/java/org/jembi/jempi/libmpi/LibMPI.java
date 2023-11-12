@@ -2,25 +2,74 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 public final class LibMPI {
 
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
 
+   private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
+
    public LibMPI(
+         final Level level,
          final String[] host,
-         final int[] port) {
+         final int[] port,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       LOGGER.info("{}", "LibMPI Constructor");
-      client = new LibDgraph(host, port);
+      topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
+                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
+                                               new StringSerializer(),
+                                               new JsonPojoSerializer<>(),
+                                               kafkaClientId);
+      client = new LibDgraph(level, host, port);
+   }
+
+   public LibMPI(
+         final String URL,
+         final String USR,
+         final String PSW,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
+      LOGGER.info("{}", "LibMPI Constructor");
+      topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
+                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
+                                               new StringSerializer(),
+                                               new JsonPojoSerializer<>(),
+                                               kafkaClientId);
+      client = new LibPostgresql(URL, USR, PSW);
+   }
+
+   private void sendAuditEvent(
+         final String interactionID,
+         final String goldenID,
+         final String event) {
+      topicAuditEvents.produceAsync(goldenID,
+                                    new AuditEvent(new Timestamp(System.currentTimeMillis()),
+                                                   null,
+                                                   interactionID,
+                                                   goldenID,
+                                                   event),
+                                    ((metadata, exception) -> {
+                                       if (exception != null) {
+                                          LOGGER.error(exception.getLocalizedMessage(), exception);
+                                       }
+                                    }));
+
    }
 
    /*
@@ -59,8 +108,8 @@ public final class LibMPI {
     * *
     */
 
-   public long countPatientRecords() {
-      return client.countPatientRecords();
+   public long countInteractions() {
+      return client.countInteractions();
    }
 
    public long countGoldenRecords() {
@@ -68,16 +117,16 @@ public final class LibMPI {
    }
 
 
-   public PatientRecord findPatientRecord(final String patientId) {
-      return client.findPatientRecord(patientId);
+   public Interaction findInteraction(final String iid) {
+      return client.findInteraction(iid);
    }
 
-   public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
-      return client.findPatientRecords(patientIds);
+   public List<Interaction> findInteraction(final List<String> iidList) {
+      return client.findInteractions(iidList);
    }
 
-   public List<ExpandedPatientRecord> findExpandedPatientRecords(final List<String> patientIds) {
-      return client.findExpandedPatientRecords(patientIds);
+   public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIDs) {
+      return client.findExpandedInteractions(interactionIDs);
    }
 
    public GoldenRecord findGoldenRecord(final String goldenId) {
@@ -104,50 +153,72 @@ public final class LibMPI {
       return client.findGoldenIds();
    }
 
-   public List<GoldenRecord> getCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
-      return client.findCandidates(demographicData, applyDeterministicFilter);
+   public List<String> fetchGoldenIds(
+         final long offset,
+         final long length) {
+      return client.fetchGoldenIds(offset, length);
+   }
+
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      return client.findLinkCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      return client.findMatchCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      return client.findGoldenRecords(request);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+   public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
-      return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+         final Boolean sortAsc) {
+      return client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
-         final List<SimpleSearchRequestPayload> params,
+   public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
-      return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+         final Boolean sortAsc) {
+      return client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+   }
+
+   public LibMPIPaginatedResultSet<String> filterGids(
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      return client.filterGids(params, createdAt, paginationOptions);
+   }
+
+   public PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         final List<ApiModels.ApiSearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      return client.filterGidsWithInteractionCount(params, createdAt, paginationOptions);
    }
 
    /*
@@ -159,44 +230,129 @@ public final class LibMPI {
     */
 
    public boolean setScore(
-         final String patientuid,
-         final String goldenRecordUid,
-         final float score) {
-      return client.setScore(patientuid, goldenRecordUid, score);
+         final String interactionID,
+         final String goldenID,
+         final float oldScore,
+         final float newScore) {
+      final var result = client.setScore(interactionID, goldenID, newScore);
+      if (result) {
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore));
+      } else {
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore));
+
+      }
+      return result;
    }
 
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
-         final String value) {
-      return client.updateGoldenRecordField(goldenId, fieldName, value);
+         final String newValue) {
+      return client.updateGoldenRecordField(goldenId, fieldName, newValue);
+   }
+
+
+   public boolean updateGoldenRecordField(
+         final String interactionId,
+         final String goldenId,
+         final String fieldName,
+         final String oldValue,
+         final String newValue) {
+      final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
+      if (result) {
+         sendAuditEvent(interactionId,
+                        goldenId,
+                        String.format(Locale.ROOT, "%s: '%s' -> '%s'", fieldName, oldValue, newValue));
+      } else {
+         sendAuditEvent(interactionId,
+                        goldenId,
+                        String.format(Locale.ROOT, "%s: error updating '%s' -> '%s'", fieldName, oldValue, newValue));
+      }
+      return result;
    }
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
-         final String patientId,
+         final String interactionId,
          final float score) {
-      return client.linkToNewGoldenRecord(currentGoldenId, patientId, score);
+      final var result = client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
+      if (result.isRight()) {
+         sendAuditEvent(interactionId,
+                        result.get().goldenUID(),
+                        String.format(Locale.ROOT,
+                                      "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
+                                      currentGoldenId,
+                                      result.get().goldenUID(),
+                                      score));
+      } else {
+         sendAuditEvent(interactionId,
+                        currentGoldenId,
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID error: old(%s) [%f]", currentGoldenId, score));
+      }
+      return result;
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(
-         final String goldenId,
-         final String newGoldenId,
-         final String patientId,
+         final String goldenID,
+         final String newGoldenID,
+         final String interactionID,
          final float score) {
-      return client.updateLink(goldenId, newGoldenId, patientId, score);
+      final var result = client.updateLink(goldenID, newGoldenID, interactionID, score);
+      if (result.isRight()) {
+         sendAuditEvent(interactionID,
+                        newGoldenID,
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID: old(%s) new(%s) [%f]", goldenID, newGoldenID, score));
+      } else {
+         sendAuditEvent(interactionID,
+                        newGoldenID,
+                        String.format(Locale.ROOT, "Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
+                                      goldenID,
+                                      newGoldenID,
+                                      score));
+      }
+      return result;
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         final PatientRecord patientRecord,
-         final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      return client.createPatientAndLinkToExistingGoldenRecord(patientRecord, goldenIdScore);
+   public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
+         final Interaction interaction,
+         final LibMPIClientInterface.GoldenIdScore goldenIdScore,
+         final boolean deterministicValidation,
+         final float probabilisticValidation) {
+      final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
+      if (result != null) {
+         sendAuditEvent(result.interactionUID(),
+                        result.goldenUID(),
+                        String.format(Locale.ROOT, "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), Probabilistic(%.3f)", result.score(),
+                                      deterministicValidation, probabilisticValidation));
+      } else {
+         sendAuditEvent(interaction.interactionId(),
+                        goldenIdScore.goldenId(),
+                        String.format(Locale.ROOT, "Interaction -> error linking to existing GoldenRecord (%.5f)",
+                                      goldenIdScore.score()));
+      }
+      return result;
+
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         final PatientRecord patientRecord,
+   public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
+         final Interaction interaction,
          final float score) {
-      return client.createPatientAndLinkToClonedGoldenRecord(patientRecord, score);
+      final var result = client.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
+      if (result != null) {
+         sendAuditEvent(result.interactionUID(),
+                        result.goldenUID(),
+                        String.format(Locale.ROOT, "Interaction -> New GoldenRecord (%f)", score));
+      } else {
+         LOGGER.error("Failed to insert interation {}", interaction.uniqueInteractionData());
+         sendAuditEvent(interaction.interactionId(),
+                        null,
+                        String.format(Locale.ROOT, "Interaction -> error linking to new GoldenRecord (%f)", score));
+      }
+      return result;
    }
 
 }

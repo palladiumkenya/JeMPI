@@ -3,6 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jembi.jempi.shared.models.GoldenRecordWithScore;
+import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
@@ -12,24 +13,26 @@ import java.util.List;
 record CustomDgraphReverseGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
-      @JsonProperty("GoldenRecord.aux_id") String auxId,
-      @JsonProperty("GoldenRecord.aux_dwh_id") String auxDwhId,
-      @JsonProperty("GoldenRecord.phonetic_given_name") String phoneticGivenName,
-      @JsonProperty("GoldenRecord.phonetic_family_name") String phoneticFamilyName,
-      @JsonProperty("GoldenRecord.gender") String gender,
-      @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.nupi") String nupi,
-      @JsonProperty("~GoldenRecord.patients|score") Float score) {
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED) Boolean auxAutoUpdateEnabled,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NUPI) String nupi,
+      @JsonProperty("~GoldenRecord.interactions|score") Float score) {
 
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
-                              new CustomDemographicData(this.auxId(),
-                                                        this.auxDwhId(),
-                                                        this.phoneticGivenName(),
-                                                        this.phoneticFamilyName(),
+                              new CustomUniqueGoldenRecordData(this.auxDateCreated(),
+                                                               this.auxAutoUpdateEnabled(),
+                                                               this.auxId()),
+                              new CustomDemographicData(this.givenName(),
+                                                        this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
                                                         this.nupi()));
@@ -40,3 +43,4 @@ record CustomDgraphReverseGoldenRecord(
    }
 
 }
+

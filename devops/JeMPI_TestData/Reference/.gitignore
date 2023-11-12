@@ -1,0 +1,4 @@
+venv
+*.sh
+!create-scripts-linux-docker.sh
+__pycache__

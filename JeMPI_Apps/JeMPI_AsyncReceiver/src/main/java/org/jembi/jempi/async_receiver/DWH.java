@@ -2,38 +2,30 @@ package org.jembi.jempi.async_receiver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.postgresql.util.PGobject;
+import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.CustomSourceId;
+import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 
 import java.sql.*;
 
 final class DWH {
-
-/*
-CREATE TABLE IF NOT EXISTS dwh (
-   dwh_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
-   golden_id     VARCHAR(32),
-   encounter_id  VARCHAR(32),
-   pkv           VARCHAR(150),
-   site_code     VARCHAR(32),
-   patient_pk    VARCHAR(32),
-   nupi          VARCHAR(32)
-);
-*/
-
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(pkv,gender,dob,nupi,site_code,patient_pk,ccc_number)
-                                            VALUES (?,?,?,?,?,?,?)
+                                            INSERT INTO dwh(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket)
+                                            VALUES (?,?,?,?,?,?,?,?)
                                             """;
 
 
    private static final String SQL_UPDATE = """
                                             UPDATE dwh
-                                            SET golden_id = ?, encounter_id = ?
+                                            SET golden_id = ?, encounter_id = ?, phonetic_given_name = ?, phonetic_family_name = ?
                                             WHERE dwh_id = ?
                                             """;
    private static final Logger LOGGER = LogManager.getLogger(DWH.class);
-   private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
-   private static final String USER = "postgres";
+   private static final String URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
+   private static final String USER = AppConfig.MSSQL_USER;
+
+   private static final String PASSWORD = AppConfig.MSSQL_PASSWORD;
    private Connection conn;
 
    DWH() {
@@ -45,7 +37,7 @@ CREATE TABLE IF NOT EXISTS dwh (
             if (conn != null) {
                conn.close();
             }
-            conn = DriverManager.getConnection(URL, USER, null);
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
             conn.setAutoCommit(true);
             return conn.isValid(0);
          }
@@ -59,16 +51,17 @@ CREATE TABLE IF NOT EXISTS dwh (
    void backPatchKeys(
          final String dwlId,
          final String goldenId,
-         final String encounterId) {
+         final String encounterId,
+         final String phoneticGivenName,
+         final String phoneticFamilyName) {
       if (open()) {
          try {
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
-               final PGobject uuid = new PGobject();
-               uuid.setType("uuid");
-               uuid.setValue(dwlId);
                pStmt.setString(1, goldenId);
                pStmt.setString(2, encounterId);
-               pStmt.setObject(3, uuid);
+               pStmt.setString(3, phoneticGivenName.isEmpty() ? null : phoneticGivenName.toUpperCase());
+               pStmt.setString(4, phoneticFamilyName.isEmpty() ? null : phoneticFamilyName.toUpperCase());
+               pStmt.setInt(5, Integer.parseInt(dwlId));
                pStmt.executeUpdate();
             }
          } catch (SQLException e) {
@@ -80,15 +73,10 @@ CREATE TABLE IF NOT EXISTS dwh (
    }
 
    String insertClinicalData(
-         final String pkv,
-         final String gender,
-         final String dob,
-         final String nupi,
-         final String siteCode,
-         final String patientPk,
-         final String cccNumber
-         ) {
-      LOGGER.debug("{} {} {} {} {} {} {}", pkv, gender, dob, nupi, siteCode, patientPk, cccNumber);
+           final CustomDemographicData customDemographicData,
+           final CustomSourceId customSourceId,
+           final CustomUniqueInteractionData customUniqueInteractionData
+           ) {
       String dwhId = null;
       if (open()) {
          try {
@@ -99,18 +87,19 @@ CREATE TABLE IF NOT EXISTS dwh (
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                  pStmt.setString(1, pkv == null || pkv.isEmpty() ? null : pkv);
-                  pStmt.setString(2, gender == null || gender.isEmpty() ? null : gender);
-                  pStmt.setString(3, dob == null || dob.isEmpty() ? null : dob);
-                  pStmt.setString(4, nupi == null || nupi.isEmpty() ? null : nupi);
-                  pStmt.setString(5, siteCode == null || siteCode.isEmpty() ? null : siteCode);
-                  pStmt.setString(6, patientPk == null || patientPk.isEmpty() ? null : patientPk);
-                  pStmt.setString(7, cccNumber == null || cccNumber.isEmpty() ? null : cccNumber);
+                  pStmt.setString(1, customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
+                  pStmt.setString(2, customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
+                  pStmt.setString(3, customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
+                  pStmt.setString(4, customUniqueInteractionData.cccNumber().isEmpty() ? null : customUniqueInteractionData.cccNumber());
+                  pStmt.setString(5, customSourceId.facility().isEmpty() ? null : customSourceId.facility());
+                  pStmt.setString(6, customSourceId.patient().isEmpty() ? null : customSourceId.patient());
+                  pStmt.setString(7, customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
+                  pStmt.setString(8, customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
                   if (rs.next()) {
-                     dwhId = rs.getString(1);
+                     dwhId = Integer.toString(rs.getInt(1));
                   }
                }
             }

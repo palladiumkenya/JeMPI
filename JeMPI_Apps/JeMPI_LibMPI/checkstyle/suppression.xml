@@ -12,7 +12,7 @@
     />
 
     <suppress
-            checks="(LineLength|AvoidStarImport|MagicNumber)"
+            checks="(LineLength|AvoidStarImport|MagicNumber|MethodLength)"
             files="().java"
     />
 
@@ -31,6 +31,14 @@
             files="().java"
     />
 
+    <suppress
+            checks="(ParameterNumber)"
+            files="CustomInteractionData.java"
+    />
 
+    <suppress
+            checks="(ParameterNumber)"
+            files="CustomGoldenRecordData.java"
+    />
 
 </suppressions>

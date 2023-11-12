@@ -2,10 +2,12 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -28,7 +30,17 @@ public final class AppConfig {
    public static final String KAFKA_GROUP_ID = CONFIG.getString("kafka.group-id");
    public static final Long BACKEND_N_OLD_VALUES = CONFIG.getLong("backend.n-old-values");
    public static final Long BACKEND_N_NEW_VALUES = CONFIG.getLong("backend.n-new-values");
-
+   public static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts").split(",");
+   public static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("dgraph.ports").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    private AppConfig() {
    }

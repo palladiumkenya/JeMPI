@@ -11,7 +11,6 @@ import org.jembi.jempi.AppConfig;
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
-   private FrontEndStreamSync frontEndStreamSync;
 
    private Main() {
    }
@@ -25,14 +24,18 @@ public final class Main {
             context -> {
                final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEndActor);
-               final var patientStreamAsync = new FrontEndStreamAsync();
-               patientStreamAsync.open(context.getSystem(), backEndActor);
-               frontEndStreamSync = new FrontEndStreamSync();
-               frontEndStreamSync.open(context.getSystem(), backEndActor);
+               final var spAuditTrail = new SPAuditTrail();
+               spAuditTrail.open();
+               final var spNotification = new SPNotification();
+               spNotification.open();
+               final var spInteractions = new SPInteractions();
+               spInteractions.open(context.getSystem(), backEndActor);
+               final var httpServer = new HttpServer();
+               httpServer.open(context.getSystem(), backEndActor);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
-                                            frontEndStreamSync.close(context.getSystem());
+                                            httpServer.close(context.getSystem());
                                             return Behaviors.stopped();
                                          })
                                .build();
@@ -40,7 +43,8 @@ public final class Main {
    }
 
    private void run() {
-      LOGGER.info("KAFKA: {} {} {}",
+      LOGGER.info("CONFIG: {} {} {} {}",
+                  AppConfig.POSTGRESQL_DATABASE,
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);

@@ -36,7 +36,11 @@ class BackPatchStream {
          final String key,
          final BackPatchDWH rec) {
       LOGGER.debug("{} - {}", key, rec);
-      dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId());
+      if (rec.dwhId() != null && !rec.dwhId().isEmpty()) {
+         dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId(), rec.phoneticGivenName(), rec.phoneticFamilyName());
+      } else {
+         LOGGER.warn("BackPatch record with no dwhId. goldenId({})", rec.goldenId());
+      }
    }
 
    void open() {
@@ -52,6 +56,7 @@ class BackPatchStream {
       backPatchStreams = new KafkaStreams(streamsBuilder.build(), props);
       backPatchStreams.cleanUp();
       backPatchStreams.start();
+      Runtime.getRuntime().addShutdownHook(new Thread(backPatchStreams::close));
       LOGGER.info("KafkaStreams started");
    }
 

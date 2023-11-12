@@ -8,17 +8,17 @@ private object CustomDgraphGoldenRecord {
   private val customClassName = "CustomDgraphGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    val margin = 33
     writer.println(
       s"""package $packageText;
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
@@ -27,61 +27,63 @@ private object CustomDgraphGoldenRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |${" " * 6}@JsonProperty("uid") String goldenId,
-         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,""".stripMargin)
-    fields.zipWithIndex.foreach {
-      case (field, idx) =>
-        val propertyName = "GoldenRecord." + field.fieldName
-        val parameterType =
-          (if (field.isList.isDefined && field.isList.get) "List<" else "") +
-            field.fieldType +
-            (if (field.isList.isDefined && field.isList.get) ">" else "")
-        val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(
-          s"""${" " * 6}@JsonProperty("$propertyName") $parameterType $parameterName${
-            if (idx + 1 < fields.length) ","
-            else ") {"
-          }""".stripMargin)
-    }
-    writer.println(
-      s"""
-         |${" " * 3}$customClassName(final CustomDgraphPatientRecord rec) {
-         |${" " * 6}this(null,
-         |${" " * 11}List.of(rec.sourceId()),""".stripMargin)
-    fields.zipWithIndex.foreach {
-      case (field, idx) =>
-        val arg = (if (field.isList.isDefined && field.isList.get) "List.of(" else "") +
-          "rec." + Utils.snakeCaseToCamelCase(field.fieldName) +
-          "()" +
-          (if (field.isList.isDefined && field.isList.get) ")" else "")
-        writer.println(
-          s"""${" " * 11}$arg${if (idx + 1 < fields.length) "," else ");"}""".stripMargin)
-    }
-    writer.println(s"   }")
-
-    writer.print(
-      s"""
+         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
+         |${goldenRecordFields()}) {
+         |
          |   GoldenRecord toGoldenRecord() {
          |      return new GoldenRecord(this.goldenId(),
          |                              this.sourceId() != null
-         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
-         |                                    : List.of(),
-         |                              new CustomDemographicData(""".stripMargin)
-    fields.zipWithIndex.foreach {
-      (field, idx) =>
-        writer.println(
-          s"${" " * (if (idx == 0) 0 else 56)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
-            (if (idx + 1 < fields.length) "," else "));"))
-    }
-    writer.println("   }")
-    writer.println()
-//    writer.println(
-//      """   MpiGoldenRecord toMpiGoldenRecord() {
-//        |      return new MpiGoldenRecord(this.toCustomGoldenRecord());
-//        |   }
-//        |""".stripMargin)
-    writer.println("}")
+         |                                 ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
+         |                                 : List.of(),
+         |                              new CustomUniqueGoldenRecordData(${uniqueArguments()}),
+         |                              new CustomDemographicData(${demographicArguments()}));
+         |   }
+         |
+         |}
+         |""".stripMargin)
+
     writer.flush()
     writer.close()
+
+
+    def goldenRecordFields(): String =
+
+      def field(fieldName: String, fieldType: String): String = s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${fieldName.toUpperCase}) ${Utils.javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+
+      val f1 = (if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => field(f.fieldName, f.fieldType))
+          .mkString(sys.props("line.separator")) + sys.props("line.separator"))
+      val f2 =
+        config
+          .demographicFields
+          .map(f => field(f.fieldName, f.fieldType))
+          .mkString(sys.props("line.separator"))
+          .dropRight(1)
+      f1 + f2
+    end goldenRecordFields
+
+    def uniqueArguments(): String =
+      if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f =>
+            s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+          .mkString(sys.props("line.separator")).trim.dropRight(1)
+      end if
+    end uniqueArguments
+
+    def demographicArguments(): String =
+      config
+        .demographicFields
+        .map(f =>
+          s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+        .mkString(sys.props("line.separator")).trim.dropRight(1)
+    end demographicArguments
+
   end generate
 
 }

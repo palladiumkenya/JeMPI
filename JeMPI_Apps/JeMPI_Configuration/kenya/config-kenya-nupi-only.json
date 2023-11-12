@@ -1,0 +1,111 @@
+{
+  "uniqueInteractionFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ccc_number",
+      "fieldType": "String",
+      "csvCol": 6
+    },
+    {
+      "fieldName": "docket",
+      "fieldType": "String",
+      "csvCol": 7
+    },
+    {
+      "fieldName": "pkv",
+      "fieldType": "String",
+      "csvCol": 0
+    },
+    {
+      "fieldName": "aux_dwh_id",
+      "fieldType": "String"
+    }
+  ],
+  "uniqueGoldenRecordFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_auto_update_enabled",
+      "fieldType": "Bool",
+      "default": "true"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    }
+  ],
+  "additionalNodes": [
+    {
+      "nodeName": "SourceId",
+      "fields": [
+        {
+          "fieldName": "facility",
+          "fieldType": "String",
+          "csvCol": 4
+        },
+        {
+          "fieldName": "patient",
+          "fieldType": "String",
+          "csvCol": 5
+        }
+      ]
+    }
+  ],
+  "demographicFields": [
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 1
+      },
+      "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 2
+      },
+      "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "nupi",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 3
+      },
+      "indexGoldenRecord": "@index(hash)"
+    }
+  ],
+  "rules": {
+    "link": {
+      "deterministic": {
+        "QUERY_DETERMINISTIC_A": {
+          "vars": [
+            "nupi"
+          ],
+          "text": "eq(nupi)"
+        }
+      }
+    }
+  }
+}

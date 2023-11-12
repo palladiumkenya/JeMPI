@@ -2,10 +2,12 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -21,28 +23,33 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
 
-   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
-   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
-   public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
-   public static final String KAFKA_GROUP_ID = CONFIG.getString("kafka.group-id");
+   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
+   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
+   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
+   private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
+   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
 
-   public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
-   public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
-   public static final int DGRAPH_ALPHA1_PORT = CONFIG.getInt("dgraph.alpha1.port");
-   public static final String DGRAPH_ALPHA2_HOST = CONFIG.getString("dgraph.alpha2.host");
-   public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
-   public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
-   public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
-
-   public static final long JEMPI_FILE_IMPORT_MAX_SIZE_BYTE = CONFIG.getLong("import.max-size");
-
-   public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
-
-   public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
-
-   public static final Boolean AKKA_HTTP_SESSION_ENABLED = CONFIG.getBoolean("akka.http.session.enabled");
+   public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
+   public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
+   public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+   public static String[] getDGraphHosts() {
+      return DGRAPH_ALPHA_HOSTS;
+   }
+   public static int[] getDGraphPorts() {
+      return DGRAPH_ALPHA_PORTS;
+   }
 
    private AppConfig() {
    }

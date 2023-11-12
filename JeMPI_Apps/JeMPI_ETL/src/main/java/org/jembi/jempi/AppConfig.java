@@ -2,6 +2,7 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,12 +22,9 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
-   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
-   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
-   public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
-   public static final String KAFKA_KEY_ENCODER = CONFIG.getString("kafka.key-encoder");
-   public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
+   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    private AppConfig() {
    }

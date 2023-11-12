@@ -1,0 +1,74 @@
+query recordGoldedIds($nupi: string,
+                      $given_name: string,
+					  $family_name: string,
+                      $gender: string,
+                      $dob: string) {
+  
+  var(func: eq(GoldenRecord.nupi, $nupi)) {
+		A as uid
+  }
+    
+  var(func: eq(GoldenRecord.given_name, $given_name)) {
+  	B as uid
+  }
+    
+  var(func: eq(GoldenRecord.family_name, $family_name)) {
+  	C as uid
+  }
+    
+  var(func: eq(GoldenRecord.gender, $gender)) {
+  	D as uid
+  }
+    
+  var(func: eq(GoldenRecord.dob, $dob)) {
+  	E as uid
+  }
+    
+ all(func: uid(E,A,C,B,D)) @filter (uid(A) OR (uid(B) AND uid(C) AND uid(D) AND uid(E))) {     
+  	uid 
+    GoldenRecord.given_name
+    GoldenRecord.family_name
+    GoldenRecord.nupi
+  }
+    
+}
+
+
+query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $dob: string, $gender: string) {
+    
+    var(func: eq(GoldenRecord.given_name, $given_name)) {
+        A as uid
+    }
+    
+    var(func: eq(GoldenRecord.family_name, $family_name)) {
+        B as uid
+    }
+    
+    var(func: eq(GoldenRecord.dob, $dob)) {
+        C as uid
+    }
+
+    var(func: eq(GoldenRecord.gender, $gender)) {
+        D as uid
+    }
+    
+    all(func: uid(A,B,C,D)) @filter ((uid(A) AND uid(B)) OR 
+                                     ((uid(A) OR uid(B)) AND uid(C) AND uid(D))) {
+        uid
+        GoldenRecord.source_id {
+            uid
+        }
+        GoldenRecord.aux_date_created
+        GoldenRecord.aux_auto_update_enabled
+        GoldenRecord.aux_id
+        GoldenRecord.given_name
+        GoldenRecord.family_name
+        GoldenRecord.gender
+        GoldenRecord.dob
+        GoldenRecord.nupi
+    }
+
+}
+
+
+

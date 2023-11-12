@@ -1,32 +1,54 @@
 package configuration
 
-case class Field(fieldName: String,
-                 fieldType: String,
-                 isList: Option[Boolean],
-                 indexGoldenRecord: Option[String],
-                 indexEntity: Option[String],
-                 m: Option[Double],
-                 u: Option[Double],
-                 fieldLabel: Option[String],
-                 groups: List[Option[String]],
-                 scope: List[Option[String]],
-                 accessLevel: List[Option[String]])
-
-case class SystemField(fieldName: String,
+case class UniqueField(fieldName: String,
                        fieldType: String,
-                       fieldLabel: String,
-                       groups: List[Option[String]],
-                       scope: List[Option[String]],
-                       accessLevel: List[Option[String]])
+                       csvCol: Option[Int],
+                       index: Option[String],
+                       isList: Option[Boolean],
+                       source: Option[String],
+                       default: Option[String])
+
+case class AdditionalNode(nodeName: String,
+                          fields: Array[AdditionalNodeField])
+
+case class AdditionalNodeField(fieldName: String,
+                               fieldType: String,
+                               csvCol: Option[Int])
+
+case class DemographicField(fieldName: String,
+                            fieldType: String,
+                            isList: Option[Boolean],
+                            source: Option[Source],
+                            indexGoldenRecord: Option[String],
+                            indexInteraction: Option[String],
+                            linkMetaData: Option[ProbabilisticMetaData],
+                            validateMetaData: Option[ProbabilisticMetaData],
+                            matchMetaData: Option[ProbabilisticMetaData])
+
+case class Source(generate: Option[Generate],
+                  csvCol: Option[Int])
+
+case class Generate(func: String)
+
+case class ProbabilisticMetaData(comparison: String,
+                                 comparisonLevels: List[Double],
+                                 m: Double,
+                                 u: Double)
 
 case class Rule(vars: Array[String],
                 text: String)
 
-case class Rules(deterministic: Map[String, Rule],
-                 probabilistic: Map[String, Rule])
+case class AllRules(deterministic: Option[Map[String, Rule]],
+                    probabilistic: Option[Map[String, Rule]])
 
-case class Config(fields: Array[Field],
-                  systemFields: Option[Array[SystemField]],
+case class ValidateRules(deterministic: Map[String, Rule])
+
+case class Rules(link: Option[AllRules],
+                 validate: Option[ValidateRules],
+                 matchNotification: Option[AllRules])
+
+case class Config(uniqueInteractionFields: Option[Array[UniqueField]],
+                  uniqueGoldenRecordFields: Option[Array[UniqueField]],
+                  additionalNodes: Option[Array[AdditionalNode]],
+                  demographicFields: Array[DemographicField],
                   rules: Rules)
-
-
