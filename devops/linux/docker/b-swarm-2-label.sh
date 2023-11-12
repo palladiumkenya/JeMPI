@@ -3,7 +3,7 @@
 set -e
 set -m
 
-source ./0-conf.env
+source ./conf.env
 
 # docker node update --label-add name=$NODE3 $NODE3
 docker node update --label-add name=$NODE2 $NODE2
