@@ -22,10 +22,7 @@ final class CustomLinkerDeterministic {
    static boolean canApplyLinking(
          final CustomDemographicData interaction) {
       return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
-             || StringUtils.isNotBlank(interaction.nationalId)
-             || StringUtils.isNotBlank(interaction.givenName)
-             && StringUtils.isNotBlank(interaction.familyName)
-             && StringUtils.isNotBlank(interaction.phoneNumber);
+             || StringUtils.isNotBlank(interaction.nupi);
    }
 
    static boolean linkDeterministicMatch(

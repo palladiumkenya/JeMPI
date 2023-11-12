@@ -28,7 +28,7 @@ private object CustomAsyncHelper {
          |   private $customClassName() {
          |   }
          |
-         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
+         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord, final String dwhId) {
          |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments()});
          |   }
          |
@@ -82,7 +82,8 @@ private object CustomAsyncHelper {
     def demographicFields(): String =
       config
         .demographicFields
-        .map(f => if (f.source.isDefined && f.source.get.generate.isDefined) {
+        .map(f =>
+         if (f.source.isEmpty) {
           s"""${" " * 9}null,"""
         } else {
           s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),"""
@@ -98,9 +99,12 @@ private object CustomAsyncHelper {
           .get
           .map(f =>
             if (f.fieldName.toUpperCase.equals("AUX_ID")) {
-              s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
+              if(f.csvCol.isEmpty) s"""${" " * 45}null""" else {
+                              s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""}
             } else if (f.fieldName.toUpperCase.equals("AUX_DATE_CREATED")) {
               s"""${" " * 45}java.time.LocalDateTime.now()"""
+            } else if (f.fieldName.toUpperCase.equals("AUX_DWH_ID")) {
+                        s"""${" " * 45}dwhId"""
             } else {
               s"""${" " * 45}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM)"""
             })

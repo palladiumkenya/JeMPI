@@ -17,19 +17,15 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.stats.StatsTask;
-
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -39,7 +35,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private final Executor ec;
    private LibMPI libMPI = null;
-   private MyKafkaProducer<String, Notification> topicNotifications;
+   static MyKafkaProducer<String, Notification> topicNotifications;
    private MyKafkaProducer<String, AuditEvent> topicAuditEvents;
    private MyKafkaProducer<String, BackPatchDWH> topicBackPatchDWH;
 
@@ -172,6 +168,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var linkInfo =
             LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
       if (linkInfo.isLeft()) {
+         final var backPatchDWL = new BackPatchDWH(req.batchInteraction.interaction().uniqueInteractionData().auxDwhId(),
+                 linkInfo.getLeft().goldenUID(),
+                 linkInfo.getLeft().interactionUID(),
+                 req.batchInteraction.interaction().demographicData().getGivenName(),
+                 req.batchInteraction.interaction().demographicData().familyName);
+         LOGGER.debug("{}", backPatchDWL);
+         try {
+            topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);
+         } catch (ExecutionException | InterruptedException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));

@@ -12,7 +12,7 @@ public record CustomUniqueGoldenRecordData(java.time.LocalDateTime auxDateCreate
   public CustomUniqueGoldenRecordData(final CustomUniqueInteractionData uniqueInteractionData) {
     this(LocalDateTime.now(),
          true,
-         uniqueInteractionData.auxId()
+            null
     );
   }
 

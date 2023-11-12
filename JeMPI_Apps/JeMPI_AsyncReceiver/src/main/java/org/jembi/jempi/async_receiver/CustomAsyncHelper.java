@@ -16,7 +16,6 @@ final class CustomAsyncHelper {
    private static final int DOB_COL_NUM = 2;
    private static final int NUPI_COL_NUM = 3;
 
-
    private CustomAsyncHelper() {
    }
 
