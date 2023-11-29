@@ -65,6 +65,17 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.SyncPatientsResponse> syncPatientList(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.SyncPatientsResponse> stage = AskPattern
+              .ask(backEnd,
+                      BackEnd.PostSyncPatientsRequest::new,
+                      java.time.Duration.ofSeconds(10),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetGidsAllResponse> getGidsAll(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {

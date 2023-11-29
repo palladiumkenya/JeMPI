@@ -10,6 +10,7 @@ public final class GlobalConstants {
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
    public static final String TOPIC_BACK_PATCH_DWH = "JeMPI-back-patch-dwh";
+   public static final String TOPIC_SYNC_PATIENTS_DWH = "JeMPI-sync-patients-dwh";
 
 
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
@@ -61,6 +62,7 @@ public final class GlobalConstants {
 
    public static final String SEGMENT_SCHEMA_RECREATE = "recreate-schema";
 
+   public static final String SEGMENT_SYNC_PATIENT_LIST  = "sync-patients";
 
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    //                         SEGMENT_VALIDATE_OAUTH: '/authenticate',

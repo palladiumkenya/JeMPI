@@ -672,4 +672,13 @@ public final class Routes {
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+   public static Route postSyncPatients(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(Ask.syncPatientList(actorSystem, backEnd),
+              response -> response.isSuccess()
+                      ? complete(StatusCodes.OK)
+                      : complete(StatusCodes.IM_A_TEAPOT));
+   }
+
 }

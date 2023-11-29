@@ -164,7 +164,10 @@ public final class Main {
                                                          AppConfig.KAFKA_CLIENT_ID);
       dwh = new DWH();
       final BackPatchStream backPatchStream = BackPatchStream.create();
+      final SyncPatientsStream syncPatientsStream = SyncPatientsStream.create();
       backPatchStream.open();
+      syncPatientsStream.open();
+
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
          csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
