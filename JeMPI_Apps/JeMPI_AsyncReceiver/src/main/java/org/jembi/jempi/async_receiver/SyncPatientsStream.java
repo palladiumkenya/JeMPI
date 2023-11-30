@@ -63,6 +63,7 @@ class SyncPatientsStream {
                             resultSet.getString("Gender"), resultSet.getDate("DOB").toString(),
                             resultSet.getString("NUPI"));
                     CustomSourceId sourceId = new CustomSourceId(null, "SiteCode", "PatientPK");
+                    LOGGER.info("Persisting record {} {}", sourceId.patient(), sourceId.facility());
                     String dwhId = dwh.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
 
                     if (dwhId == null) {
