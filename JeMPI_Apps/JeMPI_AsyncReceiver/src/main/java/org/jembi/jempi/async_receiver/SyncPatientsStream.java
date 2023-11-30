@@ -99,6 +99,15 @@ class SyncPatientsStream {
     }
 
     void open() {
+        LOGGER.info("KAFKA: {} {} {}",
+                AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                AppConfig.KAFKA_APPLICATION_ID,
+                AppConfig.KAFKA_CLIENT_ID);
+        interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                new StringSerializer(), new JsonPojoSerializer<>(),
+                AppConfig.KAFKA_CLIENT_ID);
+
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
         final Serde<SyncEvent> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
@@ -107,16 +116,6 @@ class SyncPatientsStream {
         final KStream<String, SyncEvent> muStream = streamsBuilder.stream(
                 GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
                 Consumed.with(stringSerde, muSerde));
-
-        LOGGER.info("KAFKA: {} {} {}",
-                AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                AppConfig.KAFKA_APPLICATION_ID,
-                AppConfig.KAFKA_CLIENT_ID);
-        interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
-                new StringSerializer(), new JsonPojoSerializer<>(),
-                AppConfig.KAFKA_CLIENT_ID);
-
         muStream.foreach(this::processPatientListResult);
         patientSyncStream = new KafkaStreams(streamsBuilder.build(), props);
         patientSyncStream.cleanUp();
@@ -132,8 +131,8 @@ class SyncPatientsStream {
 
     private Properties loadConfig() {
         final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "patient-sync-application-id");
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, "client-id-patientsyncrx");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
         return props;
     }
