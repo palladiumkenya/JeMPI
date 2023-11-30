@@ -46,7 +46,7 @@ final class DWH {
                        'C&T' as Docket
               \s
               \s
-                              froms
+                              from
                               ODS.dbo.CT_Patient as patients
                       	)
                                                                           \s
