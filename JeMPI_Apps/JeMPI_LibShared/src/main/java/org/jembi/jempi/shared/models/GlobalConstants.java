@@ -62,7 +62,7 @@ public final class GlobalConstants {
 
    public static final String SEGMENT_SCHEMA_RECREATE = "recreate-schema";
 
-   public static final String SEGMENT_SYNC_PATIENT_LIST  = "sync-patients";
+   public static final String SEGMENT_SYNC_PATIENT_LIST = "sync-patients";
 
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    //                         SEGMENT_VALIDATE_OAUTH: '/authenticate',
