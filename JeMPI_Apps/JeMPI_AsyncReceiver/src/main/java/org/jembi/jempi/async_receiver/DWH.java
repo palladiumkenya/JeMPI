@@ -235,15 +235,16 @@ final class DWH {
 
 
    ResultSet getPatientList() {
-      ResultSet resultSet = null;
       if (open()) {
-         try (Statement statement = conn.createStatement()) {
-            resultSet = statement.executeQuery(SQL_PATIENT_LIST);
+         try {
+            Statement statement = conn.createStatement();
+            statement.setQueryTimeout(3600);
+            return statement.executeQuery(SQL_PATIENT_LIST);
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }
       }
-      return resultSet;
+      return null;
    }
 
    String insertClinicalData(

@@ -45,7 +45,8 @@ class SyncPatientsStream {
     private void processPatientListResult(final String key,
                                           final SyncEvent event) {
         LOGGER.info("Processing event {}, {}", event.event(), event.createdAt().toString());
-        try (ResultSet resultSet = dwh.getPatientList()) {
+        try {
+            ResultSet resultSet = dwh.getPatientList();
             if (resultSet != null) {
                 final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
                 final var now = LocalDateTime.now();
