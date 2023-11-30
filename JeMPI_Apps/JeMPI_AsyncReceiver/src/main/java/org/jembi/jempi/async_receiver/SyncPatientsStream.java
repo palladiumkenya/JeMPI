@@ -43,8 +43,8 @@ class SyncPatientsStream {
     }
 
     private void processPatientListResult(final String key,
-                                          final SyncEvent rec) {
-
+                                          final SyncEvent event) {
+        LOGGER.info("Processing event {}, {}", event.event(), event.createdAt().toString());
         try (ResultSet resultSet = dwh.getPatientList()) {
             if (resultSet != null) {
                 final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
@@ -78,6 +78,8 @@ class SyncPatientsStream {
                 }
                 sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
                         String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+                int patientCount = index - 2;
+                LOGGER.info("Synced {} patient records", patientCount);
             }
         } catch (InterruptedException | ExecutionException | SQLException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
