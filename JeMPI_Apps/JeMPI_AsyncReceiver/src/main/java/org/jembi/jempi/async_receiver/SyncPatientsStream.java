@@ -113,7 +113,7 @@ class SyncPatientsStream {
                 AppConfig.KAFKA_APPLICATION_ID,
                 AppConfig.KAFKA_CLIENT_ID);
         interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
                 new StringSerializer(), new JsonPojoSerializer<>(),
                 AppConfig.KAFKA_CLIENT_ID);
 
