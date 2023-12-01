@@ -62,7 +62,7 @@ class SyncPatientsStream {
                     CustomDemographicData demographicData = new CustomDemographicData(null, null,
                             resultSet.getString("Gender"), resultSet.getDate("DOB").toString(),
                             resultSet.getString("NUPI"));
-                    CustomSourceId sourceId = new CustomSourceId(null, "SiteCode", "PatientPK");
+                    CustomSourceId sourceId = new CustomSourceId(null, resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
                     LOGGER.info("Persisting record {} {}", sourceId.patient(), sourceId.facility());
                     String dwhId = dwh.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
 
@@ -105,12 +105,16 @@ class SyncPatientsStream {
     void open() {
         LOGGER.info("KAFKA: {} {} {}",
                 AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                AppConfig.KAFKA_APPLICATION_ID,
+                "dwh-async-application-id",
                 AppConfig.KAFKA_CLIENT_ID);
+//        LOGGER.info("KAFKA: {} {} {}",
+//                AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+//                AppConfig.KAFKA_APPLICATION_ID,
+//                AppConfig.KAFKA_CLIENT_ID);
         interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                 GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
                 new StringSerializer(), new JsonPojoSerializer<>(),
-                AppConfig.KAFKA_CLIENT_ID);
+                "dwh-async-client-id-syncrx");
 
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
