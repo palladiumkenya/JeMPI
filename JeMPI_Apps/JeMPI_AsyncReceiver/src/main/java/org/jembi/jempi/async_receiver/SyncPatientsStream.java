@@ -2,7 +2,6 @@ package org.jembi.jempi.async_receiver;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
@@ -15,14 +14,7 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 class SyncPatientsStream {
@@ -46,48 +38,8 @@ class SyncPatientsStream {
                                           final SyncEvent event) {
         LOGGER.info("Processing event {}, {}, {}", event.event(), key, event.createdAt().toString());
         try {
-            ResultSet resultSet = dwh.getPatientList();
-            if (resultSet != null) {
-                final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
-                final var now = LocalDateTime.now();
-                final var stanDate = dtf.format(now);
-                final var uuid = UUID.randomUUID().toString();
-                int index = 0;
-                sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, stanDate,
-                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-                while (resultSet.next()) {
-                    CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
-                            null, resultSet.getString("CCCNumber"), resultSet.getString("docket"),
-                            resultSet.getString("PKV"), null);
-                    CustomDemographicData demographicData = new CustomDemographicData(null, null,
-                            resultSet.getString("Gender"), resultSet.getDate("DOB").toString(),
-                            resultSet.getString("NUPI"));
-                    CustomSourceId sourceId = new CustomSourceId(null, resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
-                    LOGGER.info("Persisting record {} {}", sourceId.patient(), sourceId.facility());
-                    String dwhId = dwh.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
-
-                    if (dwhId == null) {
-                        LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
-                    }
-                    uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
-                            null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
-                    LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
-                    sendToKafka(UUID.randomUUID().toString(),
-                            new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
-                                    String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                    new Interaction(null,
-                                            sourceId,
-                                            uniqueInteractionData,
-                                            demographicData)));
-                }
-                sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
-                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-                int patientCount = index - 2;
-                LOGGER.info("Synced {} patient records", patientCount);
-            } else {
-                LOGGER.info("Found empty result set for event {}",  key);
-            }
-        } catch (InterruptedException | ExecutionException | SQLException ex) {
+            dwh.syncPatientList(key, event);
+        } catch (InterruptedException | ExecutionException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
         }
@@ -113,11 +65,12 @@ class SyncPatientsStream {
 //                AppConfig.KAFKA_BOOTSTRAP_SERVERS,
 //                AppConfig.KAFKA_APPLICATION_ID,
 //                AppConfig.KAFKA_CLIENT_ID);
-        interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
-                new StringSerializer(), new JsonPojoSerializer<>(),
-                "dwh-async-client-id-syncrx");
+//        interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+//                GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+//                new StringSerializer(), new JsonPojoSerializer<>(),
+//                "dwh-async-client-id-syncrx");
 
+        dwh.initiateProducer();
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
         final Serde<SyncEvent> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),

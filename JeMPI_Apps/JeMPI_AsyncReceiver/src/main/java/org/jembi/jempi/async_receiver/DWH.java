@@ -1,15 +1,22 @@
 package org.jembi.jempi.async_receiver;
 
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomSourceId;
-import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 final class DWH {
+   private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
    private static final String SQL_INSERT = """
                                             INSERT INTO dwh(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket)
                                             VALUES (?,?,?,?,?,?,?,?)
@@ -192,6 +199,13 @@ final class DWH {
    DWH() {
    }
 
+   void initiateProducer() {
+      interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+              GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+              new StringSerializer(), new JsonPojoSerializer<>(),
+              "dwh-async-client-id-syncrx");
+   }
+
    private boolean open() {
       try {
          if (conn == null || !conn.isValid(0)) {
@@ -234,18 +248,68 @@ final class DWH {
    }
 
 
-   ResultSet getPatientList() {
+   void syncPatientList(final String key, final SyncEvent event) throws InterruptedException, ExecutionException {
       if (open()) {
-         try {
-            Statement statement = conn.createStatement();
+         try (Statement statement = conn.createStatement()) {
             statement.setQueryTimeout(3600);
-            return statement.executeQuery(SQL_PATIENT_LIST);
+            ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST);
+            if (resultSet != null) {
+               final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
+               final var now = LocalDateTime.now();
+               final var stanDate = dtf.format(now);
+               final var uuid = UUID.randomUUID().toString();
+               int index = 0;
+               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, stanDate,
+                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+               while (resultSet.next()) {
+                  CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
+                          null, resultSet.getString("CCCNumber"), resultSet.getString("docket"),
+                          resultSet.getString("PKV"), null);
+                  CustomDemographicData demographicData = new CustomDemographicData(null, null,
+                          resultSet.getString("Gender"), resultSet.getDate("DOB").toString(),
+                          resultSet.getString("NUPI"));
+                  CustomSourceId sourceId = new CustomSourceId(null, resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
+                  LOGGER.info("Persisting record {} {}", sourceId.patient(), sourceId.facility());
+                  String dwhId = insertClinicalData(demographicData, sourceId, uniqueInteractionData);
+
+                  if (dwhId == null) {
+                     LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
+                  }
+                  uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
+                          null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
+                  LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
+                  sendToKafka(UUID.randomUUID().toString(),
+                          new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
+                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                  new Interaction(null,
+                                          sourceId,
+                                          uniqueInteractionData,
+                                          demographicData)));
+               }
+               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
+                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+               int patientCount = index - 2;
+               LOGGER.info("Synced {} patient records", patientCount);
+            } else {
+               LOGGER.info("Found empty result set for event {}, {}", event.event(), key);
+            }
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }
       }
-      return null;
    }
+
+   private void sendToKafka(
+           final String key,
+           final InteractionEnvelop interactionEnvelop)
+           throws InterruptedException, ExecutionException {
+      try {
+         interactionEnvelopProducer.produceSync(key, interactionEnvelop);
+      } catch (NullPointerException ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+      }
+   }
+
 
    String insertClinicalData(
            final CustomDemographicData customDemographicData,
@@ -284,7 +348,5 @@ final class DWH {
       }
       return dwhId;
    }
-
-
 
 }
