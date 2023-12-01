@@ -69,7 +69,9 @@ class SyncPatientsStream {
                     if (dwhId == null) {
                         LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
                     }
-                    LOGGER.debug("Inserted record with dwhId {}", dwhId);
+                    uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
+                            null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
+                    LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
                     sendToKafka(UUID.randomUUID().toString(),
                             new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
                                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
