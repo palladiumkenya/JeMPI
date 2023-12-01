@@ -288,8 +288,7 @@ final class DWH {
                }
                sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-               int patientCount = index - 2;
-               LOGGER.info("Synced {} patient records", patientCount);
+               LOGGER.info("Synced {} patient records", index);
             } else {
                LOGGER.info("Found empty result set for event {}, {}", event.event(), key);
             }
