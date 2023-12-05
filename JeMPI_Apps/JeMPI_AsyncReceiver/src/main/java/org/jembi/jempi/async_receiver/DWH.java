@@ -267,7 +267,7 @@ final class DWH {
 
 
    void syncPatientList(final String key, final SyncEvent event) throws InterruptedException, ExecutionException {
-      if (open()) {
+      if (openSyncConn()) {
          try {
             Statement statement = syncConn.createStatement();
             statement.setQueryTimeout(3600);
