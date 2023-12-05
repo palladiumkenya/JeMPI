@@ -22,7 +22,6 @@ class SyncPatientsStream {
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
     private final DWH dwh;
     private KafkaStreams patientSyncStream;
-    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
 
     SyncPatientsStream() {
@@ -42,17 +41,6 @@ class SyncPatientsStream {
         } catch (InterruptedException | ExecutionException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
-        }
-    }
-
-    private void sendToKafka(
-            final String key,
-            final InteractionEnvelop interactionEnvelop)
-            throws InterruptedException, ExecutionException {
-        try {
-            interactionEnvelopProducer.produceSync(key, interactionEnvelop);
-        } catch (NullPointerException ex) {
-            LOGGER.error(ex.getLocalizedMessage(), ex);
         }
     }
 
