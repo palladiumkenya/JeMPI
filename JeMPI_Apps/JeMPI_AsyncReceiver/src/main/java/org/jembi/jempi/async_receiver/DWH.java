@@ -195,6 +195,7 @@ final class DWH {
 
    private static final String PASSWORD = AppConfig.MSSQL_PASSWORD;
    private Connection conn;
+   private Connection syncConn;
 
    DWH() {
    }
@@ -215,6 +216,23 @@ final class DWH {
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
             conn.setAutoCommit(true);
             return conn.isValid(0);
+         }
+         return true;
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return false;
+   }
+
+   private boolean openSyncConn() {
+      try {
+         if (syncConn == null || !syncConn.isValid(0)) {
+            if (syncConn != null) {
+               syncConn.close();
+            }
+            syncConn = DriverManager.getConnection(URL, USER, PASSWORD);
+            syncConn.setAutoCommit(true);
+            return syncConn.isValid(0);
          }
          return true;
       } catch (SQLException e) {
@@ -250,7 +268,8 @@ final class DWH {
 
    void syncPatientList(final String key, final SyncEvent event) throws InterruptedException, ExecutionException {
       if (open()) {
-         try (Statement statement = conn.createStatement()) {
+         try {
+            Statement statement = syncConn.createStatement();
             statement.setQueryTimeout(3600);
             ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST);
             if (resultSet != null) {
@@ -294,6 +313,15 @@ final class DWH {
             }
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
+         } finally {
+            try {
+               if (syncConn != null) {
+                  syncConn.close();
+               }
+            } catch (SQLException e) {
+               LOGGER.error(e.getLocalizedMessage(), e);
+            }
+
          }
       }
    }
