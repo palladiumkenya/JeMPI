@@ -6,14 +6,10 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 final class DWH {
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
@@ -200,13 +196,6 @@ final class DWH {
    DWH() {
    }
 
-   void initiateProducer() {
-      interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-              GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
-              new StringSerializer(), new JsonPojoSerializer<>(),
-              "dwh-async-client-id-syncrx");
-   }
-
    private boolean open() {
       try {
          if (conn == null || !conn.isValid(0)) {
@@ -216,23 +205,6 @@ final class DWH {
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
             conn.setAutoCommit(true);
             return conn.isValid(0);
-         }
-         return true;
-      } catch (SQLException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
-      return false;
-   }
-
-   private boolean openSyncConn() {
-      try {
-         if (syncConn == null || !syncConn.isValid(0)) {
-            if (syncConn != null) {
-               syncConn.close();
-            }
-            syncConn = DriverManager.getConnection(URL, USER, PASSWORD);
-            syncConn.setAutoCommit(true);
-            return syncConn.isValid(0);
          }
          return true;
       } catch (SQLException e) {
@@ -265,78 +237,32 @@ final class DWH {
       }
    }
 
-
-   void syncPatientList(final String key, final SyncEvent event) throws InterruptedException, ExecutionException {
-      if (openSyncConn()) {
-         try {
-            Statement statement = syncConn.createStatement();
-            statement.setQueryTimeout(3600);
-            ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST);
+   List<CustomPatientRecord> getPatientList(final String key, final SyncEvent event) {
+      List<CustomPatientRecord> patientRecordList = new ArrayList<>();
+      if (open()) {
+         try (Statement statement = conn.createStatement();
+              ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST)) {
+//            Statement statement = syncConn.createStatement();
+//            statement.setQueryTimeout(3600);
+//            ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST);
             if (resultSet != null) {
-               final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
-               final var now = LocalDateTime.now();
-               final var stanDate = dtf.format(now);
-               final var uuid = UUID.randomUUID().toString();
-               int index = 0;
-               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, stanDate,
-                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                while (resultSet.next()) {
-                  CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
-                          null, resultSet.getString("CCCNumber"), resultSet.getString("docket"),
-                          resultSet.getString("PKV"), null);
-                  CustomDemographicData demographicData = new CustomDemographicData(null, null,
-                          resultSet.getString("Gender"), resultSet.getDate("DOB").toString(),
-                          resultSet.getString("NUPI"));
-                  CustomSourceId sourceId = new CustomSourceId(null, resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
-                  LOGGER.info("Persisting record {} {}", sourceId.patient(), sourceId.facility());
-//                  String dwhId = insertClinicalData(demographicData, sourceId, uniqueInteractionData);
-
-//                  if (dwhId == null) {
-//                     LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
-//                  }
-                  String dwhId = UUID.randomUUID().toString();
-                  uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
-                          null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
-                  LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
-                  sendToKafka(UUID.randomUUID().toString(),
-                          new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
-                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                  new Interaction(null,
-                                          sourceId,
-                                          uniqueInteractionData,
-                                          demographicData)));
+                  CustomPatientRecord patientRecord = new CustomPatientRecord(resultSet.getString("CCCNumber"),
+                          resultSet.getString("PKV"), resultSet.getString("docket"),
+                          resultSet.getString("Gender"), resultSet.getDate("DOB"),
+                          resultSet.getString("NUPI"), resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
+                  patientRecordList.add(patientRecord);
                }
-               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
-                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-               LOGGER.info("Synced {} patient records", index);
+               LOGGER.info("Synced {} patient records", patientRecordList.size());
             } else {
                LOGGER.info("Found empty result set for event {}, {}", event.event(), key);
             }
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
-         } finally {
-            try {
-               if (syncConn != null) {
-                  syncConn.close();
-               }
-            } catch (SQLException e) {
-               LOGGER.error(e.getLocalizedMessage(), e);
-            }
          }
       }
+      return patientRecordList;
    }
-
-   private void sendToKafka(
-           final String key,
-           final InteractionEnvelop interactionEnvelop)
-           throws InterruptedException, ExecutionException {
-      try {
-         interactionEnvelopProducer.produceSync(key, interactionEnvelop);
-      } catch (NullPointerException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-      }
-   }
-
 
    String insertClinicalData(
            final CustomDemographicData customDemographicData,
@@ -353,14 +279,14 @@ final class DWH {
                open();
             }
             try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                  pStmt.setString(1, customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
-                  pStmt.setString(2, customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
-                  pStmt.setString(3, customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
-                  pStmt.setString(4, customUniqueInteractionData.cccNumber().isEmpty() ? null : customUniqueInteractionData.cccNumber());
-                  pStmt.setString(5, customSourceId.facility().isEmpty() ? null : customSourceId.facility());
-                  pStmt.setString(6, customSourceId.patient().isEmpty() ? null : customSourceId.patient());
-                  pStmt.setString(7, customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
-                  pStmt.setString(8, customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
+                  pStmt.setString(1, customDemographicData.getGender() == null || customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
+                  pStmt.setString(2, customDemographicData.getDob() == null || customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
+                  pStmt.setString(3, customDemographicData.getNupi() == null || customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
+                  pStmt.setString(4, customUniqueInteractionData.cccNumber() == null || customUniqueInteractionData.cccNumber().isEmpty() ? null : customUniqueInteractionData.cccNumber());
+                  pStmt.setString(5, customSourceId.facility() == null || customSourceId.facility().isEmpty() ? null : customSourceId.facility());
+                  pStmt.setString(6, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
+                  pStmt.setString(7, customUniqueInteractionData.pkv() == null || customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
+                  pStmt.setString(8, customUniqueInteractionData.docket() == null || customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
@@ -375,5 +301,4 @@ final class DWH {
       }
       return dwhId;
    }
-
 }
