@@ -278,8 +278,8 @@ final class DWH {
                final var stanDate = dtf.format(now);
                final var uuid = UUID.randomUUID().toString();
                int index = 0;
-//               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, stanDate,
-//                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, stanDate,
+                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                while (resultSet.next()) {
                   CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                           null, resultSet.getString("CCCNumber"), resultSet.getString("docket"),
@@ -294,19 +294,20 @@ final class DWH {
 //                  if (dwhId == null) {
 //                     LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
 //                  }
-//                  uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
-//                          null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
-//                  LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
-//                  sendToKafka(UUID.randomUUID().toString(),
-//                          new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
-//                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-//                                  new Interaction(null,
-//                                          sourceId,
-//                                          uniqueInteractionData,
-//                                          demographicData)));
+                  String dwhId = UUID.randomUUID().toString();
+                  uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
+                          null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
+                  LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
+                  sendToKafka(UUID.randomUUID().toString(),
+                          new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, stanDate,
+                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                  new Interaction(null,
+                                          sourceId,
+                                          uniqueInteractionData,
+                                          demographicData)));
                }
-//               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
-//                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+               sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, stanDate,
+                       String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                LOGGER.info("Synced {} patient records", index);
             } else {
                LOGGER.info("Found empty result set for event {}, {}", event.event(), key);
