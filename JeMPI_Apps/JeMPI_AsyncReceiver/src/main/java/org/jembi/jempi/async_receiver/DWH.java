@@ -14,13 +14,13 @@ import java.util.List;
 final class DWH {
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
    private static final String SQL_INSERT = """
-                                            INSERT INTO dwh(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket)
-                                            VALUES (?,?,?,?,?,?,?,?)
+                                            INSERT INTO MPI_MatchingOutput(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket, patient_pk_hash)
+                                            VALUES (?,?,?,?,?,?,?,?,convert(nvarchar(64), hashbytes('SHA2_256', cast(?  as nvarchar(36))), 2))
                                             """;
 
 
    private static final String SQL_UPDATE = """
-                                            UPDATE dwh
+                                            UPDATE MPI_MatchingOutput
                                             SET golden_id = ?, encounter_id = ?, phonetic_given_name = ?, phonetic_family_name = ?
                                             WHERE dwh_id = ?
                                             """;
@@ -179,7 +179,7 @@ final class DWH {
                (
                    select vl.*
                    from verified_list vl
-                       left join notifications.dbo.dwh cl on cl.patient_pk = vl.PatientPK and cl.site_code = vl.SiteCode
+                       left join ODS.dbo.MPI_MatchingOutput cl on cl.patient_pk = vl.PatientPK and cl.site_code = vl.SiteCode
                    where cl.patient_pk is null
                )
            select *
@@ -287,6 +287,7 @@ final class DWH {
                   pStmt.setString(6, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                   pStmt.setString(7, customUniqueInteractionData.pkv() == null || customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
                   pStmt.setString(8, customUniqueInteractionData.docket() == null || customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
+                  pStmt.setString(9, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
