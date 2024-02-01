@@ -101,24 +101,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-                             AppConfig.POSTGRESQL_USER,
-                             AppConfig.POSTGRESQL_PASSWORD,
-                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
+         libMPI = null;
+//         new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig
+//         .POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
+//                             AppConfig.POSTGRESQL_USER,
+//                             AppConfig.POSTGRESQL_PASSWORD,
+//                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+//                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
+      libMPI.startTransaction();
    }
 
    @Override
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
-                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
+//                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-//                                .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+//                              .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
@@ -142,22 +145,40 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> crRegister(final CrRegisterRequest req) {
-      final var result = LinkerCR.crRegister(libMPI, req.crRegister);
-      req.replyTo.tell(new CrRegisterResponse(result));
-      return Behaviors.same();
-   }
-
    private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
       final var result = LinkerCR.crUpdateField(libMPI, req.crUpdateFields);
       req.replyTo.tell(new CrUpdateFieldResponse(result));
       return Behaviors.same();
    }
 
+   private Behavior<Request> crRegister(final CrRegisterRequest req) {
+      final var result = LinkerCR.crRegister(libMPI, req.crRegister);
+      req.replyTo.tell(new CrRegisterResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
+      final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
+                                                         new Interaction(null,
+                                                                         request.link.sourceId(),
+                                                                         request.link.uniqueInteractionData(),
+                                                                         request.link.demographicData()),
+                                                         request.link.externalLinkRange(),
+                                                         request.link.matchThreshold() == null
+                                                               ? AppConfig.LINKER_MATCH_THRESHOLD
+                                                               : request.link.matchThreshold(),
+                                                         request.link.stan());
+      request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
+                                                           listLinkInfo.isLeft()
+                                                                 ? listLinkInfo.getLeft()
+                                                                 : null,
+                                                           listLinkInfo.isRight()
+                                                                 ? listLinkInfo.get()
+                                                                 : null));
+      return Behaviors.same();
+   }
+
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
-      if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.batchInteraction.stan());
-      }
       if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
@@ -166,7 +187,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          });
       }
       final var linkInfo =
-            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
+            LinkerDWH.linkInteraction(libMPI,
+                                      req.batchInteraction.interaction(),
+                                      null,
+                                      AppConfig.LINKER_MATCH_THRESHOLD,
+                                      req.batchInteraction.stan());
       if (linkInfo.isLeft()) {
          final var backPatchDWL = new BackPatchDWH(req.batchInteraction.interaction().uniqueInteractionData().auxDwhId(),
                  linkInfo.getLeft().goldenUID(),
@@ -189,22 +214,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       });
    }
 
-   private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
-      final var listLinkInfo =
-            LinkerDWH.linkInteraction(libMPI,
-                                      request.link.interaction(),
-                                      request.link.externalLinkRange(),
-                                      request.link.matchThreshold());
-      request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
-                                                           listLinkInfo.isLeft()
-                                                                 ? listLinkInfo.getLeft()
-                                                                 : null,
-                                                           listLinkInfo.isRight()
-                                                                 ? listLinkInfo.get()
-                                                                 : null));
-      return Behaviors.same();
-   }
-
+/*
    private Behavior<Request> syncLinkInteractionToGidHandler(final SyncLinkInteractionToGidRequest request) {
       final LinkInfo linkInfo;
       final var interaction = request.link.interaction();
@@ -222,12 +232,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                LOGGER.error("Golden Record for GID {} is null", gid);
                linkInfo = null;
             } else {
-               final var validated1 =
-                     CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
-               final var validated2 =
-                     CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
+               final var validated1 = CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
+               final var validated2 = CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
 
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
                                                                                 new LibMPIClientInterface.GoldenIdScore(gid,
@@ -244,6 +252,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       request.replyTo.tell(new SyncLinkInteractionToGidResponse(request.link.stan(), linkInfo));
       return Behaviors.same();
    }
+*/
 
    private Behavior<Request> workTimeHandler(final WorkTimeRequest request) {
       LOGGER.info("WORK TIME");
@@ -286,18 +295,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                       .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(
-            new CalculateScoresResponse(
-                  new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                           scores)));
+      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                scores)));
       return Behaviors.same();
    }
+
 
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
       CustomLinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
+
 
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
 //      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
@@ -358,7 +367,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record SyncLinkInteractionRequest(
-         LinkInteractionSyncBody link,
+         ApiModels.LinkInteractionSyncBody link,
          ActorRef<SyncLinkInteractionResponse> replyTo) implements Request {
    }
 
@@ -369,7 +378,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record SyncLinkInteractionToGidRequest(
-         LinkInteractionToGidSyncBody link,
+         ApiModels.LinkInteractionToGidSyncBody link,
          ActorRef<SyncLinkInteractionToGidResponse> replyTo) implements Request {
    }
 
@@ -430,5 +439,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             List<String> failed) {
       }
    }
+
 
 }

@@ -2,6 +2,8 @@ import {
   Box,
   Container,
   Grid,
+  LinearProgress,
+  LinearProgressProps,
   Stack,
   Tab,
   Tabs,
@@ -18,8 +20,12 @@ import { pink } from '@mui/material/colors'
 import MandU from './widgets/MandUWidget'
 import BetaFscore from './widgets/BetaFscoreWidget'
 import ConfusionMatrix from './widgets/ConfusionMatrixWidget'
-import { useState } from 'react'
-
+import { useEffect, useState } from 'react'
+import CircularProgress, {
+  CircularProgressProps
+} from '@mui/material/CircularProgress'
+import { ImportProcessWidget } from './widgets/ImportProcessWidget'
+import { useDashboardData } from 'hooks/useDashboardData'
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
@@ -50,6 +56,9 @@ const tabProps = (index: number) => {
 }
 
 const Dashboard = () => {
+  const dashboardData = useDashboardData()
+
+  console.log(dashboardData)
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIndex(newValue)
@@ -63,6 +72,7 @@ const Dashboard = () => {
           backgroundColor: '#fff',
           borderRadius: '1rem'
         }}
+        minHeight={'80vh'}
       >
         <Tabs
           value={currentTabIndex}
@@ -83,80 +93,90 @@ const Dashboard = () => {
             label={<Typography variant="h5">M & U Values</Typography>}
             {...tabProps(1)}
           />
+          <Tab
+            label={<Typography variant="h5"> Import Process Status</Typography>}
+            {...tabProps(2)}
+          />
         </Tabs>
-        <CustomTabPanel value={currentTabIndex} index={0}>
-          <Grid container spacing={{ xs: 2, md: 5 }}>
-            <Grid item xs={12} lg={6}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Box component="fieldset">
-                    <legend>Records</legend>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} lg={6}>
-                        <CountWidget
-                          label="Golden Record"
-                          value={10000}
-                          icon={<Person sx={{ fontSize: '3.5rem' }} />}
-                          iconBackgroundColor={'#FFD700'}
-                        />
+        <Box padding={'1rem 1rem 1rem 1rem'}>
+          <CustomTabPanel value={currentTabIndex} index={0}>
+            <Grid container spacing={{ xs: 2, md: 5 }}>
+              <Grid item xs={12} lg={6}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Box component="fieldset">
+                      <legend>Records</legend>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} lg={6}>
+                          <CountWidget
+                            label="Golden Record"
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.goldenRecordCount : 0}
+                            icon={<Person sx={{ fontSize: '3.5rem' }} />}
+                            iconBackgroundColor={'#FFD700'}
+                          />
+                        </Grid>
+                        <Grid item xs={12} lg={6}>
+                          <CountWidget
+                            label="Interactions "
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.interactionsCount : 0}
+                            icon={<Layers sx={{ fontSize: '3.5rem' }} />}
+                            iconBackgroundColor={'primary.main'}
+                          />
+                        </Grid>
                       </Grid>
-                      <Grid item xs={12} lg={6}>
-                        <CountWidget
-                          label="Interactions "
-                          value={20000}
-                          icon={<Layers sx={{ fontSize: '3.5rem' }} />}
-                          iconBackgroundColor={'primary.main'}
-                        />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box component="fieldset">
+                      <legend> Notifications </legend>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} lg={6}>
+                          <CountWidget
+                            label="New/Open"
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.openNotifications : 0}
+                            icon={
+                              <NotificationAdd sx={{ fontSize: '3.5rem' }} />
+                            }
+                            iconBackgroundColor={'#76ff03'}
+                          />
+                        </Grid>
+                        <Grid item xs={12} lg={6}>
+                          <CountWidget
+                            label="Closed"
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.closedNotifications : 0}
+                            icon={
+                              <NotificationsOff sx={{ fontSize: '3.5rem' }} />
+                            }
+                            iconBackgroundColor={pink[600]}
+                          />
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Box component="fieldset">
-                    <legend> Notifications </legend>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} lg={6}>
-                        <CountWidget
-                          label="New/Open"
-                          value={10000}
-                          icon={<NotificationAdd sx={{ fontSize: '3.5rem' }} />}
-                          iconBackgroundColor={'#76ff03'}
-                        />
-                      </Grid>
-                      <Grid item xs={12} lg={6}>
-                        <CountWidget
-                          label="Closed"
-                          value={20000}
-                          icon={
-                            <NotificationsOff sx={{ fontSize: '3.5rem' }} />
-                          }
-                          iconBackgroundColor={pink[600]}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-                <Grid item xs={12}>
-                  <BetaFscore />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <BetaFscore data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn?.tptnfScore : null} />
+                  </Grid>
                 </Grid>
               </Grid>
+              <Grid item xs={12} lg={6}>
+                <Box component="fieldset" minHeight={'550px'}>
+                  <legend>Confusion Matrix</legend>
+                  <ConfusionMatrix data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn : null}  />
+                </Box>
+              </Grid>
             </Grid>
-            <Grid item xs={12} lg={6}>
-              <Box component="fieldset" minHeight={'550px'}>
-                <legend>Confusion Matrix</legend>
-                <ConfusionMatrix />
-              </Box>
+          </CustomTabPanel>
+          <CustomTabPanel value={currentTabIndex} index={1}>
+            <Grid container sx={{ minHeight: { lg: '450px' } }}>
+              <Grid item xs={6}>
+                <MandU data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.m_and_u : null} />
+              </Grid>
             </Grid>
-          </Grid>
-        </CustomTabPanel>
-        <CustomTabPanel value={currentTabIndex} index={1}>
-          <Grid container sx={{ minHeight: { lg: '450px' } }}>
-            <Grid item xs={6}>
-              <MandU />
-            </Grid>
-          </Grid>
-        </CustomTabPanel>
+          </CustomTabPanel>
+          <CustomTabPanel value={currentTabIndex} index={2}>
+            <ImportProcessWidget data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.linkerProgressStats : null} />
+          </CustomTabPanel>
+        </Box>
       </Stack>
     </Container>
   )

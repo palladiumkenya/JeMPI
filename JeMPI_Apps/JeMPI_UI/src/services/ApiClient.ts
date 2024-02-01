@@ -8,7 +8,7 @@ import {
   FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
-import { OAuthParams, User } from '../types/User'
+import { OAuthParams } from '../types/User'
 import ROUTES from './apiRoutes'
 import moxios from './mockBackend'
 import {
@@ -18,7 +18,8 @@ import {
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  GoldenRecordCandidatesResponse
+  GoldenRecordCandidatesResponse,
+  DashboardData
 } from 'types/BackendResponse'
 import {
   GoldenRecord,
@@ -30,6 +31,21 @@ import { Notifications } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
+
+const apiClientAuth = (() => {
+  const authKey = 'jempi-auth-key'
+  return {
+    clearAuthToken: async () => {
+      await localStorage.removeItem(authKey)
+    },
+    getAuthToken: async () => {
+      return await localStorage.getItem(authKey)
+    },
+    setAuthToken: async (token: string) => {
+      await localStorage.setItem(authKey, token)
+    }
+  }
+})()
 
 export class ApiClient {
   client!: AxiosInstance
@@ -43,22 +59,24 @@ export class ApiClient {
         baseURL: config.apiUrl
           ? `${config.apiUrl}/JeMPI`
           : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}/JeMPI`,
-        headers: { 'Content-Type': 'application/json' },
         responseType: 'json'
       })
 
       // Add a request interceptor to set CSRF and update loading state
-      axiosInstance.interceptors.request.use(request => {
+      axiosInstance.interceptors.request.use(async request => {
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
-          if (csrfToken) {
-            request.headers = {
-              ...request.headers,
-              'X-XSRF-TOKEN': csrfToken
-            }
+          if (csrfToken && request.headers) {
+            request.headers['X-XSRF-TOKEN'] = csrfToken
           }
         }
+
+        const authToken = await apiClientAuth.getAuthToken()
+        if (authToken && request.headers) {
+          request.headers['authorization'] = authToken
+        }
+
         return request
       })
       this.client = axiosInstance
@@ -73,10 +91,11 @@ export class ApiClient {
   async getMatches(
     limit: number,
     offset: number,
-    created: string,
-    state: string
+    startDay: string,
+    endDay: string,
+    states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
@@ -93,6 +112,13 @@ export class ApiClient {
       records: formattedRecords,
       pagination
     }
+  }
+
+  async getDashboardData() {
+    const { data } = await this.client.get<DashboardData>(
+      ROUTES.GET_DASHBOARD_DATA
+    )
+    return data
   }
 
   async getInteraction(uid: string) {
@@ -156,14 +182,12 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
     return data
   }
 
@@ -348,17 +372,33 @@ export class ApiClient {
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
-    const { data } = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
-    return data as User
+    const response = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
+    if (
+      response.status == 200 &&
+      response.data &&
+      'set-authorization' in response.headers
+    ) {
+      await apiClientAuth.setAuthToken(
+        response.headers['set-authorization'] as string
+      )
+      return response.data
+    }
+    throw new Error(
+      `Got response from server but not all authentication details were present. Failed to validate`
+    )
   }
 
   async getCurrentUser() {
     const { data } = await this.client.get(ROUTES.CURRENT_USER)
-    return data
+    return typeof data === 'string' && data.length === 0 ? null : data
   }
 
   async logout() {
-    return await this.client.get(ROUTES.LOGOUT)
+    const response = await this.client.get(ROUTES.LOGOUT)
+    if (response.status == 200) {
+      await apiClientAuth.clearAuthToken()
+    }
+    return response
   }
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
