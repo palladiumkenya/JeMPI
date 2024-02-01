@@ -93,7 +93,9 @@ public final class HttpServer extends AllDirectives {
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_SCHEMA_RECREATE,
-                                           () -> Routes.postRecreateSchema(actorSystem, backEnd)))),
+                                           () -> Routes.postRecreateSchema(actorSystem, backEnd)),
+                                      path(GlobalConstants.SEGMENT_SYNC_PATIENT_LIST,
+                                          () -> Routes.postSyncPatients(actorSystem, backEnd)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
                                        path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,

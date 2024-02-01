@@ -6,13 +6,16 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
@@ -24,6 +27,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -38,6 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
+   private final MyKafkaProducer<String, SyncEvent> topicPatientSyncDWH;
 
 
    private BackEnd(
@@ -64,6 +69,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
       openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
+
+      topicPatientSyncDWH = new MyKafkaProducer<>("kafka-01:9092",
+              GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
+              new StringSerializer(),
+              new JsonPojoSerializer<>(),
+              "client-id-api");
    }
 
    public static Behavior<Event> create(
@@ -137,6 +148,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
             .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
             .onMessage(PostRecreateSchemaRequest.class, this::postRecreateSchemaHandler)
+            .onMessage(PostSyncPatientsRequest.class, this::postSyncPatientsHandler)
             .build();
    }
 
@@ -148,6 +160,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
       libMPI.closeTransaction();
       request.replyTo.tell(new RecreateSchemaResponse());
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> postSyncPatientsHandler(final PostSyncPatientsRequest request) {
+      LOGGER.debug("Initiating patient list sync from DWH");
+      try {
+         topicPatientSyncDWH.produceSync(UUID.randomUUID().toString(), new SyncEvent(LocalDateTime.now(), "sync-patients"));
+      } catch (ExecutionException | InterruptedException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      request.replyTo.tell(new SyncPatientsResponse());
       return Behaviors.same();
    }
 
@@ -478,6 +501,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
    public record RecreateSchemaResponse() implements EventResponse {
    }
+
+   public record SyncPatientsResponse() implements EventResponse {
+   }
    public record CountRecordsResponse(
          long goldenRecords,
          long patientRecords) implements EventResponse {
@@ -665,6 +691,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileResponse() implements EventResponse {
    }
    public record PostRecreateSchemaRequest(ActorRef<RecreateSchemaResponse> replyTo) implements Event {
+   }
+
+   public record PostSyncPatientsRequest(ActorRef<SyncPatientsResponse> replyTo) implements Event {
    }
 
 }
