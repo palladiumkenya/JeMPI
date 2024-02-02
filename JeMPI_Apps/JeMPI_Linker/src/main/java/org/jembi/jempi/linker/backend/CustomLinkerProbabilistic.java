@@ -1,5 +1,7 @@
 package org.jembi.jempi.linker.backend;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
 
@@ -13,6 +15,7 @@ import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SI
 
 final class CustomLinkerProbabilistic {
 
+   private static final Logger LOGGER = LogManager.getLogger(CustomLinkerProbabilistic.class);
    static final int METRIC_MIN = 0;
    static final int METRIC_MAX = 1;
    static final int METRIC_SCORE = 2;
@@ -46,6 +49,10 @@ final class CustomLinkerProbabilistic {
       return 0.0F;
    }
    public static void updateMU(final CustomMU mu) {
+   }
+
+   public static void checkUpdatedLinkMU() {
+
    }
 
 }

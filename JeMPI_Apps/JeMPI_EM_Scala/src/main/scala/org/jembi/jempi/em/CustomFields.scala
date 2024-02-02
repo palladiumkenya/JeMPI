@@ -9,9 +9,9 @@ object CustomFields {
     Field("familyName", 1),
     Field("gender", 2),
     Field("dob", 3),
-    Field("city", 4),
-    Field("phoneNumber", 5),
-    Field("nationalId", 6)
+    Field("nupi", 4),
+    Field("cccNumber", 5),
+    Field("docket", 6)
   )
 
 }

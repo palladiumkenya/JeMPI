@@ -9,16 +9,6 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "ccc_number",
-      "fieldType": "String",
-      "csvCol": 6
-    },
-    {
-      "fieldName": "docket",
-      "fieldType": "String",
-      "csvCol": 7
-    },
-    {
       "fieldName": "pkv",
       "fieldType": "String",
       "csvCol": 0
@@ -94,6 +84,22 @@
         "csvCol": 3
       },
       "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "ccc_number",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 6
+      },
+      "indexGoldenRecord": "@index(hash)"
+    },
+    {
+      "fieldName": "docket",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 7
+      },
+      "indexGoldenRecord": "@index(hash)"
     }
   ],
   "rules": {
@@ -104,6 +110,29 @@
             "nupi"
           ],
           "text": "eq(nupi)"
+        }
+      }
+    },
+    "matchNotification": {
+      "deterministic": {
+        "QUERY_MATCH_DETERMINISTIC_A": {
+          "vars": [
+            "given_name",
+            "family_name",
+            "dob",
+            "gender"
+          ],
+          "text": "eq(given_name) and eq(family_name) and eq(dob) and eq(gender)"
+        }
+      }
+    },
+    "validate": {
+      "deterministic": {
+        "QUERY_VALIDATE_DETERMINISTIC_A": {
+          "vars": [
+            "ccc_number"
+          ],
+          "text": "eq(ccc_number)"
         }
       }
     }

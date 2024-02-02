@@ -11,9 +11,9 @@ case class CustomMU(
     familyName: Probability,
     gender: Probability,
     dob: Probability,
-    city: Probability,
-    phoneNumber: Probability,
-    nationalId: Probability
+    nupi: Probability,
+    cccNumber: Probability,
+    docket: Probability
 )
 
 object CustomMU {

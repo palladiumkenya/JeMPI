@@ -9,6 +9,8 @@ public class CustomDemographicData {
    public final String gender;
    public final String dob;
    public final String nupi;
+   public final String cccNumber;
+   public final String docket;
 
    public final String getGivenName() {
       return givenName;
@@ -30,8 +32,16 @@ public class CustomDemographicData {
       return nupi;
    }
 
+   public final String getCccNumber() {
+      return cccNumber;
+   }
+
+   public final String getDocket() {
+      return docket;
+   }
+
    public CustomDemographicData() {
-      this(null, null, null, null, null);
+      this(null, null, null, null, null, null, null);
    }
 
    public CustomDemographicData(
@@ -39,20 +49,26 @@ public class CustomDemographicData {
       final String familyName,
       final String gender,
       final String dob,
-      final String nupi) {
+      final String nupi,
+      final String cccNumber,
+      final String docket) {
          this.givenName = givenName;
          this.familyName = familyName;
          this.gender = gender;
          this.dob = dob;
          this.nupi = nupi;
+         this.cccNumber = cccNumber;
+         this.docket = docket;
    }
 
    public CustomDemographicData clean() {
-      return new CustomDemographicData(this.givenName.toLowerCase().replaceAll("\\W", ""),
-                                       this.familyName.toLowerCase().replaceAll("\\W", ""),
-                                       this.gender.toLowerCase().replaceAll("\\W", ""),
-                                       this.dob.toLowerCase().replaceAll("\\W", ""),
-                                       this.nupi.toLowerCase().replaceAll("\\W", ""));
+      return new CustomDemographicData(this.givenName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.familyName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.gender.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.dob.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.nupi.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.cccNumber.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.docket.trim().toLowerCase().replaceAll("\\W", ""));
    }
 
 }

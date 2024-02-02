@@ -21,6 +21,8 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NUPI) String nupi,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CCC_NUMBER) String cccNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOCKET) String docket,
       @JsonProperty("~GoldenRecord.interactions|score") Float score) {
 
    GoldenRecord toGoldenRecord() {
@@ -35,7 +37,9 @@ record CustomDgraphReverseGoldenRecord(
                                                         this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
-                                                        this.nupi()));
+                                                        this.nupi(),
+                                                        this.cccNumber(),
+                                                        this.docket()));
    }
 
    GoldenRecordWithScore toGoldenRecordWithScore() {

@@ -15,8 +15,6 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CCC_NUMBER) String cccNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOCKET) String docket,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PKV) String pkv,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DWH_ID) String auxDwhId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
@@ -24,6 +22,8 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NUPI) String nupi,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CCC_NUMBER) String cccNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOCKET) String docket,
       @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
    Interaction toInteraction() {
@@ -31,15 +31,15 @@ record CustomDgraphExpandedInteraction(
                              this.sourceId().toSourceId(),
                              new CustomUniqueInteractionData(this.auxDateCreated(),
                                                                this.auxId(),
-                                                               this.cccNumber(),
-                                                               this.docket(),
                                                                this.pkv(),
                                                                this.auxDwhId()),
                              new CustomDemographicData(this.givenName(),
                                                        this.familyName(),
                                                        this.gender(),
                                                        this.dob(),
-                                                       this.nupi()));
+                                                       this.nupi(),
+                                                       this.cccNumber(),
+                                                       this.docket()));
    }
 
    ExpandedInteraction toExpandedInteraction() {

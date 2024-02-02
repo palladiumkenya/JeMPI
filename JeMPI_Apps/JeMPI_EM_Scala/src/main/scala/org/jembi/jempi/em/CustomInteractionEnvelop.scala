@@ -23,23 +23,11 @@ case class UniqueInteractionData(auxId: String)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class DemographicData(
-    givenName: String,
-    familyName: String,
-    gender: String,
-    dob: String,
-    city: String,
-    phoneNumber: String,
-    nationalId: String
+    
 ) {
 
    def toArray: Array[String] =
-      Array(givenName,
-            familyName,
-            gender,
-            dob,
-            city,
-            phoneNumber,
-            nationalId)
+      Array()
 
 }
 

@@ -870,6 +870,8 @@ public final class Routes {
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
                                               () -> Routes.patchIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
+                                      path(GlobalConstants.SEGMENT_SYNC_PATIENT_LIST,
+                                              () -> Routes.postSyncPatients(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
                                               () -> Routes.patchIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(

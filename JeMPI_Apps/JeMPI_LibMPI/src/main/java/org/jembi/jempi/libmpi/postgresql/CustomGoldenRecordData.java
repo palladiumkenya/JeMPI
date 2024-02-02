@@ -9,7 +9,9 @@ final class CustomGoldenRecordData extends CustomDemographicData implements Node
             customDemographicData.familyName,
             customDemographicData.gender,
             customDemographicData.dob,
-            customDemographicData.nupi);
+            customDemographicData.nupi,
+            customDemographicData.cccNumber,
+            customDemographicData.docket);
    }
 
 }

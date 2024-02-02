@@ -10,9 +10,9 @@ public record CustomFieldTallies(
       FieldTally familyName,
       FieldTally gender,
       FieldTally dob,
-      FieldTally city,
-      FieldTally phoneNumber,
-      FieldTally nationalId) {
+      FieldTally nupi,
+      FieldTally cccNumber,
+      FieldTally docket) {
 
    private static final Logger LOGGER = LogManager.getFormatterLogger(CustomFieldTallies.class);
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
@@ -70,9 +70,9 @@ public record CustomFieldTallies(
                                     getFieldTally(recordsMatch, left.familyName, right.familyName),
                                     getFieldTally(recordsMatch, left.gender, right.gender),
                                     getFieldTally(recordsMatch, left.dob, right.dob),
-                                    getFieldTally(recordsMatch, left.city, right.city),
-                                    getFieldTally(recordsMatch, left.phoneNumber, right.phoneNumber),
-                                    getFieldTally(recordsMatch, left.nationalId, right.nationalId));
+                                    getFieldTally(recordsMatch, left.nupi, right.nupi),
+                                    getFieldTally(recordsMatch, left.cccNumber, right.cccNumber),
+                                    getFieldTally(recordsMatch, left.docket, right.docket));
    }
 
    public void logFieldMU() {
@@ -81,9 +81,9 @@ public record CustomFieldTallies(
       logMU("familyName", familyName);
       logMU("gender", gender);
       logMU("dob", dob);
-      logMU("city", city);
-      logMU("phoneNumber", phoneNumber);
-      logMU("nationalId", nationalId);
+      logMU("nupi", nupi);
+      logMU("cccNumber", cccNumber);
+      logMU("docket", docket);
    }
 
    public CustomFieldTallies sum(final CustomFieldTallies r) {
@@ -91,9 +91,9 @@ public record CustomFieldTallies(
                                     this.familyName.sum(r.familyName),
                                     this.gender.sum(r.gender),
                                     this.dob.sum(r.dob),
-                                    this.city.sum(r.city),
-                                    this.phoneNumber.sum(r.phoneNumber),
-                                    this.nationalId.sum(r.nationalId));
+                                    this.nupi.sum(r.nupi),
+                                    this.cccNumber.sum(r.cccNumber),
+                                    this.docket.sum(r.docket));
    }
 
    public record FieldTally(

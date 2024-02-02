@@ -517,43 +517,43 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_API_KC}
 
-#  keycloak-test-server:
-#    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
-#    networks:
-#      - frontend
-#      - backend
-#    environment:
-#      KEYCLOAK_CREATE_ADMIN_USER: "true"
-#      KEYCLOAK_ADMIN_USER: "admin"
-#      KEYCLOAK_ADMIN_PASSWORD: "admin"
-#      DB_ADDR: postgresql
-#      DB_PORT: 5432
-#      DB_USER: ${POSTGRESQL_USERNAME}
-#      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
-#      DB_DATABASE: ${POSTGRESQL_KC_TEST_DB}
-#    healthcheck:
-#      test:
-#      - "CMD"
-#      - "curl"
-#      - "-f"
-#      - "http://localhost:8080"
-#      interval: "5s"
-#      timeout: "5s"
-#      retries: 36
-#    deploy:
-#      mode: replicated
-#      replicas: 0
+  keycloak-test-server:
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    networks:
+      - frontend
+      - backend
+    environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+      DB_DATABASE: ${POSTGRESQL_KC_TEST_DB}
+    healthcheck:
+      test:
+      - "CMD"
+      - "curl"
+      - "-f"
+      - "http://localhost:8080"
+      interval: "5s"
+      timeout: "5s"
+      retries: 36
+    deploy:
+      mode: replicated
+      replicas: 0
 #      resources:
 #        limits:
 #          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      restart_policy:
-#        condition: on-failure
-#      placement:
-#        constraints:
-#          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
   bootstrapper:
     image: ${IMAGE_REGISTRY}$BOOTSTRAPPER_IMAGE

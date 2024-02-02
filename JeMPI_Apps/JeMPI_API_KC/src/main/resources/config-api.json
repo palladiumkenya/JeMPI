@@ -1,0 +1,248 @@
+{
+  "fields": [
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "fieldLabel": "AUX ID",
+      "groups": [
+        "identifiers",
+        "record_details"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/search/custom"
+      ],
+      "readOnly": true,
+      "accessLevel": []
+    },
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "fieldLabel": "First Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "fieldLabel": "Last Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "fieldLabel": "Gender",
+      "groups": [
+        "demographics",
+        "filter",
+        "sub_heading",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/custom",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "regex": "^(male|female)$",
+        "onErrorMessage": "The Gender cannot be empty and should either be male, female or neutral"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "Date",
+      "fieldLabel": "Date of Birth",
+      "groups": [
+        "demographics",
+        "filter",
+        "sub_heading",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "Date of birth cannot be empty"
+      }
+    },
+    {
+      "fieldName": "nupi",
+      "fieldType": "String",
+      "fieldLabel": "NUPI",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The national Id cannot be empty"
+      }
+    }
+  ],
+  "systemFields": [
+    {
+      "fieldName": "recordType",
+      "fieldType": "String",
+      "fieldLabel": "Record Type",
+      "groups": [
+        "none"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "uid",
+      "fieldType": "String",
+      "fieldLabel": "UID",
+      "groups": [
+        "identifiers",
+        "sub_heading",
+        "linked_records",
+        "record_details",
+        "filter"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "String",
+      "fieldLabel": "Created At",
+      "groups": [
+        "linked_records",
+        "record_details",
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "sourceId",
+      "fieldType": "SourceId",
+      "fieldLabel": "Source Id",
+      "groups": [
+        "registering_facility",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "score",
+      "fieldType": "Number",
+      "fieldLabel": "Score",
+      "groups": [
+        "none",
+        "record_details"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink"
+      ],
+      "accessLevel": []
+    }
+  ],
+  "rules": {
+    "link": {
+      "deterministic": {
+        "QUERY_LINK_DETERMINISTIC_A": {
+          "vars": [
+            "nupi"
+          ],
+          "text": "eq(nupi)"
+        }
+      }
+    }
+  }
+}

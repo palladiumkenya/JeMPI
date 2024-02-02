@@ -23,7 +23,9 @@ public final class CustomLinkerBackEnd {
                                                        interaction.demographicData().familyName,
                                                        interaction.demographicData().gender,
                                                        interaction.demographicData().dob,
-                                                       interaction.demographicData().nupi));
+                                                       interaction.demographicData().nupi,
+                                                       interaction.demographicData().cccNumber,
+                                                       interaction.demographicData().docket));
    }
 
    static void updateGoldenRecordFields(
@@ -54,6 +56,14 @@ public final class CustomLinkerBackEnd {
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
                                                   "nupi", demographicData.nupi, CustomDemographicData::getNupi)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "cccNumber", demographicData.cccNumber, CustomDemographicData::getCccNumber)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "docket", demographicData.docket, CustomDemographicData::getDocket)
             ? 1
             : 0;
 

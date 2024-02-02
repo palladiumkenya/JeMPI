@@ -117,13 +117,19 @@ public final class Main {
                                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                             null));
          for (CSVRecord csvRecord : csvParser) {
+            final String dwhId = dbInsertLiveData(csvRecord);
+            final var sourceId = CustomAsyncHelper.customSourceId(csvRecord);
+            if (dwhId == null) {
+               LOGGER.warn("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
+            }
+            LOGGER.debug("Inserted record with dwhId {}", dwhId);
             final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                   tag,
                                                                   String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                                   new Interaction(null,
                                                                                   CustomAsyncHelper.customSourceId(csvRecord),
                                                                                   CustomAsyncHelper.customUniqueInteractionData(
-                                                                                        csvRecord),
+                                                                                        csvRecord, dwhId),
                                                                                   CustomAsyncHelper.customDemographicData(
                                                                                         csvRecord)));
 
@@ -179,9 +185,9 @@ public final class Main {
       backPatchStream.open();
       syncPatientsStream.open();
 
-      try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
+      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
-         csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+         csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
           for (;;) {
               WatchKey key = watchService.take();
               for (WatchEvent<?> event : key.pollEvents()) {

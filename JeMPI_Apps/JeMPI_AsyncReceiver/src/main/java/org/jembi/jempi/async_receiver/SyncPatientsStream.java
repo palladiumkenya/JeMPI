@@ -58,11 +58,10 @@ class SyncPatientsStream {
 
             for (CustomPatientRecord patient : patientRecordList) {
                 CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
-                        null, patient.cccNumber(), patient.docket(),
-                        patient.pkv(), null);
+                        null, patient.pkv(), null);
                 CustomDemographicData demographicData = new CustomDemographicData(null, null,
                         patient.gender(), patient.dob().toString(),
-                        patient.nupi());
+                        patient.nupi(), patient.cccNumber(), patient.docket());
                 CustomSourceId sourceId = new CustomSourceId(null, patient.siteCode(), patient.patientPk());
                 LOGGER.info("Persisting record {}", patient);
                 String dwhId = dwh.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
@@ -71,7 +70,7 @@ class SyncPatientsStream {
                     LOGGER.error("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
                 }
                 uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
-                        null, uniqueInteractionData.cccNumber(), uniqueInteractionData.docket(), uniqueInteractionData.pkv(), dwhId);
+                        null, uniqueInteractionData.pkv(), dwhId);
                 LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
                 sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, "patient-sync",
@@ -106,7 +105,7 @@ class SyncPatientsStream {
                 KAFKA_CLIENT_ID);
 
         interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                GlobalConstants.TOPIC_INTERACTION_ETL,
                 new StringSerializer(), new JsonPojoSerializer<>(),
                 KAFKA_CLIENT_ID);
 

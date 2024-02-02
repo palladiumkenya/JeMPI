@@ -8,9 +8,9 @@ record CustomControllerDashboardMU(
       MU familyName,
       MU gender,
       MU dob,
-      MU city,
-      MU phoneNumber,
-      MU nationalId) {
+      MU nupi,
+      MU cccNumber,
+      MU docket) {
 
    static MU getMU(final FieldTally fieldTally) {
       if (fieldTally.a() + fieldTally.b() == 0 || fieldTally.c() + fieldTally.d() == 0) {
@@ -30,9 +30,9 @@ record CustomControllerDashboardMU(
                                              getMU(customFieldTallies.familyName()),
                                              getMU(customFieldTallies.gender()),
                                              getMU(customFieldTallies.dob()),
-                                             getMU(customFieldTallies.city()),
-                                             getMU(customFieldTallies.phoneNumber()),
-                                             getMU(customFieldTallies.nationalId()));
+                                             getMU(customFieldTallies.nupi()),
+                                             getMU(customFieldTallies.cccNumber()),
+                                             getMU(customFieldTallies.docket()));
    }
 
 }

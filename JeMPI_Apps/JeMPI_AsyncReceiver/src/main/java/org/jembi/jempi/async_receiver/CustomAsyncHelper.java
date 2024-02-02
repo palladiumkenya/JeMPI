@@ -7,14 +7,14 @@ import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 
 final class CustomAsyncHelper {
 
-   private static final int CCC_NUMBER_COL_NUM = 6;
-   private static final int DOCKET_COL_NUM = 7;
    private static final int PKV_COL_NUM = 0;
    private static final int SOURCEID_FACILITY_COL_NUM = 4;
    private static final int SOURCEID_PATIENT_COL_NUM = 5;
    private static final int GENDER_COL_NUM = 1;
    private static final int DOB_COL_NUM = 2;
    private static final int NUPI_COL_NUM = 3;
+   private static final int CCC_NUMBER_COL_NUM = 6;
+   private static final int DOCKET_COL_NUM = 7;
 
    private CustomAsyncHelper() {
    }
@@ -22,8 +22,6 @@ final class CustomAsyncHelper {
    static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord, final String dwhId) {
       return new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                                              null,
-                                             csvRecord.get(CCC_NUMBER_COL_NUM),
-                                             csvRecord.get(DOCKET_COL_NUM),
                                              csvRecord.get(PKV_COL_NUM),
                                              dwhId);
    }
@@ -34,7 +32,9 @@ final class CustomAsyncHelper {
          null,
          csvRecord.get(GENDER_COL_NUM),
          csvRecord.get(DOB_COL_NUM),
-         csvRecord.get(NUPI_COL_NUM));
+         csvRecord.get(NUPI_COL_NUM),
+         csvRecord.get(CCC_NUMBER_COL_NUM),
+         csvRecord.get(DOCKET_COL_NUM));
    }
 
    static CustomSourceId customSourceId(final CSVRecord csvRecord) {

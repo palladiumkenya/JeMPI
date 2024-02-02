@@ -20,15 +20,16 @@ final class ETLUtil {
                 familyNameDoubleMetaphone,
                 demographicData.getGender(),
                 demographicData.getDob(),
-                demographicData.getNupi());
+                demographicData.getNupi(),
+                demographicData.getCccNumber().replaceAll("([\\\\])", "/"),
+                demographicData.getDocket()
+        );
     }
 
     static CustomUniqueInteractionData cleanUniqueInteractionData(final CustomUniqueInteractionData uniqueInteractionData) {
         return new CustomUniqueInteractionData(
                 uniqueInteractionData.auxDateCreated(),
                 uniqueInteractionData.auxId(),
-                uniqueInteractionData.cccNumber().replaceAll("([\\\\])", "/"),
-                uniqueInteractionData.docket(),
                 uniqueInteractionData.pkv(),
                 uniqueInteractionData.auxDwhId()
         );
