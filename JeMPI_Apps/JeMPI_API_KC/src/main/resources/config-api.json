@@ -148,6 +148,32 @@
         "regex": "",
         "onErrorMessage": "The national Id cannot be empty"
       }
+    },
+    {
+      "fieldName": "ccc_number",
+      "fieldType": "String",
+      "fieldLabel": "CCC Number",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The national Id cannot be empty"
+      }
     }
   ],
   "systemFields": [

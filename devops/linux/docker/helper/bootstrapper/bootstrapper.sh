@@ -3,7 +3,7 @@
 pushd "$(dirname "$0")"
   # Creating conf.env file
   pushd ./docker/conf/env || exit
-      source ./create-env-linux-high-1.sh
+      source ./create-env-linux-low-1.sh
   popd || exit
 
   source ./source/conf.env
