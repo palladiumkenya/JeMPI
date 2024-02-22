@@ -5,9 +5,6 @@ export NODE1_IP=${NODE1_IP}
 # export NODE2=${NODE2}
 # export NODE2_IP=${NODE2_IP}
 
-# export NODE3=${NODE3}
-# export NODE3_IP=${NODE3_IP}
-
 export STACK_NAME=jempi
 
 export API_IP=api
