@@ -196,9 +196,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                  linkInfo.getLeft().interactionUID(),
                  req.batchInteraction.interaction().demographicData().getGivenName(),
                  req.batchInteraction.interaction().demographicData().familyName);
-         LOGGER.debug("{}", backPatchDWL);
          try {
             topicBackPatchDWH.produceSync(backPatchDWL.goldenId(), backPatchDWL);
+            LOGGER.debug("{}", backPatchDWL);
          } catch (ExecutionException | InterruptedException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }

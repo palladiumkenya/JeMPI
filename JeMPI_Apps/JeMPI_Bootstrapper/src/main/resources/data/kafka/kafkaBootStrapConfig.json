@@ -60,14 +60,14 @@
       "topicName": "JeMPI-audit-trail",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 600000,
+      "retention_ms": 86400000,
       "segments_bytes": 1048576
     },
     "JeMPI-back-patch-dwh": {
       "topicName": "JeMPI-back-patch-dwh",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 600000,
+      "retention_ms": 86400000,
       "segments_bytes": 1048576
     },
     "JeMPI-sync-patients-dwh": {
