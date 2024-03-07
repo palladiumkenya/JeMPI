@@ -204,6 +204,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          }
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
+         LOGGER.error("No link info for dwhID  {} ", req.batchInteraction.interaction().uniqueInteractionData().auxDwhId());
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
       }
       return Behaviors.withTimers(timers -> {
