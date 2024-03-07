@@ -145,6 +145,7 @@ public final class LinkerDWH {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
             final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
+            LOGGER.error("This should not be happening: dwhId {}", interaction.uniqueInteractionData().auxDwhId());
             LOGGER.debug("Match Candidates {} ", candidates.size());
             if (candidates.isEmpty()) {
                try {
@@ -157,6 +158,7 @@ public final class LinkerDWH {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }
             } else {
+               // TODO Write matching info to topic
                final var workCandidate = candidates.parallelStream()
                                                    .unordered()
                                                    .map(candidate -> new WorkCandidate(candidate,
