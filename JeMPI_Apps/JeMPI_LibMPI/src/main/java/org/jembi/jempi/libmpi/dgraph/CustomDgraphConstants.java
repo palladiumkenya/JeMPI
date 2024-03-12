@@ -341,13 +341,13 @@ public final class CustomDgraphConstants {
          GoldenRecord.aux_date_created:         datetime                                     .
          GoldenRecord.aux_auto_update_enabled:  bool                                         .
          GoldenRecord.aux_id:                   string                                       .
-         GoldenRecord.given_name:               string    @index(hash)                       .
-         GoldenRecord.family_name:              string    @index(hash)                       .
-         GoldenRecord.gender:                   string    @index(hash)                       .
-         GoldenRecord.dob:                      string    @index(hash)                       .
+         GoldenRecord.given_name:               string                                       .
+         GoldenRecord.family_name:              string                                       .
+         GoldenRecord.gender:                   string                                       .
+         GoldenRecord.dob:                      string                                       .
          GoldenRecord.nupi:                     string    @index(hash)                       .
          GoldenRecord.ccc_number:               string    @index(hash)                       .
-         GoldenRecord.docket:                   string    @index(hash)                       .
+         GoldenRecord.docket:                   string                                       .
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
