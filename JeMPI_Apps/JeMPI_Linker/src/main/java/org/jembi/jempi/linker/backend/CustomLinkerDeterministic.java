@@ -7,7 +7,7 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 final class CustomLinkerDeterministic {
 
    static final boolean DETERMINISTIC_DO_LINKING = true;
-   static final boolean DETERMINISTIC_DO_VALIDATING = true;
+   static final boolean DETERMINISTIC_DO_VALIDATING = false;
    static final boolean DETERMINISTIC_DO_MATCHING = true;
 
    private CustomLinkerDeterministic() {
@@ -36,23 +36,15 @@ final class CustomLinkerDeterministic {
    static boolean validateDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      final var cccNumberL = goldenRecord.cccNumber;
-      final var cccNumberR = interaction.cccNumber;
-      return isMatch(cccNumberL, cccNumberR);
+      return false;
    }
 
    static boolean matchNotificationDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      final var givenNameL = goldenRecord.givenName;
-      final var givenNameR = interaction.givenName;
-      final var familyNameL = goldenRecord.familyName;
-      final var familyNameR = interaction.familyName;
-      final var dobL = goldenRecord.dob;
-      final var dobR = interaction.dob;
-      final var genderL = goldenRecord.gender;
-      final var genderR = interaction.gender;
-      return (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(dobL, dobR) && isMatch(genderL, genderR));
+      final var cccNumberL = goldenRecord.cccNumber;
+      final var cccNumberR = interaction.cccNumber;
+      return isMatch(cccNumberL, cccNumberR);
    }
 
 }

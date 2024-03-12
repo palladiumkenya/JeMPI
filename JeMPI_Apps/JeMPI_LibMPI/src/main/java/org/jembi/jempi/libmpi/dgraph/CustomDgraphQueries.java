@@ -42,20 +42,8 @@ final class CustomDgraphQueries {
 
    private static final String QUERY_MATCH_DETERMINISTIC_A =
          """
-         query query_match_deterministic_a($given_name: string, $family_name: string, $dob: string, $gender: string) {
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, $given_name)) {
-               A as uid
-            }
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.family_name, $family_name)) {
-               B as uid
-            }
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.dob, $dob)) {
-               C as uid
-            }
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.gender, $gender)) {
-               D as uid
-            }
-            all(func:type(GoldenRecord)) @filter(uid(A) AND uid(B) AND uid(C) AND uid(D)) {
+         query query_match_deterministic_a($ccc_number: string) {
+            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.ccc_number, $ccc_number)) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -113,33 +101,10 @@ final class CustomDgraphQueries {
    }
 
    private static DgraphGoldenRecords queryMatchDeterministicA(final CustomDemographicData demographicData) {
-      final var givenName = demographicData.givenName;
-      final var familyName = demographicData.familyName;
-      final var dob = demographicData.dob;
-      final var gender = demographicData.gender;
-      final var givenNameIsBlank = StringUtils.isBlank(givenName);
-      final var familyNameIsBlank = StringUtils.isBlank(familyName);
-      final var dobIsBlank = StringUtils.isBlank(dob);
-      final var genderIsBlank = StringUtils.isBlank(gender);
-      if ((givenNameIsBlank || familyNameIsBlank || dobIsBlank || genderIsBlank)) {
+      if (StringUtils.isBlank(demographicData.cccNumber)) {
          return new DgraphGoldenRecords(List.of());
       }
-      final var map = Map.of("$given_name",
-                             StringUtils.isNotBlank(givenName)
-                                   ? givenName
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$family_name",
-                             StringUtils.isNotBlank(familyName)
-                                   ? familyName
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$dob",
-                             StringUtils.isNotBlank(dob)
-                                   ? dob
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$gender",
-                             StringUtils.isNotBlank(gender)
-                                   ? gender
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL);
+      final Map<String, String> map = Map.of("$ccc_number", demographicData.cccNumber);
       return runGoldenRecordsQuery(QUERY_MATCH_DETERMINISTIC_A, map);
    }
 
