@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
+export PROJECT_PATH_APPS_ROOT=$(builtin cd ../../../../../; pwd)
+export PROJECT_PATH_UI=${PROJECT_PATH_APPS_ROOT}/JeMPI_Apps/JeMPI_UI
 export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
@@ -8,7 +10,7 @@ export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 source ./cluster-ip.sh
 
-export SCALE_NGINX=1
+
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
@@ -20,6 +22,10 @@ export SCALE_LINKER=1
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="notifications"
+export POSTGRESQL_USERS_DB="users_db"
+export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
+export POSTGRESQL_AUDIT_DB="audit_db"
+export POSTGRESQL_KC_TEST_DB="kc_test_db"
 
 export MSSQL_USER="sa"
 export MSSQL_PASSWORD="E8@6*i^jMl8"
@@ -30,8 +36,13 @@ export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
-# API related env vars
-export API_PORT=50000
+# Ports
+export API_HTTP_PORT=50000
+export API_KC_HTTP_PORT=50000
+export ETL_HTTP_PORT=50000
+export CONTROLLER_HTTP_PORT=50000
+export LINKER_HTTP_PORT=50000
+
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
@@ -43,10 +54,18 @@ export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
+# UI env vars
+# NODE_ENV production || development
+export NODE_ENV="production"
+export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
+export REACT_APP_JEMPI_BASE_API_PORT=50000
+export REACT_APP_MOCK_BACKEND="false"
+export REACT_APP_ENABLE_SSO="false"
+export KC_FRONTEND_URL=http://${NODE1_IP}:8080
+
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="16G"
 export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
-export NGINX_RAM_LIMIT="16G"
 export HAPROXY_RAM_LIMIT="32G"
 export KAFKA_RAM_LIMIT="32G"
 export DGRAPH_RAM_LIMIT="32G"
@@ -57,11 +76,6 @@ export EM_RAM_LIMIT="16G"
 export LINKER_RAM_LIMIT="32G"
 export API_RAM_LIMIT="16G"
 export UI_RAM_LIMIT="16G"
-
-#UI env vars
-export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
-export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2

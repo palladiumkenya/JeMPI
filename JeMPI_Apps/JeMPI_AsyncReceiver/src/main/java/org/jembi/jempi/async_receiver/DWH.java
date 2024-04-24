@@ -1,6 +1,5 @@
 package org.jembi.jempi.async_receiver;
 
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -185,6 +184,10 @@ final class DWH {
            select *
            from new_patient_list
            """;
+   private final String SQL_INSERT_MATCHING_NOTIFICATION = """
+           INSERT INTO MPI_MatchingNotifications(interactionDwhId,goldenId,topCandidate)
+                                            VALUES (?,?,?)
+           """;
    private static final Logger LOGGER = LogManager.getLogger(DWH.class);
    private static final String URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
    private static final String USER = AppConfig.MSSQL_USER;
@@ -237,6 +240,24 @@ final class DWH {
       }
    }
 
+   void insertMatchingNotifications(GoldenRecord goldenRecord, Interaction interaction, Boolean topCandidate) {
+      if (open()) {
+         try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT_MATCHING_NOTIFICATION, Statement.RETURN_GENERATED_KEYS)) {
+            String auxDwhId = interaction.uniqueInteractionData().auxDwhId();
+            if (auxDwhId != null && !auxDwhId.isEmpty()) {
+               pStmt.setInt(1, Integer.parseInt(auxDwhId));
+               pStmt.setString(2, goldenRecord.goldenId());
+               pStmt.setBoolean(3, topCandidate);
+               pStmt.executeUpdate();
+            }
+         } catch (SQLException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
+      } else {
+         LOGGER.error("Unable to create DWH database connection");
+      }
+
+   }
    List<CustomPatientRecord> getPatientList(final String key, final SyncEvent event) {
       List<CustomPatientRecord> patientRecordList = new ArrayList<>();
       if (open()) {
@@ -282,11 +303,11 @@ final class DWH {
                   pStmt.setString(1, customDemographicData.getGender() == null || customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
                   pStmt.setString(2, customDemographicData.getDob() == null || customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
                   pStmt.setString(3, customDemographicData.getNupi() == null || customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
-                  pStmt.setString(4, customUniqueInteractionData.cccNumber() == null || customUniqueInteractionData.cccNumber().isEmpty() ? null : customUniqueInteractionData.cccNumber());
+                  pStmt.setString(4, customDemographicData.getCccNumber() == null || customDemographicData.getCccNumber().isEmpty() ? null : customDemographicData.getCccNumber());
                   pStmt.setString(5, customSourceId.facility() == null || customSourceId.facility().isEmpty() ? null : customSourceId.facility());
                   pStmt.setString(6, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                   pStmt.setString(7, customUniqueInteractionData.pkv() == null || customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
-                  pStmt.setString(8, customUniqueInteractionData.docket() == null || customUniqueInteractionData.docket().isEmpty() ? null : customUniqueInteractionData.docket());
+                  pStmt.setString(8, customDemographicData.getDocket() == null || customDemographicData.getDocket().isEmpty() ? null : customDemographicData.getDocket());
                   pStmt.setString(9, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {

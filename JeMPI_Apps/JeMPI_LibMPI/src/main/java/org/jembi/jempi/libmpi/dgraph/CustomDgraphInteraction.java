@@ -13,8 +13,6 @@ record CustomDgraphInteraction(
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CCC_NUMBER) String cccNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOCKET) String docket,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PKV) String pkv,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DWH_ID) String auxDwhId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
@@ -22,6 +20,8 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NUPI) String nupi,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CCC_NUMBER) String cccNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOCKET) String docket,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
 
    CustomDgraphInteraction(
@@ -31,8 +31,6 @@ record CustomDgraphInteraction(
            new DgraphSourceId(interaction.sourceId()),
            interaction.uniqueInteractionData().auxDateCreated(),
            interaction.uniqueInteractionData().auxId(),
-           interaction.uniqueInteractionData().cccNumber(),
-           interaction.uniqueInteractionData().docket(),
            interaction.uniqueInteractionData().pkv(),
            interaction.uniqueInteractionData().auxDwhId(),
            interaction.demographicData().givenName,
@@ -40,6 +38,8 @@ record CustomDgraphInteraction(
            interaction.demographicData().gender,
            interaction.demographicData().dob,
            interaction.demographicData().nupi,
+           interaction.demographicData().cccNumber,
+           interaction.demographicData().docket,
            score);
    }
 
@@ -50,15 +50,15 @@ record CustomDgraphInteraction(
                                    : null,
                              new CustomUniqueInteractionData(this.auxDateCreated,
                                                                this.auxId,
-                                                               this.cccNumber,
-                                                               this.docket,
                                                                this.pkv,
                                                                this.auxDwhId),
                              new CustomDemographicData(this.givenName,
                                                        this.familyName,
                                                        this.gender,
                                                        this.dob,
-                                                       this.nupi));
+                                                       this.nupi,
+                                                       this.cccNumber,
+                                                       this.docket));
    }
 
    InteractionWithScore toInteractionWithScore() {

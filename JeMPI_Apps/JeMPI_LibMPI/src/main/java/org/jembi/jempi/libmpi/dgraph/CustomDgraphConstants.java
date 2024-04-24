@@ -10,11 +10,11 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
    public static final String PREDICATE_GOLDEN_RECORD_DOB = "GoldenRecord.dob";
    public static final String PREDICATE_GOLDEN_RECORD_NUPI = "GoldenRecord.nupi";
+   public static final String PREDICATE_GOLDEN_RECORD_CCC_NUMBER = "GoldenRecord.ccc_number";
+   public static final String PREDICATE_GOLDEN_RECORD_DOCKET = "GoldenRecord.docket";
    public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
    public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
-   public static final String PREDICATE_INTERACTION_CCC_NUMBER = "Interaction.ccc_number";
-   public static final String PREDICATE_INTERACTION_DOCKET = "Interaction.docket";
    public static final String PREDICATE_INTERACTION_PKV = "Interaction.pkv";
    public static final String PREDICATE_INTERACTION_AUX_DWH_ID = "Interaction.aux_dwh_id";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
@@ -22,6 +22,8 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
    public static final String PREDICATE_INTERACTION_DOB = "Interaction.dob";
    public static final String PREDICATE_INTERACTION_NUPI = "Interaction.nupi";
+   public static final String PREDICATE_INTERACTION_CCC_NUMBER = "Interaction.ccc_number";
+   public static final String PREDICATE_INTERACTION_DOCKET = "Interaction.docket";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """
@@ -39,6 +41,8 @@ public final class CustomDgraphConstants {
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
+         GoldenRecord.ccc_number
+         GoldenRecord.docket
          """;
 
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
@@ -57,6 +61,8 @@ public final class CustomDgraphConstants {
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.nupi
+         GoldenRecord.ccc_number
+         GoldenRecord.docket
          GoldenRecord.interactions @facets(score) {
             uid
             Interaction.source_id {
@@ -66,8 +72,6 @@ public final class CustomDgraphConstants {
             }
             Interaction.aux_date_created
             Interaction.aux_id
-            Interaction.ccc_number
-            Interaction.docket
             Interaction.pkv
             Interaction.aux_dwh_id
             Interaction.given_name
@@ -75,6 +79,8 @@ public final class CustomDgraphConstants {
             Interaction.gender
             Interaction.dob
             Interaction.nupi
+            Interaction.ccc_number
+            Interaction.docket
          }
          """;
    static final String INTERACTION_FIELD_NAMES =
@@ -87,8 +93,6 @@ public final class CustomDgraphConstants {
          }
          Interaction.aux_date_created
          Interaction.aux_id
-         Interaction.ccc_number
-         Interaction.docket
          Interaction.pkv
          Interaction.aux_dwh_id
          Interaction.given_name
@@ -96,6 +100,8 @@ public final class CustomDgraphConstants {
          Interaction.gender
          Interaction.dob
          Interaction.nupi
+         Interaction.ccc_number
+         Interaction.docket
          """;
 
    static final String EXPANDED_INTERACTION_FIELD_NAMES =
@@ -108,8 +114,6 @@ public final class CustomDgraphConstants {
          }
          Interaction.aux_date_created
          Interaction.aux_id
-         Interaction.ccc_number
-         Interaction.docket
          Interaction.pkv
          Interaction.aux_dwh_id
          Interaction.given_name
@@ -117,6 +121,8 @@ public final class CustomDgraphConstants {
          Interaction.gender
          Interaction.dob
          Interaction.nupi
+         Interaction.ccc_number
+         Interaction.docket
          ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
@@ -132,6 +138,8 @@ public final class CustomDgraphConstants {
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
+            GoldenRecord.ccc_number
+            GoldenRecord.docket
          }
          """;
 
@@ -147,8 +155,6 @@ public final class CustomDgraphConstants {
                }
                Interaction.aux_date_created
                Interaction.aux_id
-               Interaction.ccc_number
-               Interaction.docket
                Interaction.pkv
                Interaction.aux_dwh_id
                Interaction.given_name
@@ -156,6 +162,8 @@ public final class CustomDgraphConstants {
                Interaction.gender
                Interaction.dob
                Interaction.nupi
+               Interaction.ccc_number
+               Interaction.docket
             }
          }
          """;
@@ -178,6 +186,8 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
+               GoldenRecord.ccc_number
+               GoldenRecord.docket
             }
          }
          """;
@@ -194,8 +204,6 @@ public final class CustomDgraphConstants {
                }
                Interaction.aux_date_created
                Interaction.aux_id
-               Interaction.ccc_number
-               Interaction.docket
                Interaction.pkv
                Interaction.aux_dwh_id
                Interaction.given_name
@@ -203,6 +211,8 @@ public final class CustomDgraphConstants {
                Interaction.gender
                Interaction.dob
                Interaction.nupi
+               Interaction.ccc_number
+               Interaction.docket
                ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -218,6 +228,8 @@ public final class CustomDgraphConstants {
                   GoldenRecord.gender
                   GoldenRecord.dob
                   GoldenRecord.nupi
+                  GoldenRecord.ccc_number
+                  GoldenRecord.docket
                }
             }
          }
@@ -241,6 +253,8 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
+               GoldenRecord.ccc_number
+               GoldenRecord.docket
             }
          }
          """;
@@ -263,6 +277,8 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
+               GoldenRecord.ccc_number
+               GoldenRecord.docket
                GoldenRecord.interactions @facets(score) {
                   uid
                   Interaction.source_id {
@@ -272,8 +288,6 @@ public final class CustomDgraphConstants {
                   }
                   Interaction.aux_date_created
                   Interaction.aux_id
-                  Interaction.ccc_number
-                  Interaction.docket
                   Interaction.pkv
                   Interaction.aux_dwh_id
                   Interaction.given_name
@@ -281,6 +295,8 @@ public final class CustomDgraphConstants {
                   Interaction.gender
                   Interaction.dob
                   Interaction.nupi
+                  Interaction.ccc_number
+                  Interaction.docket
                }
             }
          }
@@ -313,6 +329,8 @@ public final class CustomDgraphConstants {
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.nupi
+            GoldenRecord.ccc_number
+            GoldenRecord.docket
             GoldenRecord.interactions:              [Interaction]
          }
          """;
@@ -323,11 +341,13 @@ public final class CustomDgraphConstants {
          GoldenRecord.aux_date_created:         datetime                                     .
          GoldenRecord.aux_auto_update_enabled:  bool                                         .
          GoldenRecord.aux_id:                   string                                       .
-         GoldenRecord.given_name:               string    @index(hash)                       .
-         GoldenRecord.family_name:              string    @index(hash)                       .
-         GoldenRecord.gender:                   string    @index(hash)                       .
-         GoldenRecord.dob:                      string    @index(hash)                       .
+         GoldenRecord.given_name:               string                                       .
+         GoldenRecord.family_name:              string                                       .
+         GoldenRecord.gender:                   string                                       .
+         GoldenRecord.dob:                      string                                       .
          GoldenRecord.nupi:                     string    @index(hash)                       .
+         GoldenRecord.ccc_number:               string    @index(hash)                       .
+         GoldenRecord.docket:                   string                                       .
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
@@ -338,8 +358,6 @@ public final class CustomDgraphConstants {
             Interaction.source_id:                     SourceId
             Interaction.aux_date_created
             Interaction.aux_id
-            Interaction.ccc_number
-            Interaction.docket
             Interaction.pkv
             Interaction.aux_dwh_id
             Interaction.given_name
@@ -347,6 +365,8 @@ public final class CustomDgraphConstants {
             Interaction.gender
             Interaction.dob
             Interaction.nupi
+            Interaction.ccc_number
+            Interaction.docket
          }
          """;
 
@@ -355,8 +375,6 @@ public final class CustomDgraphConstants {
          Interaction.source_id:                    uid                                          .
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
-         Interaction.ccc_number:                   string                                       .
-         Interaction.docket:                       string                                       .
          Interaction.pkv:                          string                                       .
          Interaction.aux_dwh_id:                   string                                       .
          Interaction.given_name:                   string                                       .
@@ -364,6 +382,8 @@ public final class CustomDgraphConstants {
          Interaction.gender:                       string                                       .
          Interaction.dob:                          string                                       .
          Interaction.nupi:                         string                                       .
+         Interaction.ccc_number:                   string                                       .
+         Interaction.docket:                       string                                       .
          """;
 
    private CustomDgraphConstants() {}

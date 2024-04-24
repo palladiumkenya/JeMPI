@@ -23,8 +23,6 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.source_id>                     <%s>                  .
                            _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <Interaction.aux_id>                        %s                    .
-                           _:%s  <Interaction.ccc_number>                    %s                    .
-                           _:%s  <Interaction.docket>                        %s                    .
                            _:%s  <Interaction.pkv>                           %s                    .
                            _:%s  <Interaction.aux_dwh_id>                    %s                    .
                            _:%s  <Interaction.given_name>                    %s                    .
@@ -32,13 +30,13 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.gender>                        %s                    .
                            _:%s  <Interaction.dob>                           %s                    .
                            _:%s  <Interaction.nupi>                          %s                    .
+                           _:%s  <Interaction.ccc_number>                    %s                    .
+                           _:%s  <Interaction.docket>                        %s                    .
                            _:%s  <dgraph.type>                               "Interaction"         .
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
-                           uuid, AppUtils.quotedValue(uniqueInteractionData.cccNumber()),
-                           uuid, AppUtils.quotedValue(uniqueInteractionData.docket()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.pkv()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDwhId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),
@@ -46,6 +44,8 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.nupi),
+                           uuid, AppUtils.quotedValue(demographicData.cccNumber),
+                           uuid, AppUtils.quotedValue(demographicData.docket),
                            uuid);
    }
 
@@ -67,6 +67,8 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.gender>                        %s                    .
                            _:%s  <GoldenRecord.dob>                           %s                    .
                            _:%s  <GoldenRecord.nupi>                          %s                    .
+                           _:%s  <GoldenRecord.ccc_number>                    %s                    .
+                           _:%s  <GoldenRecord.docket>                        %s                    .
                            _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
@@ -79,6 +81,8 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.nupi),
+                           uuid, AppUtils.quotedValue(demographicData.cccNumber),
+                           uuid, AppUtils.quotedValue(demographicData.docket),
                            uuid, interactionUID, score,
                            uuid);
    }

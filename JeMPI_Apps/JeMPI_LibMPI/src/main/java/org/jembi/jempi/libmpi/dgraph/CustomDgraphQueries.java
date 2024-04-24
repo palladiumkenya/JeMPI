@@ -16,7 +16,7 @@ final class CustomDgraphQueries {
       List.of(CustomDgraphQueries::queryDeterministicA);
 
    static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
-      List.of();
+      List.of(CustomDgraphQueries::queryMatchDeterministicA);
 
    private static final String QUERY_DETERMINISTIC_A =
          """
@@ -34,6 +34,30 @@ final class CustomDgraphQueries {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.nupi
+               GoldenRecord.ccc_number
+               GoldenRecord.docket
+            }
+         }
+         """;
+
+   private static final String QUERY_MATCH_DETERMINISTIC_A =
+         """
+         query query_match_deterministic_a($ccc_number: string) {
+            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.ccc_number, $ccc_number)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.given_name
+               GoldenRecord.family_name
+               GoldenRecord.gender
+               GoldenRecord.dob
+               GoldenRecord.nupi
+               GoldenRecord.ccc_number
+               GoldenRecord.docket
             }
          }
          """;
@@ -74,6 +98,14 @@ final class CustomDgraphQueries {
       }
       result = new LinkedList<>();
       return result;
+   }
+
+   private static DgraphGoldenRecords queryMatchDeterministicA(final CustomDemographicData demographicData) {
+      if (StringUtils.isBlank(demographicData.cccNumber)) {
+         return new DgraphGoldenRecords(List.of());
+      }
+      final Map<String, String> map = Map.of("$ccc_number", demographicData.cccNumber);
+      return runGoldenRecordsQuery(QUERY_MATCH_DETERMINISTIC_A, map);
    }
 
    static List<CustomDgraphGoldenRecord> findMatchCandidates(

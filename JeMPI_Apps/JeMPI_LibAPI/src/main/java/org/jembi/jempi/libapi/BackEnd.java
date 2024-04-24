@@ -16,6 +16,8 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.models.dashboard.NotificationStats;
+import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
@@ -24,7 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +38,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final Integer pgPort;
    private final String pgUser;
    private final String pgPassword;
-   private final String pgDatabase;
+   private final String pgNotificationsDb;
+   private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
@@ -54,27 +57,34 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase,
+         final String sqlNotificationsDb,
+         final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       super(context);
-      this.libMPI = null;
-      this.dgraphHosts = dgraphHosts;
-      this.dgraphPorts = dgraphPorts;
-      this.pgIP = sqlIP;
-      this.pgPort = sqlPort;
-      this.pgUser = sqlUser;
-      this.pgPassword = sqlPassword;
-      this.pgDatabase = sqlDatabase;
-      psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
-      psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
-      openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
+      try {
+         this.libMPI = null;
+         this.dgraphHosts = dgraphHosts;
+         this.dgraphPorts = dgraphPorts;
+         this.pgIP = sqlIP;
+         this.pgPort = sqlPort;
+         this.pgUser = sqlUser;
+         this.pgPassword = sqlPassword;
+         this.pgNotificationsDb = sqlNotificationsDb;
+         this.pgAuditDb = sqlAuditDb;
+         psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
+         psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
+         openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
 
-      topicPatientSyncDWH = new MyKafkaProducer<>("kafka-01:9092",
-              GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
-              new StringSerializer(),
-              new JsonPojoSerializer<>(),
-              "client-id-api");
+          topicPatientSyncDWH = new MyKafkaProducer<>("kafka-01:9092",
+                  GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
+                  new StringSerializer(),
+                  new JsonPojoSerializer<>(),
+                  "client-id-api");
+      } catch (Exception e) {
+         LOGGER.error(e.getMessage(), e);
+         throw e;
+      }
    }
 
    public static Behavior<Event> create(
@@ -85,7 +95,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase,
+         final String sqlNotificationsDb,
+         final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       return Behaviors.setup(context -> new BackEnd(level,
@@ -96,7 +107,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlPort,
                                                     sqlUser,
                                                     sqlPassword,
-                                                    sqlDatabase,
+                                                    sqlNotificationsDb,
+                                                    sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
    }
@@ -108,7 +120,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgDatabase),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgAuditDb),
                              pgUser,
                              pgPassword,
                              kafkaBootstrapServers,
@@ -123,33 +135,33 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
-      return builder
-            .onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
-            .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
-            .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
-            .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
-            .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
-            .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
-            .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
-            .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
-            .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
-            .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
-            .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
-            .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
-            .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
-            .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
-            .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
-            .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
-            .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
-            .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
-            .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
-            .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
-            .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
-            .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
-            .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
-            .onMessage(PostRecreateSchemaRequest.class, this::postRecreateSchemaHandler)
-            .onMessage(PostSyncPatientsRequest.class, this::postSyncPatientsHandler)
-            .build();
+      return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
+                    .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+                    .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+                    .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
+                    .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
+                    .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
+                    .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
+                    .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+                    .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
+                    .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
+                    .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
+                    .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
+                    .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
+                    .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
+                    .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
+                    .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+                    .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
+                    .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
+                    .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
+                    .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+                    .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
+                    .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
+                    .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+                    .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+                    .onMessage(PostRecreateSchemaRequest.class, this::postRecreateSchemaHandler)
+                    .onMessage(PostSyncPatientsRequest.class, this::postSyncPatientsHandler)
+                    .build();
    }
 
    private Behavior<Event> postRecreateSchemaHandler(final PostRecreateSchemaRequest request) {
@@ -263,8 +275,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
-      MatchesForReviewResult result =
-            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date(), request.state);
+      MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(), request.offset(),
+            request.startDate(), request.endDate(), request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
                                                         result.getSkippedRecords(),
                                                         result.getNotifications()));
@@ -457,7 +469,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId, request.state);
+         psqlNotifications.updateNotificationState(request.notificationId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
@@ -468,7 +480,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       File file = request.file();
       try {
-         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
+         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+         Files.copy(file.toPath(), Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -476,6 +489,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       request.replyTo.tell(new PostUploadCsvFileResponse());
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
+      int openNotifications = psqlNotifications.getNotificationCount("OPEN");
+      int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
+      request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications, closedNotifications))));
       return Behaviors.same();
    }
 
@@ -531,6 +551,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String uid) implements Event {
    }
 
+   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) { }
+
+   public record SQLDashboardDataRequest(
+           ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
+   }
+
    public record GetInteractionAuditTrailResponse(List<AuditEvent> auditTrail) {
    }
 
@@ -543,8 +569,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record GetExpandedGoldenRecordRequest(
          ActorRef<GetExpandedGoldenRecordResponse> replyTo,
-         String goldenId)
-         implements Event {
+         String goldenId) implements Event {
    }
 
    public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
@@ -555,8 +580,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> goldenIds) implements Event {
    }
 
-   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords)
-         implements EventResponse {
+   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {
    }
 
    public record GetExpandedInteractionsRequest(
@@ -564,8 +588,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> patientIds) implements Event {
    }
 
-   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords)
-         implements EventResponse {
+   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {
    }
 
    public record GetInteractionRequest(
@@ -573,16 +596,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String iid) implements Event {
    }
 
-   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient)
-         implements EventResponse {
+   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse {
    }
 
    public record GetNotificationsRequest(
          ActorRef<GetNotificationsResponse> replyTo,
          int limit,
          int offset,
-         LocalDate date,
-         String state) implements Event {
+         Timestamp startDate,
+         Timestamp endDate,
+         List<String> states) implements Event {
    }
 
    public record GetNotificationsResponse(
@@ -608,8 +631,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          Float score) implements Event {
    }
 
-   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
-         implements EventResponse {
+   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
    public record PatchIidNewGidLinkRequest(
@@ -619,14 +641,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          float score) implements Event {
    }
 
-   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
-         implements EventResponse {
+   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
-         String notificationId,
-         String state) implements Event {
+         String notificationId) implements Event {
    }
 
    public record PostUpdateNotificationResponse() implements EventResponse {
@@ -684,8 +704,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
-         File file)
-         implements Event {
+         File file) implements Event {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {

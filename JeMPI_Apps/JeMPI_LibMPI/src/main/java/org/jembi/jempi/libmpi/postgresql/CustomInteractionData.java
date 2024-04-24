@@ -9,7 +9,9 @@ final class CustomInteractionData extends CustomDemographicData implements NodeD
             customDemographicData.familyName,
             customDemographicData.gender,
             customDemographicData.dob,
-            customDemographicData.nupi);
+            customDemographicData.nupi,
+            customDemographicData.cccNumber,
+            customDemographicData.docket);
    }
 
 }
