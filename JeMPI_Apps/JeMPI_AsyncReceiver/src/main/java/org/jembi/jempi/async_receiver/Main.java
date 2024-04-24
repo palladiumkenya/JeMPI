@@ -182,8 +182,10 @@ public final class Main {
       dwh = new DWH();
       final BackPatchStream backPatchStream = BackPatchStream.create();
       final SyncPatientsStream syncPatientsStream = SyncPatientsStream.create();
+      final MatchNotifcationsStream matchNotifcationsStream = MatchNotifcationsStream.create();
       backPatchStream.open();
       syncPatientsStream.open();
+      matchNotifcationsStream.open();
 
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");

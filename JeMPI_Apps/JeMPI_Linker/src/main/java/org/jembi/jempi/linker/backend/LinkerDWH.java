@@ -30,6 +30,7 @@ public final class LinkerDWH {
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
    private static MyKafkaProducer<String, LinkStatsMeta> linkStatsMetaProducer = null;
+   private static MyKafkaProducer<String, MatchCandidatesData> matchCandidatesProducer = null;
 
    private LinkerDWH() {
    }
@@ -126,10 +127,6 @@ public final class LinkerDWH {
          final float matchThreshold_,
          final String envelopStan) {
 
-//      if (LOGGER.isTraceEnabled()) {
-//         LOGGER.trace("{}", envelopStan);
-//      }
-
       LinkStatsMeta.ConfusionMatrix confusionMatrix;
       CustomFieldTallies customFieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 
@@ -145,7 +142,6 @@ public final class LinkerDWH {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
             final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
-            LOGGER.error("This should not be happening: dwhId {}", interaction.uniqueInteractionData().auxDwhId());
             LOGGER.debug("Match Candidates {} ", candidates.size());
             if (candidates.isEmpty()) {
                try {
@@ -159,6 +155,11 @@ public final class LinkerDWH {
                }
             } else {
                // TODO Write matching info to topic
+               matchCandidatesProducer =  new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                       GlobalConstants.TOPIC_MATCH_DATA_DWH,
+                       stringSerializer(),
+                       matchCandidatesDataSerializer(),
+                       "LinkerDWH-MU-TALLIES");
                final var workCandidate = candidates.parallelStream()
                                                    .unordered()
                                                    .map(candidate -> new WorkCandidate(candidate,
@@ -168,6 +169,8 @@ public final class LinkerDWH {
                                                    .collect(Collectors.toCollection(ArrayList::new))
                                                    .getFirst();
                try {
+                  final var matchingCandidatesData = new MatchCandidatesData(interaction, workCandidate.goldenRecord().goldenId(), candidates);
+                  matchCandidatesProducer.produceSync(interaction.uniqueInteractionData().auxDwhId(), matchingCandidatesData);
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
                   final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
                   final var f = """
@@ -175,7 +178,7 @@ public final class LinkerDWH {
                                 {}
                                 {}""";
                   LOGGER.info(f, i, g);
-               } catch (JsonProcessingException e) {
+               } catch (JsonProcessingException | ExecutionException | InterruptedException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }
             }
@@ -352,9 +355,18 @@ public final class LinkerDWH {
       return new JsonPojoSerializer<>();
    }
 
+   private static Serializer<MatchCandidatesData> matchCandidatesDataSerializer() {
+      return new JsonPojoSerializer<>();
+   }
    public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score) {
    }
+
+//   public record MatchCandidatesData(
+//           Interaction interaction,
+//           String topCandidateGoldenId,
+//           List<GoldenRecord> candidates
+//   ){}
 
 }
