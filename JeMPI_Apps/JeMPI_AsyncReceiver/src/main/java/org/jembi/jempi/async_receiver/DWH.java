@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
+import org.postgresql.util.PGobject;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +15,13 @@ import java.util.List;
 final class DWH {
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
    private static final String SQL_INSERT = """
-                                            INSERT INTO MPI_MatchingOutput(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket, patient_pk_hash)
-                                            VALUES (?,?,?,?,?,?,?,?,convert(nvarchar(64), hashbytes('SHA2_256', cast(?  as nvarchar(36))), 2))
+                                            INSERT INTO mpi_matching_output(gender,dob,nupi,ccc_number,site_code,patient_pk,pkv,docket)
+                                            VALUES (?,?,?,?,?,?,?,?)
                                             """;
 
 
    private static final String SQL_UPDATE = """
-                                            UPDATE MPI_MatchingOutput
+                                            UPDATE mpi_matching_output
                                             SET golden_id = ?, encounter_id = ?, phonetic_given_name = ?, phonetic_family_name = ?
                                             WHERE dwh_id = ?
                                             """;
@@ -185,29 +187,49 @@ final class DWH {
            from new_patient_list
            """;
    private final String SQL_INSERT_MATCHING_NOTIFICATION = """
-           INSERT INTO MPI_MatchingNotifications(interactionDwhId,goldenId,topCandidate)
+           INSERT INTO mpi_matching_notification(interactionDwhId,goldenId,topCandidate)
                                             VALUES (?,?,?)
            """;
    private static final Logger LOGGER = LogManager.getLogger(DWH.class);
-   private static final String URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
-   private static final String USER = AppConfig.MSSQL_USER;
+   private static final String MSSQL_URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
+   private static final String MSSQL_USER = AppConfig.MSSQL_USER;
+   private static final String MSSQL_PASSWORD = AppConfig.MSSQL_PASSWORD;
+   private Connection mssqlConn;
 
-   private static final String PASSWORD = AppConfig.MSSQL_PASSWORD;
-   private Connection conn;
-   private Connection syncConn;
+   private static final String POSTGRES_URL = "jdbc:postgresql://postgresql:5432/notifications_db";
+   private static final String POSTGRES_USER = AppConfig.POSTGRES_USER;
+   private static final String POSTGRES_PASSWORD = AppConfig.POSTGRES_PASSWORD;
+   private Connection postgresConn;
 
    DWH() {
    }
 
-   private boolean open() {
+   private boolean openMssqlConnection() {
       try {
-         if (conn == null || !conn.isValid(0)) {
-            if (conn != null) {
-               conn.close();
+         if (mssqlConn == null || !mssqlConn.isValid(0)) {
+            if (mssqlConn != null) {
+               mssqlConn.close();
             }
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            conn.setAutoCommit(true);
-            return conn.isValid(0);
+            mssqlConn = DriverManager.getConnection(MSSQL_URL, MSSQL_USER, MSSQL_PASSWORD);
+            mssqlConn.setAutoCommit(true);
+            return mssqlConn.isValid(0);
+         }
+         return true;
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return false;
+   }
+
+   private boolean openPostgresConnection() {
+      try {
+         if (postgresConn == null || !postgresConn.isValid(0)) {
+            if (postgresConn != null) {
+               postgresConn.close();
+            }
+            postgresConn = DriverManager.getConnection(POSTGRES_URL, POSTGRES_USER, POSTGRES_PASSWORD);
+            postgresConn.setAutoCommit(true);
+            return postgresConn.isValid(0);
          }
          return true;
       } catch (SQLException e) {
@@ -222,16 +244,19 @@ final class DWH {
          final String encounterId,
          final String phoneticGivenName,
          final String phoneticFamilyName) {
-      if (open()) {
-         try {
-            try (PreparedStatement pStmt = conn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
+      if (openPostgresConnection()) {
+//         try {
+            try (PreparedStatement pStmt = postgresConn.prepareStatement(SQL_UPDATE, Statement.RETURN_GENERATED_KEYS)) {
+               final PGobject uuid = new PGobject();
+               uuid.setType("uuid");
+               uuid.setValue(dwlId);
                pStmt.setString(1, goldenId);
                pStmt.setString(2, encounterId);
                pStmt.setString(3, phoneticGivenName.isEmpty() ? null : phoneticGivenName.toUpperCase());
                pStmt.setString(4, phoneticFamilyName.isEmpty() ? null : phoneticFamilyName.toUpperCase());
-               pStmt.setInt(5, Integer.parseInt(dwlId));
+               pStmt.setObject(5, uuid);
                pStmt.executeUpdate();
-            }
+//            }
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }
@@ -241,8 +266,8 @@ final class DWH {
    }
 
    void insertMatchingNotifications(GoldenRecord goldenRecord, Interaction interaction, Boolean topCandidate) {
-      if (open()) {
-         try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT_MATCHING_NOTIFICATION, Statement.RETURN_GENERATED_KEYS)) {
+      if (openPostgresConnection()) {
+         try (PreparedStatement pStmt = postgresConn.prepareStatement(SQL_INSERT_MATCHING_NOTIFICATION, Statement.RETURN_GENERATED_KEYS)) {
             String auxDwhId = interaction.uniqueInteractionData().auxDwhId();
             if (auxDwhId != null && !auxDwhId.isEmpty()) {
                pStmt.setInt(1, Integer.parseInt(auxDwhId));
@@ -260,12 +285,9 @@ final class DWH {
    }
    List<CustomPatientRecord> getPatientList(final String key, final SyncEvent event) {
       List<CustomPatientRecord> patientRecordList = new ArrayList<>();
-      if (open()) {
-         try (Statement statement = conn.createStatement();
+      if (openMssqlConnection()) {
+         try (Statement statement = mssqlConn.createStatement();
               ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST)) {
-//            Statement statement = syncConn.createStatement();
-//            statement.setQueryTimeout(3600);
-//            ResultSet resultSet = statement.executeQuery(SQL_PATIENT_LIST);
             if (resultSet != null) {
                while (resultSet.next()) {
                   CustomPatientRecord patientRecord = new CustomPatientRecord(resultSet.getString("CCCNumber"),
@@ -291,15 +313,9 @@ final class DWH {
            final CustomUniqueInteractionData customUniqueInteractionData
            ) {
       String dwhId = null;
-      if (open()) {
-         try {
-            if (conn == null || !conn.isValid(0)) {
-               if (conn != null) {
-                  conn.close();
-               }
-               open();
-            }
-            try (PreparedStatement pStmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+      if (openPostgresConnection()) {
+//         try {
+            try (PreparedStatement pStmt = postgresConn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
                   pStmt.setString(1, customDemographicData.getGender() == null || customDemographicData.getGender().isEmpty() ? null : customDemographicData.getGender());
                   pStmt.setString(2, customDemographicData.getDob() == null || customDemographicData.getDob().isEmpty() ? null : customDemographicData.getDob());
                   pStmt.setString(3, customDemographicData.getNupi() == null || customDemographicData.getNupi().isEmpty() ? null : customDemographicData.getNupi());
@@ -308,18 +324,19 @@ final class DWH {
                   pStmt.setString(6, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                   pStmt.setString(7, customUniqueInteractionData.pkv() == null || customUniqueInteractionData.pkv().isEmpty() ? null : customUniqueInteractionData.pkv());
                   pStmt.setString(8, customDemographicData.getDocket() == null || customDemographicData.getDocket().isEmpty() ? null : customDemographicData.getDocket());
-                  pStmt.setString(9, customSourceId.patient() == null || customSourceId.patient().isEmpty() ? null : customSourceId.patient());
                int affectedRows = pStmt.executeUpdate();
                if (affectedRows > 0) {
                   final var rs = pStmt.getGeneratedKeys();
                   if (rs.next()) {
-                     dwhId = Integer.toString(rs.getInt(1));
+                     dwhId = rs.getString(1);
                   }
                }
-            }
-         } catch (SQLException e) {
+            } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }
+//         } catch (SQLException e) {
+//            LOGGER.error(e.getLocalizedMessage(), e);
+//         }
       }
       return dwhId;
    }

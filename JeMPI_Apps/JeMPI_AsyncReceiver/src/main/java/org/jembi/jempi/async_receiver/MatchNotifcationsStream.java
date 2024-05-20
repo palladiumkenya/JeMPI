@@ -35,8 +35,8 @@ public class MatchNotifcationsStream {
     private void processMatchNotifications(final String key,
                                           final MatchCandidatesData matchCandidatesData) {
         LOGGER.info("Processing candidates for interaction dwh: {}", key);
-        matchCandidatesData.candidates().forEach(candidate -> dwh.insertMatchingNotifications(candidate, matchCandidatesData.interaction(),
-                matchCandidatesData.topCandidateGoldenId().equals(candidate.goldenId())));
+//        matchCandidatesData.candidates().forEach(candidate -> dwh.insertMatchingNotifications(candidate, matchCandidatesData.interaction(),
+//                matchCandidatesData.topCandidateGoldenId().equals(candidate.goldenId())));
     }
 
     void open() {

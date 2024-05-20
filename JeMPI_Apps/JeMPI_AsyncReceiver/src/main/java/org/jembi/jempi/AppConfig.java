@@ -31,6 +31,8 @@ public final class AppConfig {
     public static final String MSSQL_PASSWORD = CONFIG.getString("MSSQL_PASSWORD");
     public static final String MSSQL_HOST = CONFIG.getString("MSSQL_HOST");
     public static final String MSSQL_DATABASE = CONFIG.getString("MSSQL_DATABASE");
+    public static final String POSTGRES_USER = CONFIG.getString("POSTGRESQL_USER");
+    public static final String POSTGRES_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
     private AppConfig() {
     }
 

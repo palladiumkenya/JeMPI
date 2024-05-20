@@ -73,6 +73,23 @@ CREATE TABLE IF NOT EXISTS users
     username VARCHAR(255) UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS mpi_matching_output(
+    dwh_id UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+    golden_id varchar(32),
+    encounter_id varchar(32),
+    pkv varchar(32),
+    gender varchar(32),
+    phonetic_given_name varchar(10),
+    phonetic_family_name varchar(10),
+    dob varchar(32),
+    nupi varchar(32),
+    ccc_number varchar(150),
+    site_code varchar(32),
+    docket varchar(32),
+    patient_pk varchar(32),
+    patient_pk_hash varchar(255)
+    );
+
 INSERT INTO Notification_State(State)
 VALUES ('OPEN'), ('CLOSED');
 
