@@ -72,7 +72,7 @@ class SyncPatientsStream {
                 }
                 uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
                         null, uniqueInteractionData.pkv(), dwhId);
-                LOGGER.debug("Inserted record with dwhId {}", uniqueInteractionData.auxDwhId());
+                LOGGER.debug("Inserted record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
                 sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, "patient-sync",
                                 String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
