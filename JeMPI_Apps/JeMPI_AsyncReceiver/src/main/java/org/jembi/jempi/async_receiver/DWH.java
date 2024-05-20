@@ -296,7 +296,6 @@ final class DWH {
                           resultSet.getString("NUPI"), resultSet.getString("SiteCode"), resultSet.getString("PatientPK"));
                   patientRecordList.add(patientRecord);
                }
-               LOGGER.info("Synced {} patient records", patientRecordList.size());
             } else {
                LOGGER.info("Found empty result set for event {}, {}", event.event(), key);
             }

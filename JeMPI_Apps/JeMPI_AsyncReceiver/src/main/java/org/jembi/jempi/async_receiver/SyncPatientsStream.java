@@ -55,6 +55,7 @@ class SyncPatientsStream {
             sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, "patient-sync",
                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
             List<CustomPatientRecord> patientRecordList = dwh.getPatientList(key, event);
+            LOGGER.info("Syncing {} patient records", patientRecordList.size());
 
             for (CustomPatientRecord patient : patientRecordList) {
                 CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
@@ -82,6 +83,7 @@ class SyncPatientsStream {
             }
             sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, "patient-sync",
                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+            LOGGER.info("Patient list ingestion complete.");
         } catch (InterruptedException | ExecutionException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
