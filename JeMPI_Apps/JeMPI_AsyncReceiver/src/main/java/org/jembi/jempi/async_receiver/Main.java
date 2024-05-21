@@ -12,7 +12,6 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -29,7 +28,7 @@ public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
 
-   private DWH dwh;
+   private NotificationDao notificationDao;
 
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
@@ -87,7 +86,7 @@ public final class Main {
    }
 
    private String dbInsertLiveData(final CSVRecord csvRecord) {
-      return dwh.insertClinicalData(CustomAsyncHelper.customDemographicData(csvRecord),
+      return notificationDao.insertClinicalData(CustomAsyncHelper.customDemographicData(csvRecord),
               CustomAsyncHelper.customSourceId(csvRecord), CustomAsyncHelper.customUniqueInteractionData(csvRecord, null));
    }
 
@@ -179,7 +178,7 @@ public final class Main {
                                                          keySerializer(),
                                                          valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
-      dwh = new DWH();
+      notificationDao = new NotificationDao();
       final BackPatchStream backPatchStream = BackPatchStream.create();
       final SyncPatientsStream syncPatientsStream = SyncPatientsStream.create();
       final MatchNotifcationsStream matchNotifcationsStream = MatchNotifcationsStream.create();

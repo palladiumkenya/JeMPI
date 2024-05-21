@@ -20,12 +20,12 @@ import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 
 public class MatchNotifcationsStream {
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
-    private final DWH dwh;
+    private final NdwDao dwh;
     private KafkaStreams matchNotificationDataStream;
 
     MatchNotifcationsStream() {
         LOGGER.info("SyncPatientsStream constructor");
-        dwh = new DWH();
+        dwh = new NdwDao();
     }
 
     static MatchNotifcationsStream create() {

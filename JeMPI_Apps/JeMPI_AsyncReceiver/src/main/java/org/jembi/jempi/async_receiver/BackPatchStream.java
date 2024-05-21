@@ -19,13 +19,12 @@ import java.util.Properties;
 
 class BackPatchStream {
    private static final Logger LOGGER = LogManager.getLogger(BackPatchStream.class);
-   private final DWH dwh;
+   private final NotificationDao notificationDao;
    private KafkaStreams backPatchStreams;
-
 
    BackPatchStream() {
       LOGGER.info("BackPatchStream constructor");
-      dwh = new DWH();
+      notificationDao = new NotificationDao();
    }
 
    static BackPatchStream create() {
@@ -37,9 +36,9 @@ class BackPatchStream {
          final BackPatchDWH rec) {
       LOGGER.debug("{} - {}", key, rec);
       if (rec.dwhId() != null && !rec.dwhId().isEmpty()) {
-         dwh.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId(), rec.phoneticGivenName(), rec.phoneticFamilyName());
+         notificationDao.backPatchKeys(rec.dwhId(), rec.goldenId(), rec.encounterId(), rec.phoneticGivenName(), rec.phoneticFamilyName());
       } else {
-         LOGGER.warn("BackPatch record with no dwhId. goldenId({})", rec.goldenId());
+         LOGGER.error("BackPatch record with no dwhId. goldenId({})", rec.goldenId());
       }
    }
 

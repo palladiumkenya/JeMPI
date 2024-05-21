@@ -29,14 +29,15 @@ import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 class SyncPatientsStream {
 
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
-    private final DWH dwh;
+    private final NdwDao ndwDao;
+    private final NotificationDao notificationDao;
     private KafkaStreams patientSyncStream;
     private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
-
     SyncPatientsStream() {
         LOGGER.info("SyncPatientsStream constructor");
-        dwh = new DWH();
+        ndwDao = new NdwDao();
+        notificationDao = new NotificationDao();
     }
 
     static SyncPatientsStream create() {
@@ -47,43 +48,44 @@ class SyncPatientsStream {
                                           final SyncEvent event) {
         LOGGER.info("Processing event {}, {}, {}", event.event(), key, event.createdAt().toString());
         try {
-            final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
-            final var now = LocalDateTime.now();
-            final var stanDate = dtf.format(now);
-            final var uuid = UUID.randomUUID().toString();
-            int index = 0;
-            sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, "patient-sync",
-                    String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-            List<CustomPatientRecord> patientRecordList = dwh.getPatientList(key, event);
+            List<CustomPatientRecord> patientRecordList = ndwDao.getPatientList(key, event);
             LOGGER.info("Syncing {} patient records", patientRecordList.size());
-
-            for (CustomPatientRecord patient : patientRecordList) {
-                CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
-                        null, patient.pkv(), null);
-                CustomDemographicData demographicData = new CustomDemographicData(null, null,
-                        patient.gender(), patient.dob().toString(),
-                        patient.nupi(), patient.cccNumber(), patient.docket());
-                CustomSourceId sourceId = new CustomSourceId(null, patient.siteCode(), patient.patientPk());
-                LOGGER.info("Persisting record {}", patient);
-                String dwhId = dwh.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
-
-                if (dwhId == null) {
-                    LOGGER.error("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
+            if (!patientRecordList.isEmpty()) {
+                final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
+                final var now = LocalDateTime.now();
+                final var stanDate = dtf.format(now);
+                final var uuid = UUID.randomUUID().toString();
+                int index = 0;
+                sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, "patient-sync",
+                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+                for (CustomPatientRecord patient : patientRecordList) {
+                    CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
+                            null, patient.pkv(), null);
+                    CustomDemographicData demographicData = new CustomDemographicData(null, null,
+                            patient.gender(), patient.dob().toString(),
+                            patient.nupi(), patient.cccNumber(), patient.docket());
+                    CustomSourceId sourceId = new CustomSourceId(null, patient.siteCode(), patient.patientPk());
+                    LOGGER.debug("Persisting record {}", patient);
+                    String dwhId = notificationDao.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
+                    if (dwhId != null) {
+                        uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
+                                null, uniqueInteractionData.pkv(), dwhId);
+                        LOGGER.info("Inserted record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
+                        sendToKafka(UUID.randomUUID().toString(),
+                                new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, "patient-sync",
+                                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                        new Interaction(null,
+                                                sourceId,
+                                                uniqueInteractionData,
+                                                demographicData)));
+                    } else {
+                        LOGGER.error("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
+                    }
                 }
-                uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
-                        null, uniqueInteractionData.pkv(), dwhId);
-                LOGGER.debug("Inserted record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
-                sendToKafka(UUID.randomUUID().toString(),
-                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, "patient-sync",
-                                String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                new Interaction(null,
-                                        sourceId,
-                                        uniqueInteractionData,
-                                        demographicData)));
+                sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, "patient-sync",
+                        String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+                LOGGER.info("Patient sync complete.");
             }
-            sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, "patient-sync",
-                    String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
-            LOGGER.info("Patient list ingestion complete.");
         } catch (InterruptedException | ExecutionException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
