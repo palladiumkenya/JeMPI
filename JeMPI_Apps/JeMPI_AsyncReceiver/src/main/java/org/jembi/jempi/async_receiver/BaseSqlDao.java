@@ -7,15 +7,12 @@
 //import java.sql.DriverManager;
 //import java.sql.SQLException;
 //
-//public abstract class BaseSqlDao {
-//
-//    protected String url;
-//    protected String user;
-//    protected String password;
-//    protected Connection connection;
-//    private static final Logger LOGGER = LogManager.getLogger(NdwDao.class);
-//
-//    abstract void initializeProperties();
+//public class BaseSqlDao {
+//    private String url;
+//    private String user;
+//    private String password;
+//    private Connection connection;
+//    static final Logger LOGGER = LogManager.getLogger(BaseSqlDao.class);
 //
 //    private boolean openConnection() {
 //        try {
@@ -32,5 +29,29 @@
 //            LOGGER.error(e.getLocalizedMessage(), e);
 //        }
 //        return false;
+//    }
+//
+//    public String getUrl() {
+//        return url;
+//    }
+//
+//    public void setUrl(String url) {
+//        this.url = url;
+//    }
+//
+//    public String getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(String user) {
+//        this.user = user;
+//    }
+//
+//    public String getPassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
 //    }
 //}

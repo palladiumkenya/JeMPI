@@ -1,5 +1,7 @@
 package org.jembi.jempi.etl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import scala.Tuple2;
@@ -26,18 +28,18 @@ final class ETLUtil {
         );
     }
 
-    static CustomUniqueInteractionData cleanUniqueInteractionData(final CustomUniqueInteractionData uniqueInteractionData) {
-        return new CustomUniqueInteractionData(
-                uniqueInteractionData.auxDateCreated(),
-                uniqueInteractionData.auxId(),
-                uniqueInteractionData.pkv(),
-                uniqueInteractionData.auxDwhId()
-        );
-    }
+//    static CustomUniqueInteractionData cleanUniqueInteractionData(final CustomUniqueInteractionData uniqueInteractionData) {
+//        return new CustomUniqueInteractionData(
+//                uniqueInteractionData.auxDateCreated(),
+//                uniqueInteractionData.auxId(),
+//                uniqueInteractionData.pkv(),
+//                uniqueInteractionData.auxDwhId()
+//        );
+//    }
 
 
     static Tuple2<String, String> parsePkv(final String pkv) {
-        if (pkv != null) {
+        if (pkv != null && !pkv.isEmpty()) {
             final String regex = "^(?<gender>[M|F])(?<pgn>[A-Z]\\d+)(?<pfn>[A-Z]+)(?<dob>\\d\\d\\d\\d)$";
             final Pattern pattern = Pattern.compile(regex);
             final Matcher matcher = pattern.matcher(pkv);

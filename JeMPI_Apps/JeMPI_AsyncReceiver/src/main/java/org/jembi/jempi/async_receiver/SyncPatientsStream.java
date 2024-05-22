@@ -15,7 +15,6 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 
 class SyncPatientsStream {
-
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
     private final NdwDao ndwDao;
     private final NotificationDao notificationDao;
@@ -86,10 +84,11 @@ class SyncPatientsStream {
                         String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                 LOGGER.info("Patient sync complete.");
             }
-//        } catch (InterruptedException | ExecutionException ex) {
-        } catch (Exception ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage(), ex);
         }
     }
 

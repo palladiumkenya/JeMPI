@@ -4,28 +4,28 @@
       "topicName": "JeMPI-interaction-etl",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 20971520
     },
     "JeMPI-interaction-controller": {
       "topicName": "JeMPI-interaction-controller",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 20971520
     },
     "JeMPI-interaction-processor-controller": {
       "topicName": "JeMPI-interaction-processor-controller",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 4194304
     },
     "JeMPI-interaction-em": {
       "topicName": "JeMPI-interaction-em",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 20971520
     },
     "JeMPI-interaction-linker": {
@@ -39,28 +39,28 @@
       "topicName": "JeMPI-mu-controller",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 4194304
     },
     "JeMPI-mu-linker": {
       "topicName": "JeMPI-mu-linker",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 4194304
     },
     "JeMPI-notifications": {
       "topicName": "JeMPI-notifications",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 4194304
     },
     "JeMPI-audit-trail": {
       "topicName": "JeMPI-audit-trail",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 86400000,
+      "retention_ms": 604800000,
       "segments_bytes": 1048576
     },
     "JeMPI-back-patch-dwh": {
@@ -74,7 +74,7 @@
       "topicName": "JeMPI-sync-patients-dwh",
       "partition": 1,
       "replications": 1,
-      "retention_ms": 600000,
+      "retention_ms": 604800000,
       "segments_bytes": 1048576
     },
     "JeMPI-match-data-dwh": {

@@ -50,27 +50,31 @@ public final class CustomSourceRecordStream {
             Consumed.with(stringSerde,
                   interactionEnvelopSerde));
       sourceKStream
-            .map((key, rec) -> {
-               if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
-                  final var interaction = rec.interaction();
-                  final var demographicData = interaction.demographicData();
-                  final var newEnvelop = new InteractionEnvelop(
-                        rec.contentType(),
-                        rec.tag(),
-                        rec.stan(),
-                        new Interaction(null,
-                              rec.interaction().sourceId(),
-                              ETLUtil.cleanUniqueInteractionData(interaction.uniqueInteractionData()),
-                              ETLUtil.addPhoneticsToDemographicData(demographicData, interaction.uniqueInteractionData()).clean()));
-                  return KeyValue.pair(key, newEnvelop);
-               } else {
-                  return KeyValue.pair(key, rec);
-               }
-            })
+            .map(this::transformEnvelope)
             .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, interactionEnvelopSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
       interactionKafkaStreams.start();
+   }
+
+   private KeyValue<String, InteractionEnvelop> transformEnvelope(final String key, final InteractionEnvelop rec) {
+      if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         try {
+            final var newEnvelop = new InteractionEnvelop(
+                    rec.contentType(),
+                    rec.tag(),
+                    rec.stan(),
+                    new Interaction(null,
+                            rec.interaction().sourceId(),
+                            rec.interaction().uniqueInteractionData(),
+                            ETLUtil.addPhoneticsToDemographicData(rec.interaction().demographicData(), rec.interaction().uniqueInteractionData()).clean()));
+            return KeyValue.pair(key, newEnvelop);
+         } catch (Exception e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            close();
+         }
+      }
+      return KeyValue.pair(key, rec);
    }
 
    public void close() {
