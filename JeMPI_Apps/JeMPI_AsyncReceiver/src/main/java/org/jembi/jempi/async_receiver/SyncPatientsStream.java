@@ -70,7 +70,6 @@ class SyncPatientsStream {
                     if (dwhId != null) {
                         uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
                                 null, uniqueInteractionData.pkv(), dwhId);
-                        LOGGER.info("Inserted record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
                         sendToKafka(UUID.randomUUID().toString(),
                                 new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, "patient-sync",
                                         String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
@@ -78,6 +77,7 @@ class SyncPatientsStream {
                                                 sourceId,
                                                 uniqueInteractionData,
                                                 demographicData)));
+                        LOGGER.info("Inserted & queued record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
                     } else {
                         LOGGER.error("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
                     }
@@ -86,7 +86,8 @@ class SyncPatientsStream {
                         String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                 LOGGER.info("Patient sync complete.");
             }
-        } catch (InterruptedException | ExecutionException ex) {
+//        } catch (InterruptedException | ExecutionException ex) {
+        } catch (Exception ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
             close();
         }
