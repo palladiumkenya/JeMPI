@@ -59,13 +59,13 @@ class SyncPatientsStream {
                 sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, "patient-sync",
                         String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
                 for (CustomPatientRecord patient : patientRecordList) {
+                    LOGGER.debug("Persisting record {}", patient);
                     CustomUniqueInteractionData uniqueInteractionData = new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                             null, patient.pkv(), null);
                     CustomDemographicData demographicData = new CustomDemographicData(null, null,
-                            patient.gender(), patient.dob().toString(),
+                            patient.gender(), patient.dob() == null ? null : patient.dob().toString(),
                             patient.nupi(), patient.cccNumber(), patient.docket());
                     CustomSourceId sourceId = new CustomSourceId(null, patient.siteCode(), patient.patientPk());
-                    LOGGER.debug("Persisting record {}", patient);
                     String dwhId = notificationDao.insertClinicalData(demographicData, sourceId, uniqueInteractionData);
                     if (dwhId != null) {
                         uniqueInteractionData = new CustomUniqueInteractionData(uniqueInteractionData.auxDateCreated(),
