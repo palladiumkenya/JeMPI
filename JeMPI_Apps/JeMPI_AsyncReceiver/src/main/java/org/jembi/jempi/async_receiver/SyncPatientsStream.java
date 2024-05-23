@@ -15,8 +15,6 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,6 +22,8 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 
@@ -33,6 +33,7 @@ class SyncPatientsStream {
     private final NotificationDao notificationDao;
     private KafkaStreams patientSyncStream;
     private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     SyncPatientsStream() {
         LOGGER.info("SyncPatientsStream constructor");
@@ -44,9 +45,7 @@ class SyncPatientsStream {
         return new SyncPatientsStream();
     }
 
-    private void processPatientListResult(final String key,
-                                          final SyncEvent event) {
-        LOGGER.info("Processing event {}, {}, {}", event.event(), key, event.createdAt().toString());
+    private void fetchAndProcessPatientList() {
         try {
             List<CustomPatientRecord> patientRecordList = ndwDao.getPatientList();
             LOGGER.info("Syncing {} patient records", patientRecordList.size());
@@ -93,6 +92,12 @@ class SyncPatientsStream {
             LOGGER.error(ex.getMessage(), ex);
         }
     }
+    private void processPatientListResult(final String key,
+                                          final SyncEvent event) {
+        LOGGER.info("Processing event {}, {}, {}", event.event(), key, event.createdAt().toString());
+        executorService.submit(this::fetchAndProcessPatientList);
+        LOGGER.info("Event submitted.");
+    }
 
     private void sendToKafka(
             final String key,
@@ -117,17 +122,21 @@ class SyncPatientsStream {
 
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
-        final Serde<SyncEvent> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+        final Serde<SyncEvent> patientSyncSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
                 new JsonPojoDeserializer<>(SyncEvent.class));
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
-        final KStream<String, SyncEvent> muStream = streamsBuilder.stream(
+        final KStream<String, SyncEvent> patientSyncKstream = streamsBuilder.stream(
                 GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
-                Consumed.with(stringSerde, muSerde));
-        muStream.foreach(this::processPatientListResult);
+                Consumed.with(stringSerde, patientSyncSerde));
+        patientSyncKstream.foreach(this::processPatientListResult);
+//        patientSyncKstream.foreach((k,v) -> executorService.submit(()-> processPatientListResult(k,v)));
         patientSyncStream = new KafkaStreams(streamsBuilder.build(), props);
         patientSyncStream.cleanUp();
         patientSyncStream.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(patientSyncStream::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+         close();
+         executorService.shutdownNow();
+        }));
         LOGGER.info("Sync Patients KafkaStreams started");
     }
 

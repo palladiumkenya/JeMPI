@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class NdwDao {
-   private static final String SQL_PATIENT_QUERY_NAME = "patient_list.sql";
+   private static final String SQL_PATIENT_QUERY_FILE_NAME = "patient_list.sql";
    private static final String SQL_PATIENT_LIST = "";
    private static final Logger LOGGER = LogManager.getLogger(NdwDao.class);
    private static final String URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
@@ -61,7 +61,7 @@ final class NdwDao {
       }
    }
    private Path getCustomQueryPath() {
-      Path queryPath = Paths.get("/app/sql/"+ SQL_PATIENT_QUERY_NAME);
+      Path queryPath = Paths.get("/app/sql/"+ SQL_PATIENT_QUERY_FILE_NAME);
       if (Files.exists(queryPath)) {
          return queryPath;
       }
@@ -69,7 +69,7 @@ final class NdwDao {
    }
    private Path getDefaultQueryPath() {
       Path path = null;
-      URL url = (NdwDao.class.getClassLoader().getResource(SQL_PATIENT_QUERY_NAME));
+      URL url = NdwDao.class.getClassLoader().getResource(SQL_PATIENT_QUERY_FILE_NAME);
       if (url != null) {
          try {
             path = Paths.get(url.toURI());
