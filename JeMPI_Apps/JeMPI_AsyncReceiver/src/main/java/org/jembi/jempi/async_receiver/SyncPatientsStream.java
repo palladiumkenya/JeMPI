@@ -15,6 +15,8 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -46,7 +48,7 @@ class SyncPatientsStream {
                                           final SyncEvent event) {
         LOGGER.info("Processing event {}, {}, {}", event.event(), key, event.createdAt().toString());
         try {
-            List<CustomPatientRecord> patientRecordList = ndwDao.getPatientList(key, event);
+            List<CustomPatientRecord> patientRecordList = ndwDao.getPatientList();
             LOGGER.info("Syncing {} patient records", patientRecordList.size());
             if (!patientRecordList.isEmpty()) {
                 final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");

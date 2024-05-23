@@ -37,6 +37,7 @@ pushd .
 
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/csv
+  mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/sql
 
   mkdir -p ${DATA_DIR_SYNC_RECEIVER}/conf
   

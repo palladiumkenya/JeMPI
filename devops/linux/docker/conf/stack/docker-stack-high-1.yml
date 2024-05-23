@@ -457,6 +457,10 @@ services:
       source: $DATA_DIR_ASYNC_RECEIVER/conf
       target: /app/conf
       read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/sql
+      target: /app/sql
+      read_only: true
     deploy:
       mode: replicated
       replicas: 1

@@ -10,5 +10,6 @@ RUN printf "#!/bin/bash\n\
 
 RUN chmod +x /entrypoint.sh
 RUN mkdir /app/csv
+RUN mkdir /app/sql
 
 ENTRYPOINT ["/entrypoint.sh"] 
