@@ -77,7 +77,7 @@ class SyncPatientsStream {
                                                 sourceId,
                                                 uniqueInteractionData,
                                                 demographicData)));
-                        LOGGER.info("Inserted & queued record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
+                        LOGGER.debug("Inserted & queued record with dwhId {}, index {}", uniqueInteractionData.auxDwhId(), index);
                     } else {
                         LOGGER.error("Failed to insert record sc({}) pk({})", sourceId.facility(), sourceId.patient());
                     }
