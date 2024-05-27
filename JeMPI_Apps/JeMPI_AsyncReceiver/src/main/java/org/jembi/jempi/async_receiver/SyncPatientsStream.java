@@ -15,6 +15,8 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+
+import java.nio.file.FileSystemNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -129,7 +131,6 @@ class SyncPatientsStream {
                 GlobalConstants.TOPIC_SYNC_PATIENTS_DWH,
                 Consumed.with(stringSerde, patientSyncSerde));
         patientSyncKstream.foreach(this::processPatientListResult);
-//        patientSyncKstream.foreach((k,v) -> executorService.submit(()-> processPatientListResult(k,v)));
         patientSyncStream = new KafkaStreams(streamsBuilder.build(), props);
         patientSyncStream.cleanUp();
         patientSyncStream.start();

@@ -15,26 +15,18 @@ final class ETLUtil {
         Tuple2<String, String> phoneticNames =  parsePkv(uniqueInteractionData.pkv());
         String givenNameSoundex = phoneticNames == null ? "" : phoneticNames._1();
         String familyNameDoubleMetaphone = phoneticNames == null ? "" : phoneticNames._2();
+        String ccNumber = demographicData.getCccNumber() == null || demographicData.getCccNumber().isEmpty() ? "" : demographicData.getCccNumber().replaceAll("([\\\\])", "/");
+
         return new CustomDemographicData(
                 givenNameSoundex,
                 familyNameDoubleMetaphone,
                 demographicData.getGender(),
                 demographicData.getDob(),
                 demographicData.getNupi(),
-                demographicData.getCccNumber().replaceAll("([\\\\])", "/"),
+                ccNumber,
                 demographicData.getDocket()
         );
     }
-
-//    static CustomUniqueInteractionData cleanUniqueInteractionData(final CustomUniqueInteractionData uniqueInteractionData) {
-//        return new CustomUniqueInteractionData(
-//                uniqueInteractionData.auxDateCreated(),
-//                uniqueInteractionData.auxId(),
-//                uniqueInteractionData.pkv(),
-//                uniqueInteractionData.auxDwhId()
-//        );
-//    }
-
 
     static Tuple2<String, String> parsePkv(final String pkv) {
         if (pkv != null && !pkv.isEmpty()) {
