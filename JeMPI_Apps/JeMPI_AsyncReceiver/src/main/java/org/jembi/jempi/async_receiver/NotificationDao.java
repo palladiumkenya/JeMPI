@@ -19,7 +19,7 @@ public final class NotificationDao {
                                             WHERE dwh_id = ?
                                             """;
     private final String SQL_INSERT_MATCHING_NOTIFICATION = """
-           INSERT INTO mpi_matching_notification(interactionDwhId,goldenId,topCandidate)
+           INSERT INTO mpi_matching_notification(interaction_dwh_id,golden_id,top_candidate)
                                             VALUES (?,?,?)
            """;
     private static final Logger LOGGER = LogManager.getLogger(NotificationDao.class);
@@ -114,8 +114,12 @@ public final class NotificationDao {
         if (openConnection()) {
             try (PreparedStatement pStmt = connection.prepareStatement(SQL_INSERT_MATCHING_NOTIFICATION, Statement.RETURN_GENERATED_KEYS)) {
                 String auxDwhId = interaction.uniqueInteractionData().auxDwhId();
+                final PGobject uuid = new PGobject();
+                uuid.setType("uuid");
+                uuid.setValue(auxDwhId);
+
                 if (auxDwhId != null && !auxDwhId.isEmpty()) {
-                    pStmt.setInt(1, Integer.parseInt(auxDwhId));
+                    pStmt.setObject(1, uuid);
                     pStmt.setString(2, goldenRecord.goldenId());
                     pStmt.setBoolean(3, topCandidate);
                     pStmt.executeUpdate();

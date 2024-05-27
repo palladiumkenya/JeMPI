@@ -90,6 +90,13 @@ CREATE TABLE IF NOT EXISTS mpi_matching_output(
     patient_pk_hash varchar(255)
     );
 
+CREATE TABLE IF NOT EXISTS mpi_matching_notification(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+    interaction_dwh_id UUID,
+    golden_id varchar(32),
+    top_candidate BOOLEAN
+    );
+
 INSERT INTO Notification_State(State)
 VALUES ('OPEN'), ('CLOSED');
 

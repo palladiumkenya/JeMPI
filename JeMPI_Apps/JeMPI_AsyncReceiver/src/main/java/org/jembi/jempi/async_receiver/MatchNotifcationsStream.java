@@ -20,12 +20,12 @@ import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 
 public class MatchNotifcationsStream {
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
-    private final NdwDao dwh;
+    private final NotificationDao notificationDao;
     private KafkaStreams matchNotificationDataStream;
 
     MatchNotifcationsStream() {
         LOGGER.info("SyncPatientsStream constructor");
-        dwh = new NdwDao();
+        notificationDao = new NotificationDao();
     }
 
     static MatchNotifcationsStream create() {
@@ -35,8 +35,8 @@ public class MatchNotifcationsStream {
     private void processMatchNotifications(final String key,
                                           final MatchCandidatesData matchCandidatesData) {
         LOGGER.info("Processing candidates for interaction dwh: {}", key);
-//        matchCandidatesData.candidates().forEach(candidate -> dwh.insertMatchingNotifications(candidate, matchCandidatesData.interaction(),
-//                matchCandidatesData.topCandidateGoldenId().equals(candidate.goldenId())));
+        matchCandidatesData.candidates().forEach(candidate -> notificationDao.insertMatchingNotifications(candidate, matchCandidatesData.interaction(),
+                matchCandidatesData.topCandidateGoldenId().equals(candidate.goldenId())));
     }
 
     void open() {
