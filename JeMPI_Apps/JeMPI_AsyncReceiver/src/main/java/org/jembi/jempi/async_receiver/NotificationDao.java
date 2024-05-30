@@ -22,6 +22,10 @@ public final class NotificationDao {
            INSERT INTO mpi_matching_notification(interaction_dwh_id,golden_id,top_candidate)
                                             VALUES (?,?,?)
            """;
+    private final String SQL_INSERT_MATCHING_VALIDATION = """
+            INSERT INTO mpi_failed_validation(interaction_dwh_id)
+            VALUES(?)
+            """;
     private static final Logger LOGGER = LogManager.getLogger(NotificationDao.class);
     private static final String URL = "jdbc:postgresql://postgresql:5432/notifications_db";
     private static final String USER = AppConfig.POSTGRES_USER;
@@ -129,6 +133,20 @@ public final class NotificationDao {
             }
         } else {
             LOGGER.error("Unable to create DWH database connection");
+        }
+    }
+
+    void insertValidationNotification(String dwhId) {
+        if (openConnection()) {
+            try (PreparedStatement pStmt = connection.prepareStatement(SQL_INSERT_MATCHING_VALIDATION)) {
+                final PGobject uuid = new PGobject();
+                uuid.setType("uuid");
+                uuid.setValue(dwhId);
+                pStmt.setObject(1, uuid);
+                pStmt.executeUpdate();
+            } catch (SQLException e){
+                LOGGER.error(e.getLocalizedMessage(), e);
+            }
         }
     }
 }

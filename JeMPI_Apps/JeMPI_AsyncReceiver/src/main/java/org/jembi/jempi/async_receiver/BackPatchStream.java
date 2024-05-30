@@ -56,11 +56,11 @@ class BackPatchStream {
       backPatchStreams.cleanUp();
       backPatchStreams.start();
       Runtime.getRuntime().addShutdownHook(new Thread(backPatchStreams::close));
-      LOGGER.info("KafkaStreams started");
+      LOGGER.info("Backpatch KafkaStreams started");
    }
 
    void close() {
-      LOGGER.warn("Stream closed");
+      LOGGER.warn("Backpatch Stream closed");
       backPatchStreams.close();
    }
 
