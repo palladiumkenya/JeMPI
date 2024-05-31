@@ -86,8 +86,7 @@ CREATE TABLE IF NOT EXISTS mpi_matching_output(
     ccc_number varchar(150),
     site_code varchar(32),
     docket varchar(32),
-    patient_pk varchar(32),
-    patient_pk_hash varchar(255)
+    patient_pk varchar(32)
     );
 
 CREATE TABLE IF NOT EXISTS mpi_matching_notification(
@@ -95,6 +94,11 @@ CREATE TABLE IF NOT EXISTS mpi_matching_notification(
     interaction_dwh_id UUID,
     golden_id varchar(32),
     top_candidate BOOLEAN
+    );
+
+CREATE TABLE IF NOT EXISTS mpi_failed_validation(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
+    interaction_dwh_id UUID
     );
 
 INSERT INTO Notification_State(State)

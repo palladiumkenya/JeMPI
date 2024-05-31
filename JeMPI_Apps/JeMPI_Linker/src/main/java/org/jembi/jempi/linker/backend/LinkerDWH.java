@@ -31,6 +31,7 @@ public final class LinkerDWH {
 
    private static MyKafkaProducer<String, LinkStatsMeta> linkStatsMetaProducer = null;
    private static MyKafkaProducer<String, MatchCandidatesData> matchCandidatesProducer = null;
+   private static MyKafkaProducer<String, Interaction> failedValidationsProducer = null;
 
    private LinkerDWH() {
    }
@@ -279,6 +280,22 @@ public final class LinkerDWH {
                                                                                    linkToGoldenId,
                                                                                    validated1,
                                                                                    validated2);
+                  // Produce message if link validation failed
+                  if (!validated1 || validated2 >= matchThreshold) {
+                     LOGGER.debug("matchThreshold: {}", matchThreshold);
+                     failedValidationsProducer =  new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                             GlobalConstants.TOPIC_VALIDATION_DATA_DWH,
+                             stringSerializer(),
+                             failedValidationDataSerializer(),
+                             "LinkerDWH-VALIDATION");
+                     LOGGER.debug("Validation failed on deterministic {}, probabilistic {}", validated1, validated2);
+                     try {
+                        failedValidationsProducer.produceSync(interaction.uniqueInteractionData().auxDwhId(), interaction);
+                        LOGGER.info("Validation of interaction {} failed: {}", interaction.uniqueInteractionData().auxDwhId(), linkInfo);
+                     } catch (ExecutionException | InterruptedException e) {
+                        LOGGER.error(e.getLocalizedMessage(), e);
+                     }
+                  }
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                      sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
@@ -358,15 +375,12 @@ public final class LinkerDWH {
    private static Serializer<MatchCandidatesData> matchCandidatesDataSerializer() {
       return new JsonPojoSerializer<>();
    }
+   private static Serializer<Interaction> failedValidationDataSerializer() {
+      return new JsonPojoSerializer<>();
+   }
    public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score) {
    }
-
-//   public record MatchCandidatesData(
-//           Interaction interaction,
-//           String topCandidateGoldenId,
-//           List<GoldenRecord> candidates
-//   ){}
 
 }

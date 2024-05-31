@@ -181,10 +181,12 @@ public final class Main {
       notificationDao = new NotificationDao();
       final BackPatchStream backPatchStream = BackPatchStream.create();
       final SyncPatientsStream syncPatientsStream = SyncPatientsStream.create();
-      final MatchNotifcationsStream matchNotifcationsStream = MatchNotifcationsStream.create();
+      final MatchNotificationsStream matchNotificationsStream = MatchNotificationsStream.create();
+      final ValidationNotificationStream validationNotificationStream = ValidationNotificationStream.create();
       backPatchStream.open();
       syncPatientsStream.open();
-      matchNotifcationsStream.open();
+      matchNotificationsStream.open();
+      validationNotificationStream.open();
 
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");

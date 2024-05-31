@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -22,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
 import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_INTERACTION;
 
 public final class SPInteractions {
@@ -74,9 +72,9 @@ public final class SPInteractions {
             streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
       interactionStream.foreach((key, interactionEnvelop) -> {
          linkPatient(system, backEnd, key, interactionEnvelop);
-         if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-            this.close();
-         }
+//         if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+//            this.close();
+//         }
       });
       interactionEnvelopKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionEnvelopKafkaStreams.cleanUp();

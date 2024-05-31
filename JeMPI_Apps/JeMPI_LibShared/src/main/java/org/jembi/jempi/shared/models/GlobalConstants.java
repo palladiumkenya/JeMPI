@@ -14,6 +14,7 @@ public final class GlobalConstants {
    public static final String TOPIC_BACK_PATCH_DWH = "JeMPI-back-patch-dwh";
    public static final String TOPIC_SYNC_PATIENTS_DWH = "JeMPI-sync-patients-dwh";
    public static final String TOPIC_MATCH_DATA_DWH = "JeMPI-match-data-dwh";
+   public static final String TOPIC_VALIDATION_DATA_DWH = "JeMPI-failed-validation-data-dwh";
 
 
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
