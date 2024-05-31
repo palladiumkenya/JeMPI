@@ -19,165 +19,124 @@ import java.util.List;
 final class NdwDao {
    private static final String SQL_PATIENT_QUERY_FILE_NAME = "patient_list.sql";
    private static final String SQL_PATIENT_LIST = """
-           with
-               ct_patient_source
-               as
-               (
-                   select
-                       distinct
-                       patients.PatientID as CCCNumber,
-                       patients.PatientPK,
-                       patients.SiteCode,
-                       case
-           			when Gender = 'F' then 'Female'
-           			when Gender = 'M' then 'Male'
-           			when Gender = '' then NULL
-           			else Gender
-           			end as Gender,
-                       cast(DOB as date) as DOB,
-                       case
-           			when NUPI = '' then NULL
-           			else  NUPI
-           			end as NUPI,
-                       Pkv,
-                       'C&T' as Docket
-                   from
-                       ODS.dbo.CT_Patient as patients
-               )
-                     \s
-               ,
-               hts_patient_source
-               as
-               (
-                   select
-                       distinct
-                       PatientPK,
-                       SiteCode,
-                       case
-           			when Gender = 'F' then 'Female'
-           			when Gender = 'M' then 'Male'
-           			when Gender = '' then NULL
-           			else Gender
-           			end as Gender,
-                       cast(DOB as date) as DOB,
-                       case
-           			when NUPI = '' then NULL
-           			else  NUPI
-           			end as NUPI,
-                       PKV,
-                       'HTS' as Docket
-                   from ODS.dbo.HTS_clients as clients
-               )
-                     \s
-               ,
-               prep_patient_source
-               as
-               (
-                   select
-                       distinct
-                       PatientPk,
-                       PrepNumber,
-                       SiteCode,
-                       Sex AS Gender,
-                       cast(DateofBirth as date) as DOB,
-                       'PrEP' as Docket
-                   from ODS.dbo.PrEP_Patient
-               )
-                     \s
-              ,
-               mnch_patient_source
-               as
-               (
-                   select
-                       distinct
-                       PatientPk,
-                       SiteCode,
-                       Gender,
-                       cast(DOB as date) as DOB,
-                       case
-           		when NUPI = '' then NULL
-           		else  NUPI
-           		end as NUPI,
-                       Pkv,
-                       'MNCH' as Docket
-                   from ODS.dbo.MNCH_Patient
-               )
-                     \s
-           	,
-               combined_data_ct_hts
-               as
-               (
-                   select
-                       coalesce(ct_patient_source.PatientPK, hts_patient_source.PatientPK) as PatientPK,
-                       coalesce(ct_patient_source.SiteCode, hts_patient_source.SiteCode) as SiteCode,
-                       ct_patient_source.CCCNumber,
-                       coalesce(ct_patient_source.NUPI, hts_patient_source.NUPI) as NUPI,
-                       coalesce(ct_patient_source.DOB, hts_patient_source.DOB) as DOB,
-                       coalesce(ct_patient_source.Gender, hts_patient_source.Gender) as Gender,
-                       coalesce(ct_patient_source.PKV, hts_patient_source.PKV) as PKV,
-                       iif(ct_patient_source.Docket is not null and hts_patient_source.Docket is not null,
-           	CONCAT_WS('|', ct_patient_source.Docket, hts_patient_source.Docket),
-           	coalesce(ct_patient_source.Docket, hts_patient_source.Docket)) as Docket
-                   from ct_patient_source full join hts_patient_source on  hts_patient_source.PatientPK = ct_patient_source.PatientPK
-                           and ct_patient_source.SiteCode = hts_patient_source.SiteCode
-               ),
-                     \s
-               combined_data_ct_hts_prep
-               as
-               (
-                   select
-                       coalesce(combined_data_ct_hts.PatientPK, prep_patient_source.PatientPK) as PatientPK,
-                       coalesce(combined_data_ct_hts.SiteCode, prep_patient_source.SiteCode) as SiteCode,
-                       combined_data_ct_hts.CCCNumber,
-                       combined_data_ct_hts.NUPI as NUPI,
-                       coalesce(combined_data_ct_hts.DOB, prep_patient_source.DOB) as DOB,
-                       coalesce(combined_data_ct_hts.Gender, prep_patient_source.Gender) as Gender,
-                       combined_data_ct_hts.PKV,
-                       iif(combined_data_ct_hts.Docket is not null and prep_patient_source.Docket is not null,
-           	CONCAT_WS('|', combined_data_ct_hts.Docket, prep_patient_source.Docket),
-           	coalesce(combined_data_ct_hts.Docket, prep_patient_source.Docket)) as Docket
-                   from combined_data_ct_hts
-                       full join prep_patient_source on combined_data_ct_hts.PatientPK = prep_patient_source.PatientPK
-                           and prep_patient_source.SiteCode = combined_data_ct_hts.SiteCode
-               ),
-                     \s
-               combined_data_ct_hts_prep_mnch
-               as
-               (
-                   select
-                       coalesce(combined_data_ct_hts_prep.PatientPK, mnch_patient_source.PatientPK) as PatientPK,
-                       coalesce(combined_data_ct_hts_prep.SiteCode, mnch_patient_source.SiteCode) as SiteCode,
-                       combined_data_ct_hts_prep.CCCNumber,
-                       coalesce(combined_data_ct_hts_prep.NUPI, mnch_patient_source.NUPI) as NUPI,
-                       coalesce(combined_data_ct_hts_prep.DOB, mnch_patient_source.DOB) as DOB,
-                       coalesce(combined_data_ct_hts_prep.Gender, mnch_patient_source.Gender) as Gender,
-                       coalesce(combined_data_ct_hts_prep.PKV, mnch_patient_source.PKV) as PKV,
-                       iif(combined_data_ct_hts_prep.Docket is not null and mnch_patient_source.Docket is not null,
-           	CONCAT_WS('|', combined_data_ct_hts_prep.Docket, mnch_patient_source.Docket),
-           	coalesce(combined_data_ct_hts_prep.Docket, mnch_patient_source.Docket)) as Docket
-                   from combined_data_ct_hts_prep full join mnch_patient_source on combined_data_ct_hts_prep.PatientPK = mnch_patient_source.PatientPk
-                           and combined_data_ct_hts_prep.SiteCode = mnch_patient_source.SiteCode
-               )
-             ,
-               verified_list
-               as
-               (
-                   select PKV, Gender, DOB, NUPI, SiteCode, PatientPK, CCCNumber, docket
-                   from combined_data_ct_hts_prep_mnch
-                   WHERE NUPI IS NOT NULL
-               )
-                     \s
-           ,
-               new_patient_list
-               as
-               (
-                   select vl.*
-                   from verified_list vl
-                       left join ODS.dbo.MPI_MatchingOutput cl on cl.patient_pk = vl.PatientPK and cl.site_code = vl.SiteCode
-                   where cl.patient_pk is null
-               )
-           select *
-           from new_patient_list           
+           WITH ct_patient_source AS
+           (
+                           SELECT DISTINCT patients.patientid AS cccnumber,
+                                           patients.patientpk,
+                                           patients.sitecode,
+                                           CASE
+                                                           WHEN gender = 'F' THEN 'Female'
+                                                           WHEN gender = 'M' THEN 'Male'
+                                                           WHEN gender = '' THEN NULL
+                                                           ELSE gender
+                                           END               AS gender,
+                                           Cast(dob AS DATE) AS dob,
+                                           CASE
+                                                           WHEN nupi = '' THEN NULL
+                                                           ELSE nupi
+                                           END AS nupi,
+                                           pkv,
+                                           'C&T'              AS docket
+                           FROM            ods.dbo.ct_patient AS patients ) s , hts_patient_source AS
+           (
+                           SELECT DISTINCT patientpk,
+                                           sitecode,
+                                           CASE
+                                                           WHEN gender = 'F' THEN 'Female'
+                                                           WHEN gender = 'M' THEN 'Male'
+                                                           WHEN gender = '' THEN NULL
+                                                           ELSE gender
+                                           END               AS gender,
+                                           cast(dob AS date) AS dob,
+                                           CASE
+                                                           WHEN nupi = '' THEN NULL
+                                                           ELSE nupi
+                                           END AS nupi,
+                                           pkv,
+                                           'HTS'               AS docket
+                           FROM            ods.dbo.hts_clients AS clients ) s , prep_patient_source AS
+           (
+                           SELECT DISTINCT patientpk,
+                                           prepnumber,
+                                           sitecode,
+                                           sex                       AS gender,
+                                           cast(dateofbirth AS date) AS dob,
+                                           'PrEP'                    AS docket
+                           FROM            ods.dbo.prep_patient ) s , mnch_patient_source AS
+           (
+                           SELECT DISTINCT patientpk,
+                                           sitecode,
+                                           gender,
+                                           cast(dob AS date) AS dob,
+                                           CASE
+                                                           WHEN nupi = '' THEN NULL
+                                                           ELSE nupi
+                                           END AS nupi,
+                                           pkv,
+                                           'MNCH' AS docket
+                           FROM            ods.dbo.mnch_patient ) s , combined_data_ct_hts AS
+           (
+                     SELECT    COALESCE(ct_patient_source.patientpk, hts_patient_source.patientpk) AS patientpk,
+                               COALESCE(ct_patient_source.sitecode, hts_patient_source.sitecode)   AS sitecode,
+                               ct_patient_source.cccnumber,
+                               COALESCE(ct_patient_source.nupi, hts_patient_source.nupi)     AS nupi,
+                               COALESCE(ct_patient_source.dob, hts_patient_source.dob)       AS dob,
+                               COALESCE(ct_patient_source.gender, hts_patient_source.gender) AS gender,
+                               COALESCE(ct_patient_source.pkv, hts_patient_source.pkv)       AS pkv,
+                               iif(ct_patient_source.docket IS NOT NULL
+                     AND       hts_patient_source.docket IS NOT NULL, concat_ws('|', ct_patient_source.docket, hts_patient_source.docket), COALESCE(ct_patient_source.docket, hts_patient_source.docket)) AS docket
+                     FROM      ct_patient_source
+                     FULL JOIN hts_patient_source
+                     ON        hts_patient_source.patientpk = ct_patient_source.patientpk
+                     AND       ct_patient_source.sitecode = hts_patient_source.sitecode ), s combined_data_ct_hts_prep AS
+           (
+                     SELECT    COALESCE(combined_data_ct_hts.patientpk, prep_patient_source.patientpk) AS patientpk,
+                               COALESCE(combined_data_ct_hts.sitecode, prep_patient_source.sitecode)   AS sitecode,
+                               combined_data_ct_hts.cccnumber,
+                               combined_data_ct_hts.nupi                                         AS nupi,
+                               COALESCE(combined_data_ct_hts.dob, prep_patient_source.dob)       AS dob,
+                               COALESCE(combined_data_ct_hts.gender, prep_patient_source.gender) AS gender,
+                               combined_data_ct_hts.pkv,
+                               iif(combined_data_ct_hts.docket IS NOT NULL
+                     AND       prep_patient_source.docket IS NOT NULL, concat_ws('|', combined_data_ct_hts.docket, prep_patient_source.docket), COALESCE(combined_data_ct_hts.docket, prep_patient_source.docket)) AS docket
+                     FROM      combined_data_ct_hts
+                     FULL JOIN prep_patient_source
+                     ON        combined_data_ct_hts.patientpk = prep_patient_source.patientpk
+                     AND       prep_patient_source.sitecode = combined_data_ct_hts.sitecode ), s combined_data_ct_hts_prep_mnch AS
+           (
+                     SELECT    COALESCE(combined_data_ct_hts_prep.patientpk, mnch_patient_source.patientpk) AS patientpk,
+                               COALESCE(combined_data_ct_hts_prep.sitecode, mnch_patient_source.sitecode)   AS sitecode,
+                               combined_data_ct_hts_prep.cccnumber,
+                               COALESCE(combined_data_ct_hts_prep.nupi, mnch_patient_source.nupi)     AS nupi,
+                               COALESCE(combined_data_ct_hts_prep.dob, mnch_patient_source.dob)       AS dob,
+                               COALESCE(combined_data_ct_hts_prep.gender, mnch_patient_source.gender) AS gender,
+                               COALESCE(combined_data_ct_hts_prep.pkv, mnch_patient_source.pkv)       AS pkv,
+                               iif(combined_data_ct_hts_prep.docket IS NOT NULL
+                     AND       mnch_patient_source.docket IS NOT NULL, concat_ws('|', combined_data_ct_hts_prep.docket, mnch_patient_source.docket), COALESCE(combined_data_ct_hts_prep.docket, mnch_patient_source.docket)) AS docket
+                     FROM      combined_data_ct_hts_prep
+                     FULL JOIN mnch_patient_source
+                     ON        combined_data_ct_hts_prep.patientpk = mnch_patient_source.patientpk
+                     AND       combined_data_ct_hts_prep.sitecode = mnch_patient_source.sitecode ) , verified_list AS
+           (
+                  SELECT pkv,
+                         gender,
+                         dob,
+                         nupi,
+                         sitecode,
+                         patientpk,
+                         cccnumber,
+                         docket
+                  FROM   combined_data_ct_hts_prep_mnch
+                  WHERE  nupi IS NOT NULL ) s , new_patient_list AS
+           (
+                     SELECT    vl.*
+                     FROM      verified_list vl
+                     LEFT JOIN ods.dbo.mpi_matchingoutput cl
+                     ON        cl.patient_pk = vl.patientpk
+                     AND       cl.site_code = vl.sitecode
+                     WHERE     cl.patient_pk IS NULL )
+           SELECT *
+           FROM   new_patient_list
            """;
    private static final Logger LOGGER = LogManager.getLogger(NdwDao.class);
    private static final String URL = String.format("jdbc:sqlserver://%s;encrypt=false;databaseName=%s", AppConfig.MSSQL_HOST, AppConfig.MSSQL_DATABASE);
@@ -223,7 +182,7 @@ final class NdwDao {
       }
    }
    private Path getCustomQueryPath() {
-      Path queryPath = Paths.get("/app/sql/"+ SQL_PATIENT_QUERY_FILE_NAME);
+      Path queryPath = Paths.get("/app/sql/" + SQL_PATIENT_QUERY_FILE_NAME);
       if (Files.exists(queryPath)) {
          return queryPath;
       }

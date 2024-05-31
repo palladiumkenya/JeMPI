@@ -17,7 +17,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public class ValidationNotificationStream {
+class ValidationNotificationStream {
     private static final Logger LOGGER = LogManager.getLogger(ValidationNotificationStream.class);
     private final NotificationDao notificationDao;
     private KafkaStreams validationStream;

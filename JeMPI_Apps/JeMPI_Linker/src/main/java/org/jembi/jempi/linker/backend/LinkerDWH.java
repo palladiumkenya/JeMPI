@@ -281,14 +281,14 @@ public final class LinkerDWH {
                                                                                    validated1,
                                                                                    validated2);
                   // Produce message if link validation failed
-                  if (!validated1 || validated2 < matchThreshold) {
+                  if (!validated1 || validated2 >= matchThreshold) {
+                     LOGGER.debug("matchThreshold: {}", matchThreshold);
                      failedValidationsProducer =  new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              GlobalConstants.TOPIC_VALIDATION_DATA_DWH,
                              stringSerializer(),
                              failedValidationDataSerializer(),
                              "LinkerDWH-VALIDATION");
-                     LOGGER.debug("Validation failed. Interaction demographics: {} , Golden record demographics: {}",
-                             interaction.demographicData(), firstCandidate.goldenRecord.demographicData());
+                     LOGGER.debug("Validation failed on deterministic {}, probabilistic {}", validated1, validated2);
                      try {
                         failedValidationsProducer.produceSync(interaction.uniqueInteractionData().auxDwhId(), interaction);
                         LOGGER.info("Validation of interaction {} failed: {}", interaction.uniqueInteractionData().auxDwhId(), linkInfo);

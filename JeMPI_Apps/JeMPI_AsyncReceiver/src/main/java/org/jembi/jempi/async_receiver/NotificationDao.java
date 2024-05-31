@@ -18,14 +18,14 @@ public final class NotificationDao {
                                             SET golden_id = ?, encounter_id = ?, phonetic_given_name = ?, phonetic_family_name = ?
                                             WHERE dwh_id = ?
                                             """;
-    private final String SQL_INSERT_MATCHING_NOTIFICATION = """
-           INSERT INTO mpi_matching_notification(interaction_dwh_id,golden_id,top_candidate)
-                                            VALUES (?,?,?)
-           """;
-    private final String SQL_INSERT_MATCHING_VALIDATION = """
-            INSERT INTO mpi_failed_validation(interaction_dwh_id)
-            VALUES(?)
-            """;
+    private static final String SQL_INSERT_MATCHING_NOTIFICATION = """
+                                                            INSERT INTO mpi_matching_notification(interaction_dwh_id,golden_id,top_candidate)
+                                                            VALUES (?,?,?)
+                                                            """;
+    private static final String SQL_INSERT_MATCHING_VALIDATION = """
+                                                         INSERT INTO mpi_failed_validation(interaction_dwh_id)
+                                                         VALUES(?)
+                                                         """;
     private static final Logger LOGGER = LogManager.getLogger(NotificationDao.class);
     private static final String URL = "jdbc:postgresql://postgresql:5432/notifications_db";
     private static final String USER = AppConfig.POSTGRES_USER;
@@ -114,7 +114,7 @@ public final class NotificationDao {
         }
     }
 
-    void insertMatchingNotifications(GoldenRecord goldenRecord, Interaction interaction, Boolean topCandidate) {
+    void insertMatchingNotifications(final GoldenRecord goldenRecord, final Interaction interaction, final Boolean topCandidate) {
         if (openConnection()) {
             try (PreparedStatement pStmt = connection.prepareStatement(SQL_INSERT_MATCHING_NOTIFICATION, Statement.RETURN_GENERATED_KEYS)) {
                 String auxDwhId = interaction.uniqueInteractionData().auxDwhId();
@@ -136,7 +136,7 @@ public final class NotificationDao {
         }
     }
 
-    void insertValidationNotification(String dwhId) {
+    void insertValidationNotification(final String dwhId) {
         if (openConnection()) {
             try (PreparedStatement pStmt = connection.prepareStatement(SQL_INSERT_MATCHING_VALIDATION)) {
                 final PGobject uuid = new PGobject();
@@ -144,7 +144,7 @@ public final class NotificationDao {
                 uuid.setValue(dwhId);
                 pStmt.setObject(1, uuid);
                 pStmt.executeUpdate();
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 LOGGER.error(e.getLocalizedMessage(), e);
             }
         }

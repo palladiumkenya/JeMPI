@@ -18,18 +18,18 @@ import java.util.Properties;
 
 import static org.jembi.jempi.AppConfig.KAFKA_CLIENT_ID;
 
-public class MatchNotifcationsStream {
+class MatchNotificationsStream {
     private static final Logger LOGGER = LogManager.getLogger(SyncPatientsStream.class);
     private final NotificationDao notificationDao;
     private KafkaStreams matchNotificationDataStream;
 
-    MatchNotifcationsStream() {
+    MatchNotificationsStream() {
         LOGGER.info("SyncPatientsStream constructor");
         notificationDao = new NotificationDao();
     }
 
-    static MatchNotifcationsStream create() {
-        return new MatchNotifcationsStream();
+    static MatchNotificationsStream create() {
+        return new MatchNotificationsStream();
     }
 
     private void processMatchNotifications(final String key,
@@ -46,12 +46,12 @@ public class MatchNotifcationsStream {
 
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
-        final Serde<MatchCandidatesData> MatchNotificationserde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+        final Serde<MatchCandidatesData> matchNotificationserde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
                 new JsonPojoDeserializer<>(MatchCandidatesData.class));
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
         final KStream<String, MatchCandidatesData> muStream = streamsBuilder.stream(
                 GlobalConstants.TOPIC_MATCH_DATA_DWH,
-                Consumed.with(stringSerde, MatchNotificationserde));
+                Consumed.with(stringSerde, matchNotificationserde));
         muStream.foreach(this::processMatchNotifications);
         matchNotificationDataStream = new KafkaStreams(streamsBuilder.build(), props);
         matchNotificationDataStream.cleanUp();

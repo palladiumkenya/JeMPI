@@ -16,7 +16,6 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.nio.file.FileSystemNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -134,7 +133,7 @@ class SyncPatientsStream {
         patientSyncStream = new KafkaStreams(streamsBuilder.build(), props);
         patientSyncStream.cleanUp();
         patientSyncStream.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
          close();
          executorService.shutdownNow();
         }));
