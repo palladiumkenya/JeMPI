@@ -341,7 +341,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,50;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -374,7 +374,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,50;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
 
 #  alpha-03:
 #    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
