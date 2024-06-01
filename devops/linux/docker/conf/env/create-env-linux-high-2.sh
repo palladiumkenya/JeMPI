@@ -14,7 +14,9 @@ source ./cluster-ip.sh
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
+export SCALE_ZERO_02=1
 export SCALE_ALPHA_01=1
+export SCALE_ALPHA_02=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
 export SCALE_LINKER=2
