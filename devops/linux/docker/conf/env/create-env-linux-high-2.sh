@@ -17,7 +17,7 @@ export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
-export SCALE_LINKER=1
+export SCALE_LINKER=2
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
@@ -33,8 +33,8 @@ export MSSQL_HOST="172.17.0.1"
 export MSSQL_DATABASE="notifications"
 
 export KAFKA_SERVERS="kafka-01:9092"
-export DGRAPH_HOSTS="alpha-01"
-export DGRAPH_PORTS="9080"
+export DGRAPH_HOSTS="alpha-01,alpha-02"
+export DGRAPH_PORTS="9080,9081"
 
 # Ports
 export API_HTTP_PORT=50000

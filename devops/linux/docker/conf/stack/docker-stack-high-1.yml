@@ -244,39 +244,39 @@ services:
         - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
     command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
-#  zero-02:
-#    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-#    hostname: "zero-02"
-#    networks:
-#    - backend
-#    ports:
-#    - published: 5081
-#      target: 5080
-#      protocol: tcp
-#      mode: host
-#    - published: 6081
-#      target: 6080
-#      protocol: tcp
-#      mode: host
-#    volumes:
-#    - type: bind
-#      source: ${DATA_DGRAPH_ZERO_02_DIR}
-#      target: /dgraph
-#    deploy:
-#      replicas:  ${SCALE_ZERO_02}
+  zero-02:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "zero-02"
+    networks:
+    - backend
+    ports:
+    - published: 5081
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6081
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ZERO_02_DIR}
+      target: /dgraph
+    deploy:
+      replicas:  ${SCALE_ZERO_02}
 #      resources:
 #        limits:
 #          memory: ${DGRAPH_RAM_LIMIT}
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      restart_policy:
-#        condition: on-failure
-#      placement:
-#        constraints:
-#        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
-#    command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
-#
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+    command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
+
 #  zero-03:
 #    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
 #    hostname: "zero-03"
@@ -341,41 +341,41 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,50;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
-#  alpha-02:
-#    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-#    hostname: "alpha-02"
-#    networks:
-#    - backend
-#    volumes:
-#    - type: bind
-#      source: ${DATA_DGRAPH_ALPHA_02_DIR}
-#      target: /dgraph
-#    ports:
-#    - published: 8082
-#      target: 8081
-#      protocol: tcp
-#      mode: host
-#    - published: 9081
-#      target: 9081
-#      protocol: tcp
-#      mode: host
-#    deploy:
-#      replicas: ${SCALE_ALPHA_02}
+  alpha-02:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "alpha-02"
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ALPHA_02_DIR}
+      target: /dgraph
+    ports:
+    - published: 8082
+      target: 8081
+      protocol: tcp
+      mode: host
+    - published: 9081
+      target: 9081
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: ${SCALE_ALPHA_02}
 #      resources:
 #        limits:
 #          memory: ${DGRAPH_RAM_LIMIT}
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      restart_policy:
-#        condition: on-failure
-#      placement:
-#        constraints:
-#        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-#    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
-#
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,50;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
+
 #  alpha-03:
 #    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
 #    hostname: "alpha-03"
